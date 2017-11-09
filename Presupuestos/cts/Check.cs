@@ -168,7 +168,7 @@ namespace Presupuestos.cts
             byte thirdMonth = (byte)DateTime.Now.AddMonths(2).Month;
             foreach (var item in Entregas)
             {
-                if (_db.DetailPipelineEntregas.Where(p => p.Presupuestos.Equals(item.Presupuesto) && p.IdDoc == document).Any())
+                if (_db.DetailPipelineEntregas.Where(p => p.Presupuestos.Equals(item.Presupuesto) && p.IdDoc == document && p.IdLine == item.idLinea).Any())
                 {
                     Entregas[Entregas.FindIndex(c => c.Presupuesto == item.Presupuesto && c.idLinea == item.idLinea)].Month = 
                         (from s in _db.DetailPipelineEntregas.Where(x => x.Presupuestos.Equals(item.Presupuesto) && x.IdDoc == document
@@ -269,26 +269,42 @@ namespace Presupuestos.cts
             {
                 lineNumber++;
                 insertToPipeLine(item, lineNumber, lastDocument);
-                if (_db.DetailPipelineEntregas.Where(p => p.Presupuestos == item.Presupuesto
-                    && p.IdDoc == lastDocument).Any())
+
+                if (item.Presupuesto == "24204P")
                 {
-                    List<DetailPipelineEntregas> existingBudgets = _db.DetailPipelineEntregas.Where(p => p.Presupuestos == item.Presupuesto
-                    && p.IdDoc == lastDocument).ToList();
-                    foreach (var Month in existingBudgets)
+                    Console.WriteLine();
+                    var a = _db.DetailPipeline.Where(p => p.IdDoc == lastDocument &&
+                            p.Presupuesto == item.Presupuesto && p.Sustrato == item.Sustrato && p.ItemCodeSustrato == item.ItemCodeSustrato).Any();
+                }
+                //Sacar toda esta logica a otro  metodo para asi que sea codigo mas legible y respetar el Principio de Responsabilidad unica
+                if (_db.DetailPipeline.Where(p => p.IdDoc == lastDocument &&
+                           p.Presupuesto == item.Presupuesto && p.Sustrato == item.Sustrato && p.ItemCodeSustrato == item.ItemCodeSustrato).Any())
+                {
+                    int idLine = (int)_db.DetailPipeline.Where(p => p.IdDoc == lastDocument &&
+                           p.Presupuesto == item.Presupuesto && p.Sustrato == item.Sustrato && p.ItemCodeSustrato == item.ItemCodeSustrato).
+                           Select(s => s.IdLinea).FirstOrDefault();
+                    if (_db.DetailPipelineEntregas.Where(p => p.Presupuestos == item.Presupuesto
+                    && p.IdDoc == lastDocument && p.IdLine == idLine).Any())
                     {
-                        DetailPipelineEntregas month = new DetailPipelineEntregas();
-                        month.IdDoc = lastDocument + 1;
-                        month.IdLine = Month.IdLine;
-                        month.Mes = Month.Mes;
-                        month.Año = Month.Año;
-                        month.Cantidad = Month.Cantidad;
-                        month.CantidadKilos = (decimal)calculateKG(item, Month.Cantidad.ToString());
-                        month.CantidadMedida = (decimal)calculateSheet(item, Month.CantidadMedida.ToString());
-                        month.Presupuestos = item.Presupuesto;
-                        _db.Entry(month).State = EntityState.Added;
-                        //_db.SaveChanges();
-                    } // End foreach
-                } // End if
+                        List<DetailPipelineEntregas> existingBudgets = _db.DetailPipelineEntregas.Where(p => p.Presupuestos == item.Presupuesto
+                        && p.IdDoc == lastDocument && p.IdLine == idLine).ToList();
+                        foreach (var Month in existingBudgets)
+                        {
+                            DetailPipelineEntregas month = new DetailPipelineEntregas();
+                            month.IdDoc = lastDocument + 1;
+                            month.IdLine = (int?)lineNumber;
+                            month.Mes = Month.Mes;
+                            month.Año = Month.Año;
+                            month.Cantidad = Month.Cantidad;
+                            month.CantidadKilos = (decimal)calculateKG(item, Month.Cantidad.ToString());
+                            month.CantidadMedida = (decimal)calculateSheet(item, Month.CantidadMedida.ToString());
+                            month.Presupuestos = item.Presupuesto;
+                            _db.Entry(month).State = EntityState.Added;
+                            //_db.SaveChanges();
+                        } // End foreach
+                    } // End if
+                }
+                
             } // End foreach
             HeaderPipeline headerPipeline = new HeaderPipeline();
             headerPipeline.FechaDoc = DateTime.Now;

@@ -11,19 +11,27 @@
 <div class="row">
     <div class="col-md-4">
         <h2>Dashboard</h2>
-        <p>
-            Página de ingreso de las proyecciones mensuales por presupuesto.
-        </p>
-        <p>@Html.ActionLink("Ir &raquo", "Dashboard", "Commercial", null, new { @class = "btn btn-default" })</p>
+        <p>Página de ingreso de las proyecciones mensuales por presupuesto.</p>
+        @using (Html.BeginForm("Dashboard", "Commercial", FormMethod.Get))
+        {
+            <button class="btn btn-default" type="submit">Ir &raquo</button>
+        }
     </div>
     <div class="col-md-4">
         <h2>Importar</h2>
         <p>Página de carga de nuevos presupuestos.</p>
-        <p>@Html.ActionLink("Ir &raquo", "Imports", "Session", null, new { @class = "btn btn-default" })</p>
+        @using (Html.BeginForm("Imports", "Session", FormMethod.Get))
+        {
+            <button class="btn btn-default" type="submit">Ir &raquo</button>
+        }
+        
     </div>
     <div class="col-md-4">
         <h2>Comparativa</h2>
         <p>Página de comparación de sesiones.</p>
-        <p>@Html.ActionLink("Ir &raquo", "Comparative", "Session", null, new { @class = "btn btn-default" })</p>
+        @using (Html.BeginForm("Comparative", "Session", FormMethod.Get))
+        {
+            <button class="btn btn-default" type="submit">Ir &raquo</button>
+        }
     </div>
 </div>

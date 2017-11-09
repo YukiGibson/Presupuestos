@@ -25,15 +25,14 @@ namespace Presupuestos.cts
 
         public void DialogMessage()
         {
-            content.Append("\"");
             foreach (var item in insertedMonth.Where(p => p.month != 0))
             {
-                content.Append(String.Format("{0} del mes {1} ", item.value, item.month));
+                content.Append(String.Format("- {0} del mes {1} -", item.value, item.month));
             }
-            content.Append("\" a los presupuestos ");
+            content.Append(" a los presupuestos ");
             foreach (var item in Projections.Where(p => p.Checked))
             {
-                content.Append(String.Format("{0},", item.Presupuesto));
+                content.Append(String.Format("{0}, ", item.Presupuesto));
             }
         }
     }
@@ -50,7 +49,7 @@ namespace Presupuestos.cts
                 {
                     content.Append("Se ingresaron los valores ");
                     DialogMessage();
-                    content.Append(" de forma exitosa");
+                    content.Append("de forma exitosa");
                     message.Add("Success", content.ToString());
                 }
                 else
@@ -61,8 +60,8 @@ namespace Presupuestos.cts
             }
             else
             {
-                content.Append("Se falló el ingreso los valores ");
-                DialogMessage();
+                content.Append("Se falló el ingreso los valores");
+                //DialogMessage(); Lanza error ya que si no hay presupuestos, la Lista Genérica está null
                 content.Append(" de forma exitosa");
                 message.Add("Error", content.ToString());
             }
