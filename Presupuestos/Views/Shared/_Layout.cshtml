@@ -1,0 +1,57 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Web Page for the " />
+    <title>@ViewBag.Title - Pipeline Presupuestos</title>
+    @Styles.Render("~/Content/css")
+    @Scripts.Render("~/bundles/modernizr")
+</head>
+<body>
+    <div class="navbar navbar-inverse navbar-fixed-top">
+        <div class="container">
+            <div class="navbar-header">
+                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".navbar-collapse">
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                    <span class="icon-bar"></span>
+                </button>
+                @using (Html.BeginForm("Index", "Home", FormMethod.Get))
+                { 
+                    <button class="img-responsive" type="submit" style="width:232px; height:auto; background-color:#ffffff">
+                        <img src="~/Images/GrupoVargas.png" alt="Grupo Vargas S.A." title="Grupo Vargas Logo" style="width:221px;height:auto" />
+                    </button>
+                    
+                }                
+            </div>
+            <div class="navbar-collapse collapse">
+                <ul class="nav navbar-nav">
+                    <li>@Html.ActionLink("Dashboard", "Dashboard", "Commercial")</li>
+                    <li>@Html.ActionLink("Importar", "Imports", "Session")</li>
+                    <li>@Html.ActionLink("Comparativa", "Comparative", "Session")</li>
+                </ul>
+                <ul class="nav navbar-nav navbar-right">
+                    <li class="active"><a href="http://intranet/gv/DefaultPage.aspx">Regresar</a></li>
+                </ul> 
+            </div>
+
+        </div>
+    </div>
+    <div class="container body-content">
+        @RenderBody()
+        <hr />
+        <footer class="modal-footer">
+            <div class="text-center">
+                <p>&copy; @DateTime.Now.Year - Grupo Vargas S.A.</p>
+                <p><em>Versión 0.1</em></p>
+            </div>
+        </footer>
+    </div>
+
+    @Scripts.Render("~/bundles/jquery")
+    @Scripts.Render("~/bundles/bootstrap")
+    @RenderSection("scripts", required: false)
+</body>
+</html>

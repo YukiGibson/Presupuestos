@@ -1,0 +1,29 @@
+﻿@{
+    ViewBag.Title = "Home Page";
+}
+
+<div class="col-lg-12">
+    <div class="text-center">
+        <h1 style="color:#808080">Plataforma de Presupuestos y Proyecciones de Grupo Vargas S.A.</h1>
+    </div> 
+</div>
+
+<div class="row">
+    <div class="col-md-4">
+        <h2>Dashboard</h2>
+        <p>
+            Página de ingreso de las proyecciones mensuales por presupuesto.
+        </p>
+        <p>@Html.ActionLink("Ir &raquo", "Dashboard", "Commercial", null, new { @class = "btn btn-default" })</p>
+    </div>
+    <div class="col-md-4">
+        <h2>Importar</h2>
+        <p>Página de carga de nuevos presupuestos.</p>
+        <p>@Html.ActionLink("Ir &raquo", "Imports", "Session", null, new { @class = "btn btn-default" })</p>
+    </div>
+    <div class="col-md-4">
+        <h2>Comparativa</h2>
+        <p>Página de comparación de sesiones.</p>
+        <p>@Html.ActionLink("Ir &raquo", "Comparative", "Session", null, new { @class = "btn btn-default" })</p>
+    </div>
+</div>
