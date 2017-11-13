@@ -13,7 +13,7 @@
 *.sln.docstates
 
 # Connection String
-/Presupuestos/Credenciales.config
+/GitVersion/Presupuestos/Credenciales.config
 
 # User-specific files (MonoDevelop/Xamarin Studio)
 *.userprefs
