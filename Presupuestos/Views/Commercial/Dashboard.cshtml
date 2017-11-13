@@ -9,27 +9,29 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2>Pipeline de abastecimiento Comercial - Sesión #@Model.documentNumber</h2>
-<p>
+<h2 class="BlackText">Pipeline de abastecimiento Comercial - Sesión #@Model.documentNumber</h2>
+<!--Searching result labels-->
+<p class="BlackText">
     @((string.IsNullOrEmpty(Model.SearchBudget) && string.IsNullOrEmpty(Model.SearchExecutive)) ? "Mostrando " : "Etiquetas de búsqueda: '" +
     (string.IsNullOrEmpty(Model.SearchBudget) ? string.Empty : Model.SearchBudget) +
     (string.IsNullOrEmpty(Model.SearchExecutive) ? "" : (string.IsNullOrEmpty(Model.SearchBudget) ? Model.SearchExecutive : ", " + Model.SearchExecutive)) +
       "', mostrando") @Model.PagingMetaData.TotalItemCount <i>resultados</i>
 </p>
-<p>
+<!--First form that searches Executive, Budget number and so forth-->
+<p class="BlackText">
     @using (Html.BeginForm("Dashboard", "Commercial", FormMethod.Get, new { @class = "form-inline" }))
     {
         <div class="form-group">
-            <label>Buscar por</label>
+            <p class="BlackText">Buscar por</p>
         </div>
-        <div class="form-group">
-            @Html.TextBox("SearchBudget", null, new { @class = "form-control", @placeholder = "Presupuesto o cliente" })
+        <div class="form-group colored-border">
+            @Html.TextBox("SearchBudget", null, new { @class = "form-control", @placeholder = "Presupuesto o cliente"})
         </div>
-        <div class="form-group">
+        <div class="form-group colored-border">
             @Html.TextBox("SearchExecutive", null, new { @class = "form-control", @placeholder = "Ejecutivo" })
         </div>
         <div class="form-group">
-            <label>Ordenar por</label>
+            <p class="BlackText">Ordenar por</p>
         </div>
         <div class="form-group">
             @Html.DropDownListFor(vm => vm.SortBy, new SelectList(Model.Sorts, "Value", "Key"), "Default", new { @class = "btn btn-default dropdown-toggle" })
@@ -39,22 +41,24 @@
         </div>
     }
 </p>
+
+<!--Main Form that holds a list of budgets-->
 @using (Html.BeginForm("Dashboard", "Commercial", FormMethod.Post))
 {
     @Html.AntiForgeryToken()
     @Html.ValidationSummary(true)
-
-    <a class="btn btn-link" data-toggle="collapse" href="#collapse" aria-expanded="false" aria-controls="collapse">Ingreso de Presupuestos</a>
+    <!--Inputs where you write each -->
+    <a class="btn btn-link" data-toggle="collapse" href="#collapse" aria-expanded="false" aria-controls="collapse">[Ingreso de Presupuestos]</a>
     <div class="collapse" id="collapse">
         <div class="form-horizontal">
             <div class="form-group">
                 @for (int i = 0; i < 3; i++)
                 {
                     <div class="col col-md-4">
-                        @Html.LabelFor(model => model.MonthValues.value) <b>@DateTime.Today.AddMonths(i).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"))</b>
+                        @Html.LabelFor(model => model.MonthValues.value, new { @class="BlackText" } ) <b class="BlackText">@DateTime.Today.AddMonths(i).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"))</b>
                         @Html.HiddenFor(model => model.Month[i].month, new { id = "month", Value = @DateTime.Today.AddMonths(i).Month })
                         @Html.HiddenFor(model => model.Month[i].year, new { id = "year", Value = @DateTime.Today.AddMonths(i).Year })
-                        @Html.TextBoxFor(model => model.Month[i].value, new { @class = "form-control", oninput = "thousandSeparator('Month_" + i + "__value')" })
+                        @Html.TextBoxFor(model => model.Month[i].value, new { @class = "form-control colored-border", oninput = "thousandSeparator('Month_" + i + "__value')" })
                         @Html.ValidationMessageFor(model => model.MonthValues.value)
                     </div>
                 }
@@ -67,11 +71,13 @@
             </div>
         </div>
     </div>
+    <!--Each message element using BootStrap-->
     if (Model != null)
     {
         if (Model.MessageType.Count != 0)
         {
             string value = "out";
+            <!--Using MessageType Type Of Dictionary<> from the controller, sending if Success, Error or Alert-->
             if (Model.MessageType.TryGetValue("Success", out value))
             {
                 <div class="alert alert-dismissible alert-success">
@@ -96,14 +102,22 @@
         }
     }
     <hr />
+    <!--First page pager-->
+    <div>
+        <span class="BlackText">
+            Página @(Model.PagingMetaData.PageCount < Model.PagingMetaData.PageNumber ? 0 : Model.PagingMetaData.PageNumber) de @Model.PagingMetaData.PageCount
+        </span>
+        @Html.PagedListPager(new StaticPagedList<ProjectionViewModel>(Model.Projections, Model.PagingMetaData), page => Url.Action("Dashboard", new MainViewModel { Page = page, SearchBudget = @Model.SearchBudget, SearchExecutive = @Model.SearchExecutive, SortBy = @Model.SortBy }), PagedListRenderOptions.Classic)
+        <!--Projections = Model.Projections-->
+    </div>
+    <!--The main list-->
     <div class="list-group">
         @if (Model != null)
         {
             for (int i = 0; i < Model.Projections.Count; i++)
             {
                 string collapseVar = String.Format("collapse{0}", i);
-                <div class="list-group-item">
-
+                <div class="list-group-item" style="border-width: 4px;border-bottom: ridge;border-bottom-color: aliceblue">
                     <a class="btn btn-toolbar btn-lg"  role="button" data-toggle="collapse" href="#@collapseVar"
                        aria-expanded="false" aria-controls="@collapseVar">
                         <span class="glyphicon glyphicon-option-horizontal"></span>
@@ -117,14 +131,16 @@
                     | @Html.DisplayNameFor(model => model.Projection.Presupuesto) : <b>@Html.DisplayFor(m => m.Projections[i].Presupuesto)</b>
                     | @Html.DisplayNameFor(model => model.Projection.Cliente) : <b>@Html.DisplayFor(m => m.Projections[i].Cliente)</b>
                     | @Html.DisplayNameFor(model => model.Projection.Sustrato) : <b>@Html.DisplayFor(m => m.Projections[i].Sustrato)</b>
-                    @for (int a = 0; a < Model.Projections[i].Month.Count; a++)
+
+                    
+                    @foreach (var item in Model.Projections[i].Month)
                     {
-                        <span>| @DateTime.Today.AddMonths(a).ToString("MMMM", CultureInfo.CreateSpecificCulture("es")):</span>
-                        <span><b>@Html.DisplayFor(m => m.Projections[i].Month[a].value)</b></span>
+                            <span>| @item.monthName :</span>
+                            <span><b>@item.value</b></span>
                     }
                     <div class="collapse" id="@collapseVar">
                         <div class="well">
-                            <div class="table-responsive">
+                            <div class="table-responsive table-condensed">
                                 <table class="table table-inverse">
                                     <thead class="thead-default">
                                         <tr>
@@ -172,9 +188,13 @@
         }
     </div>
 }
+<!--Second page pager-->
 <div>
-    Página @(Model.PagingMetaData.PageCount < Model.PagingMetaData.PageNumber ? 0 : Model.PagingMetaData.PageNumber) de @Model.PagingMetaData.PageCount
-    @Html.PagedListPager(new StaticPagedList<ProjectionViewModel>(Model.Projections, Model.PagingMetaData), page => Url.Action("Dashboard", new MainViewModel { Page = page, SearchBudget = @Model.SearchBudget, SearchExecutive = @Model.SearchExecutive, SortBy = @Model.SortBy, Projections = @Model.Projections }), PagedListRenderOptions.Classic)
+    <span class="BlackText">
+        Página @(Model.PagingMetaData.PageCount < Model.PagingMetaData.PageNumber ? 0 : Model.PagingMetaData.PageNumber) de @Model.PagingMetaData.PageCount
+    </span>
+    @Html.PagedListPager(new StaticPagedList<ProjectionViewModel>(Model.Projections, Model.PagingMetaData), page => Url.Action("Dashboard", new MainViewModel { Page = page, SearchBudget = @Model.SearchBudget, SearchExecutive = @Model.SearchExecutive, SortBy = @Model.SortBy }), PagedListRenderOptions.Classic)
+    <!--Projections = Model.Projections-->
 </div>
 @section Scripts {
     <script type="text/javascript">

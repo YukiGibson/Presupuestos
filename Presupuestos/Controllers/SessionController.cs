@@ -49,7 +49,7 @@ namespace Presupuestos.Controllers
             try
             {
                 IEnumerable<ProjectionViewModel> Data = check.newBudgets(); // LINQ that brings the latest Presupuestos
-                check.InsertNewDocument(Data);
+                check.InsertNewBudgets(Data);
                 viewShow.Projections = Data.ToList();
                 viewShow.MessageType.Add("Success", "Se cargaron " + Data.Count() + " presupuestos");
             }

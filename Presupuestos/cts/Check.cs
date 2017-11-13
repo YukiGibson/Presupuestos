@@ -13,6 +13,7 @@ using Presupuestos.DAL;
 using System.Data.Entity.SqlServer;
 using System.Data.Entity;
 using PagedList;
+using System.Globalization;
 
 namespace Presupuestos.cts
 {
@@ -24,23 +25,6 @@ namespace Presupuestos.cts
         {
             _db = db;
         } // End ctor
-
-        private bool ifExist(DetailPipeline existingRow, ProjectionViewModel newRow) 
-        {
-            if (existingRow.Cliente.Equals(newRow.Cliente) && existingRow.Gramaje.Equals(newRow.Gramaje == null ? 0 : newRow.Gramaje) &&
-                existingRow.AnchoBobina.Equals(newRow.Ancho_Bobina) && 
-                existingRow.AnchoPliego.Equals(newRow.Ancho_Pliego) &&
-                existingRow.LargoPliego.Equals(newRow.Largo_Pliego) &&
-                    existingRow.Paginas.Equals(newRow.Paginas) &&
-                existingRow.Montaje.Equals(newRow.Montaje) &&
-                (existingRow.Pliegos.Equals(newRow.Pliegos))
-                )
-	        {
-                return true; // gg
-	        } else
-            return true; // ggez
-        }
-
 
         /// <summary>
         /// Main method that brings all new budgets
@@ -75,8 +59,17 @@ namespace Presupuestos.cts
                    };
         } // End newBudgets
 
+        /// <summary>
+        /// Brings a list of the existing budgets in the DataBase
+        /// </summary>
+        /// <param name="document">integer32 holding the current last document</param>
+        /// <returns>IEnumerable type list of ProjectionViewModel containing the current budgets</returns>
         public IEnumerable<ProjectionViewModel> showExistingBudgets(int document) 
         {
+            string firstName = DateTime.Now.ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
+            string secondName = DateTime.Now.AddMonths(1).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
+            string thirdName = DateTime.Now.AddMonths(2).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
+            //TODO se tiene que agregar las fechas para que asi sean mostradas en la vista
             List<ProjectionViewModel> Entregas = (from PipeLine in _db.DetailPipeline.Where(p => p.IdDoc == document)
                                                   join Projection in _db.A_Vista_Presupuestos on PipeLine.Presupuesto equals Projection.Presupuesto into PRJ
                                                   from Presupuesto in PRJ.DefaultIfEmpty()
@@ -99,15 +92,20 @@ namespace Presupuestos.cts
                                                       Pliegos = (int)PipeLine.Pliegos,
                                                       Month = new List<MonthViewModel>
                                                      {
-                                                         new MonthViewModel{ month=0, value="0", year=0 },
-                                                         new MonthViewModel{ month=0, value="0", year=0 },
-                                                         new MonthViewModel{ month=0, value="0", year=0 }
+                                                         new MonthViewModel{ month=0, value="0", year=0, monthName = firstName },
+                                                         new MonthViewModel{ month=0, value="0", year=0, monthName = secondName },
+                                                         new MonthViewModel{ month=0, value="0", year=0, monthName = thirdName }
                                                      }
                                          }).ToList();
             getProjections(ref Entregas, document);
             return Entregas;
         } // End showExistingBudgets
 
+        /// <summary>
+        /// Takes the MainViewModel view model and applies a search and sorting of the data exposed on the DashBoard view
+        /// </summary>
+        /// <param name="MainView">MainViewModel brought from the view containing the data</param>
+        /// <param name="viewModel">Pass-By-Reference from the static MainViewModel</param>
         public void dashboardLoad(MainViewModel MainView, ref MainViewModel viewModel) 
         {
             int last = _db.DetailPipeline.Count() == 0 ? (ushort)0 : (ushort)_db.DetailPipeline.Select(p => p.IdDoc).Max();
@@ -161,29 +159,56 @@ namespace Presupuestos.cts
             };
         } // End dashboardLoad
 
+        /// <summary>
+        /// Void method that connects each projection with the respective budget found in the DataBase 
+        /// </summary>
+        /// <param name="Entregas">Pass-By-Reference generic list of ProjectionVieModel</param>
+        /// <param name="document">The number of the actual document</param>
         private void getProjections(ref List<ProjectionViewModel> Entregas, int document) 
         {
-            byte firstMonth = (byte)DateTime.Now.Month;
-            byte secondMonth = (byte)DateTime.Now.AddMonths(1).Month;
-            byte thirdMonth = (byte)DateTime.Now.AddMonths(2).Month;
+            DateTime firstMonth = DateTime.Now;
+            DateTime secondMonth = DateTime.Now.AddMonths(1);
+            DateTime thirdMonth = DateTime.Now.AddMonths(2);
             foreach (var item in Entregas)
             {
                 if (_db.DetailPipelineEntregas.Where(p => p.Presupuestos.Equals(item.Presupuesto) && p.IdDoc == document && p.IdLine == item.idLinea).Any())
                 {
-                    Entregas[Entregas.FindIndex(c => c.Presupuesto == item.Presupuesto && c.idLinea == item.idLinea)].Month = 
+                    //LINQ query that creates a list of MonthViewModel data based on Presupuesto, IdLinea and betweet the range specified
+                    Entregas[Entregas.FindIndex(c => c.Presupuesto == item.Presupuesto && c.idLinea == item.idLinea)].Month =
                         (from s in _db.DetailPipelineEntregas.Where(x => x.Presupuestos.Equals(item.Presupuesto) && x.IdDoc == document
-                        && x.IdLine == item.idLinea && (x.Mes == firstMonth || x.Mes == secondMonth || x.Mes == thirdMonth))
+                        && x.IdLine == item.idLinea && (x.Mes == firstMonth.Month || x.Mes == secondMonth.Month || x.Mes == thirdMonth.Month))
                          select new MonthViewModel
                          {
+                             id = Math.Round((((double)s.Mes / 12) + (double)s.Año), 6),
                              month = s.Mes == null ? 0 : (int)s.Mes,
                              year = s.Año == null ? 0 : (int)s.Año,
                              value = s.Cantidad == null ? "0" : SqlFunctions.StringConvert((double)s.Cantidad).Trim()
-                         }).ToList();
+                         }).OrderBy(o => o.id).ToList();
+                    //Foreach that saves the name of the month in spanish into the monthName property
+                    Entregas[Entregas.FindIndex(c => c.Presupuesto == item.Presupuesto && c.idLinea == item.idLinea)].
+                        Month.ForEach(x => x.monthName = GetMonthName(x.year, x.month));
                 } // End if
             } // End foreach
         } // End getProjections
 
-        private void insertToPipeLine(ProjectionViewModel row, uint lineNumber, ushort lastDocument) 
+        /// <summary>
+        /// Takes the year and month of the projection, then it returns the month in spanish
+        /// </summary>
+        /// <param name="date">A params vector containing the year int type and month int type</param>
+        /// <returns>A string type containing a month name in Spanish</returns>
+        private string GetMonthName(params int[] date)
+        {
+            DateTime fecha = new DateTime(date[0], date[1], 15);
+            return fecha.ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
+        } // End GetMonthName
+
+        /// <summary>
+        /// Line by line, inserts the new budget with all the properties
+        /// </summary>
+        /// <param name="row"></param>
+        /// <param name="lineNumber"></param>
+        /// <param name="lastDocument"></param>
+        private void InsertSingleBudget(ProjectionViewModel row, uint lineNumber, ushort lastDocument) 
         {
             DetailPipeline pipelineModel = new DetailPipeline();
             var ordenDeProduccion = _db.A_Vista_Presupuestos.Where(p => p.Presupuesto == row.Presupuesto).Select(s => s.OP).SingleOrDefault();
@@ -207,10 +232,52 @@ namespace Presupuestos.cts
             pipelineModel.FechaHora = DateTime.Now;
             pipelineModel.CardName = codigoCliente;
             _db.Entry(pipelineModel).State = EntityState.Added;
-        }
+        } // End InsertSingelBudget
 
         /// <summary>
-        /// 
+        /// Inserts a new line of projections with a new document number meanwhile holding the value from past documents/budgets
+        /// </summary>
+        /// <param name="item">Contains the data of each budgets</param>
+        /// <param name="lineNumber">The line number of the main query</param>
+        /// <param name="lastDocument">Last document number</param>
+        private void CreateNewProjectionLine(ProjectionViewModel item, uint lineNumber, int lastDocument)
+        {
+            if (_db.DetailPipeline.Where(p => p.IdDoc == lastDocument &&
+                           p.Presupuesto == item.Presupuesto && p.Sustrato == item.Sustrato && p.ItemCodeSustrato == item.ItemCodeSustrato).Any())
+            {
+                //When dealing with budgets holding the same budget number, I checked with LINQ everytime by Sustrato and Paper code
+                int idLine = (int)_db.DetailPipeline.Where(p => p.IdDoc == lastDocument &&
+                       p.Presupuesto == item.Presupuesto && p.Sustrato == item.Sustrato && p.ItemCodeSustrato == item.ItemCodeSustrato).
+                       Select(s => s.IdLinea).FirstOrDefault();
+
+                if (_db.DetailPipelineEntregas.Where(p => p.Presupuestos == item.Presupuesto
+                && p.IdDoc == lastDocument && p.IdLine == idLine).Any())
+                {
+                    List<DetailPipelineEntregas> existingBudgets = _db.DetailPipelineEntregas.Where(p => p.Presupuestos == item.Presupuesto
+                    && p.IdDoc == lastDocument && p.IdLine == idLine).ToList();
+                    foreach (var Month in existingBudgets)
+                    {
+                        DetailPipelineEntregas month = new DetailPipelineEntregas();
+                        month.IdDoc = lastDocument + 1;
+                        month.IdLine = (int?)lineNumber;
+                        month.Mes = Month.Mes;
+                        month.Año = Month.Año;
+                        month.Cantidad = Month.Cantidad;
+                        month.CantidadKilos = (decimal)calculateKG(item, Month.Cantidad.ToString());
+                        month.CantidadMedida = (decimal)calculateSheet(item, Month.CantidadMedida.ToString());
+                        month.Presupuestos = item.Presupuesto;
+                        _db.Entry(month).State = EntityState.Added;
+                    } // End foreach
+                } // End if
+            }
+        } // End CreateNewProjectionLine
+
+        /// <summary>
+        /// When inserting a new Projection on Checked budgets:
+        /// if it has values
+        ///     Writes in a Log called Historico the old data, and updates each projection in DetailPipelineEntregas
+        /// if it does exist and is not empty
+        ///     Inserts a new projection in PipelineEntregas
         /// </summary>
         /// <param name="Projection"></param>
         /// <param name="Month"></param>
@@ -256,68 +323,33 @@ namespace Presupuestos.cts
                 } // End if/else        
             } // End foreach
         } // End insertUpdateEntregas
-
+        
         /// <summary>
-        /// 
+        /// Inserts a new document number containing the list of new budgets, assigning projections from last documents 
         /// </summary>
-        /// <param name="newBudgets">List of new budgets</param>
-        public void InsertNewDocument(IEnumerable<ProjectionViewModel> newBudgets) 
+        /// <param name="newBudgets">IEnumerable type that brings all the new budgets</param>
+        public void InsertNewBudgets(IEnumerable<ProjectionViewModel> newBudgets) 
         {
             ushort lastDocument = _db.DetailPipeline.Count() == 0 ? (ushort)0 : (ushort)_db.DetailPipeline.Select(p => p.IdDoc).Max();
             uint lineNumber = 0;
             foreach (var item in newBudgets)
             {
                 lineNumber++;
-                insertToPipeLine(item, lineNumber, lastDocument);
-
-                if (item.Presupuesto == "24204P")
-                {
-                    Console.WriteLine();
-                    var a = _db.DetailPipeline.Where(p => p.IdDoc == lastDocument &&
-                            p.Presupuesto == item.Presupuesto && p.Sustrato == item.Sustrato && p.ItemCodeSustrato == item.ItemCodeSustrato).Any();
-                }
-                //Sacar toda esta logica a otro  metodo para asi que sea codigo mas legible y respetar el Principio de Responsabilidad unica
-                if (_db.DetailPipeline.Where(p => p.IdDoc == lastDocument &&
-                           p.Presupuesto == item.Presupuesto && p.Sustrato == item.Sustrato && p.ItemCodeSustrato == item.ItemCodeSustrato).Any())
-                {
-                    int idLine = (int)_db.DetailPipeline.Where(p => p.IdDoc == lastDocument &&
-                           p.Presupuesto == item.Presupuesto && p.Sustrato == item.Sustrato && p.ItemCodeSustrato == item.ItemCodeSustrato).
-                           Select(s => s.IdLinea).FirstOrDefault();
-                    if (_db.DetailPipelineEntregas.Where(p => p.Presupuestos == item.Presupuesto
-                    && p.IdDoc == lastDocument && p.IdLine == idLine).Any())
-                    {
-                        List<DetailPipelineEntregas> existingBudgets = _db.DetailPipelineEntregas.Where(p => p.Presupuestos == item.Presupuesto
-                        && p.IdDoc == lastDocument && p.IdLine == idLine).ToList();
-                        foreach (var Month in existingBudgets)
-                        {
-                            DetailPipelineEntregas month = new DetailPipelineEntregas();
-                            month.IdDoc = lastDocument + 1;
-                            month.IdLine = (int?)lineNumber;
-                            month.Mes = Month.Mes;
-                            month.Año = Month.Año;
-                            month.Cantidad = Month.Cantidad;
-                            month.CantidadKilos = (decimal)calculateKG(item, Month.Cantidad.ToString());
-                            month.CantidadMedida = (decimal)calculateSheet(item, Month.CantidadMedida.ToString());
-                            month.Presupuestos = item.Presupuesto;
-                            _db.Entry(month).State = EntityState.Added;
-                            //_db.SaveChanges();
-                        } // End foreach
-                    } // End if
-                }
-                
+                InsertSingleBudget(item, lineNumber, lastDocument);
+                CreateNewProjectionLine(item, lineNumber, lastDocument);
             } // End foreach
             HeaderPipeline headerPipeline = new HeaderPipeline();
             headerPipeline.FechaDoc = DateTime.Now;
             headerPipeline.IdDoc = lastDocument + 1;
             headerPipeline.Usuario = "rcast";
             _db.Entry(headerPipeline).State = EntityState.Added;
-            _db.SaveChanges(); 
-        } // End InserNewDocument
+            _db.SaveChanges();
+        } // End InsertNewBudgets
 
         /// <summary>
-        /// 
+        /// Using the values from the budgets that have the Checked Boolean on true, assign those value to each budgets
         /// </summary>
-        /// <param name="projection"></param>
+        /// <param name="projection">New projection</param>
         /// <param name="month"></param>
         public void InsertNewProjection(List<ProjectionViewModel> projection, List<MonthViewModel> month) 
         {
@@ -332,6 +364,12 @@ namespace Presupuestos.cts
             _db.SaveChanges();
         } // End InsertNewProjection
 
+        /// <summary>
+        /// Calculates the KG of each month
+        /// </summary>
+        /// <param name="Projection"></param>
+        /// <param name="Month"></param>
+        /// <returns></returns>
         private double calculateKG(ProjectionViewModel Projection, string Month)
         {
             double anchoPliego = Projection.Ancho_Pliego == null ? 0 : (double)Projection.Ancho_Pliego;
@@ -371,6 +409,12 @@ namespace Presupuestos.cts
         
         } // End calculateKG
 
+        /// <summary>
+        /// Calculates the amount of sheets
+        /// </summary>
+        /// <param name="Projection"></param>
+        /// <param name="Month"></param>
+        /// <returns></returns>
         private double calculateSheet(ProjectionViewModel Projection, string Month) 
         {
             double month = Month == null ? 0 : Double.Parse(Month);

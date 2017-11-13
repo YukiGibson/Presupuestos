@@ -27,7 +27,7 @@ namespace Presupuestos.cts
         {
             foreach (var item in insertedMonth.Where(p => p.month != 0))
             {
-                content.Append(String.Format("- {0} del mes {1} -", item.value, item.month));
+                content.Append(String.Format("- {0} del mes {1} ", item.value, item.month));
             }
             content.Append(" a los presupuestos ");
             foreach (var item in Projections.Where(p => p.Checked))

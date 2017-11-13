@@ -14,6 +14,12 @@ namespace Presupuestos
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
             routes.MapRoute(
+                name: "Page",
+                url: "Commercial/Dashboard/Page{Page}",
+                defaults: new { controller = "Commercial", action = "Dashboard", id = UrlParameter.Optional }
+            );
+
+            routes.MapRoute(
                 name: "Default",
                 url: "{controller}/{action}/{id}",
                 defaults: new { controller = "Home", action = "Index", id = UrlParameter.Optional }

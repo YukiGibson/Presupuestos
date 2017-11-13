@@ -1,0 +1,9 @@
+﻿.BlackText {
+    color:black
+}
+.colored-border {
+    border-width: 1px;
+    border:groove;
+    border-color: #728aac;
+    border-radius: 4px 4px
+}

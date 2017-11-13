@@ -10,16 +10,16 @@
 
 <div class="row">
     <div class="col-md-4">
-        <h2>Dashboard</h2>
-        <p>Página de ingreso de las proyecciones mensuales por presupuesto.</p>
+        <h2 class="BlackText">Dashboard</h2>
+        <p class="BlackText">Página de ingreso de las proyecciones mensuales por presupuesto.</p>
         @using (Html.BeginForm("Dashboard", "Commercial", FormMethod.Get))
         {
             <button class="btn btn-default" type="submit">Ir &raquo</button>
         }
     </div>
     <div class="col-md-4">
-        <h2>Importar</h2>
-        <p>Página de carga de nuevos presupuestos.</p>
+        <h2 class="BlackText">Importar</h2>
+        <p class="BlackText">Página de carga de nuevos presupuestos.</p>
         @using (Html.BeginForm("Imports", "Session", FormMethod.Get))
         {
             <button class="btn btn-default" type="submit">Ir &raquo</button>
@@ -27,8 +27,8 @@
         
     </div>
     <div class="col-md-4">
-        <h2>Comparativa</h2>
-        <p>Página de comparación de sesiones.</p>
+        <h2 class="BlackText">Comparativa</h2>
+        <p class="BlackText">Página de comparación de sesiones.</p>
         @using (Html.BeginForm("Comparative", "Session", FormMethod.Get))
         {
             <button class="btn btn-default" type="submit">Ir &raquo</button>
