@@ -31,7 +31,17 @@ namespace Presupuestos.Controllers
         [HttpGet]
         public ActionResult Imports() 
         {
-            return View();
+            try
+            {
+                int? lastDocument = db.DetailPipeline.Select(p => p.IdDoc).Max();
+                viewModel.documentNumber = (lastDocument == null ? (ushort)0 : (ushort)lastDocument);
+            }
+            catch (Exception)
+            {
+                viewModel.documentNumber = 0;
+            }
+            
+            return View(viewModel);
         }
 
         /// <summary>
@@ -52,6 +62,8 @@ namespace Presupuestos.Controllers
                 check.InsertNewBudgets(Data);
                 viewShow.Projections = Data.ToList();
                 viewShow.MessageType.Add("Success", "Se cargaron " + Data.Count() + " presupuestos");
+                int? lastDocument = db.DetailPipeline.Select(p => p.IdDoc).Max();
+                viewShow.documentNumber = (lastDocument == null ? (ushort)0 : (ushort)lastDocument);
             }
             catch (Exception e)
             {
