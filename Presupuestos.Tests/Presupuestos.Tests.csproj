@@ -105,6 +105,7 @@
   <ItemGroup>
     <Compile Include="Controllers\CommercialControllerTest.cs" />
     <Compile Include="Controllers\SessionControllerTest.cs" />
+    <Compile Include="cts\CheckTest.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -120,6 +121,7 @@
       <Name>Presupuestos</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it.
        Other similar extension points exist, see Microsoft.Common.targets.

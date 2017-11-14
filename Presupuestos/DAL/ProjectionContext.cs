@@ -1,15 +1,12 @@
 ﻿namespace Presupuestos.DAL
 {
-    using System;
     using System.Data.Entity;
-    using System.ComponentModel.DataAnnotations.Schema;
-    using System.Linq;
     using Presupuestos.Models;
 
     public partial class ProjectionContext : DbContext
     {
         public ProjectionContext()
-            : base("name=ProjectionContext")
+            : base("ProjectionContext")
         {
         }
 

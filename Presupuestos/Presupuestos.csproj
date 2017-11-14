@@ -151,6 +151,10 @@
     <Compile Include="Migrations\201711072154006_FromTestToProduction.Designer.cs">
       <DependentUpon>201711072154006_FromTestToProduction.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201711141716595_AddUnitTest.cs" />
+    <Compile Include="Migrations\201711141716595_AddUnitTest.Designer.cs">
+      <DependentUpon>201711141716595_AddUnitTest.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\EstrProcessos.cs" />
     <Compile Include="Migrations\201711032025218_CardCodeAdded.cs" />
     <Compile Include="Migrations\201711032025218_CardCodeAdded.Designer.cs">
@@ -203,9 +207,10 @@
   <ItemGroup>
     <Content Include="Content\bootstrap-theme.css" />
     <Content Include="Content\bootstrap-theme.min.css" />
+    <Content Include="Content\PagedList.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
-    <Content Include="Content\PagedList.css" />
+    <Content Include="Content\Presupuestos.css" />
     <Content Include="Custom-Icon-Design-Flatastic-7-Sql-runner.ico" />
     <Content Include="favicon.ico" />
     <Content Include="fonts\glyphicons-halflings-regular.svg" />
@@ -274,6 +279,9 @@
     <EmbeddedResource Include="Migrations\201711072154006_FromTestToProduction.resx">
       <DependentUpon>201711072154006_FromTestToProduction.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201711141716595_AddUnitTest.resx">
+      <DependentUpon>201711141716595_AddUnitTest.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -300,7 +308,9 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>64802</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:62401/</IISUrl>
+          <IISUrl>http://localhost:62403/</IISUrl>
+          <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
+          <IISAppRootUrl>http://localhost:62403/</IISAppRootUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

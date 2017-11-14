@@ -6,16 +6,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-using System.Data.Entity;
-using Presupuestos.Models;
 using Presupuestos.ViewModels;
 using Presupuestos.DAL;
 using Presupuestos.cts;
-using System.Data.Entity.SqlServer;
-using System.Globalization;
-using PagedList;
 
 namespace Presupuestos.Controllers
 {
@@ -31,7 +25,17 @@ namespace Presupuestos.Controllers
         [HttpGet]
         public ActionResult Imports() 
         {
-            return View();
+            try
+            {
+                int? lastDocument = db.DetailPipeline.Select(p => p.IdDoc).Max();
+                viewModel.documentNumber = (lastDocument == null ? (ushort)0 : (ushort)lastDocument);
+            }
+            catch (Exception)
+            {
+                viewModel.documentNumber = 0;
+            }
+            
+            return View(viewModel);
         }
 
         /// <summary>
@@ -48,10 +52,12 @@ namespace Presupuestos.Controllers
             //viewModel.Data
             try
             {
-                IEnumerable<ProjectionViewModel> Data = check.newBudgets(); // LINQ that brings the latest Presupuestos
-                check.InsertNewDocument(Data);
+                IEnumerable<ProjectionViewModel> Data = check.NewBudgets(); // LINQ that brings the latest Presupuestos
+                check.InsertNewBudgets(Data);
                 viewShow.Projections = Data.ToList();
                 viewShow.MessageType.Add("Success", "Se cargaron " + Data.Count() + " presupuestos");
+                int? lastDocument = db.DetailPipeline.Select(p => p.IdDoc).Max();
+                viewShow.documentNumber = (lastDocument == null ? (ushort)0 : (ushort)lastDocument);
             }
             catch (Exception e)
             {
