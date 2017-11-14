@@ -6,7 +6,6 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using Presupuestos.ViewModels;
 using Presupuestos.Models;
 using Presupuestos.DAL;
@@ -30,7 +29,7 @@ namespace Presupuestos.cts
         /// Main method that brings all new budgets
         /// </summary>
         /// <returns> an IEnumerable<> type holding all ProjectionViewModel </returns>
-        public IEnumerable<ProjectionViewModel> newBudgets() 
+        public IEnumerable<ProjectionViewModel> NewBudgets() 
         {
             return from Presupuestos in _db.A_Vista_Presupuestos
                    join leftReserva in _db.A_Vista_OConversion_Reserva on Presupuestos.Presupuesto equals leftReserva.Presupuesto into Res
@@ -64,7 +63,7 @@ namespace Presupuestos.cts
         /// </summary>
         /// <param name="document">integer32 holding the current last document</param>
         /// <returns>IEnumerable type list of ProjectionViewModel containing the current budgets</returns>
-        public IEnumerable<ProjectionViewModel> showExistingBudgets(int document) 
+        public IEnumerable<ProjectionViewModel> ShowExistingBudgets(int document) 
         {
             string firstName = DateTime.Now.ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
             string secondName = DateTime.Now.AddMonths(1).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
@@ -97,7 +96,7 @@ namespace Presupuestos.cts
                                                          new MonthViewModel{ month=0, value="0", year=0, monthName = thirdName }
                                                      }
                                          }).ToList();
-            getProjections(ref Entregas, document);
+            GetProjections(ref Entregas, document);
             return Entregas;
         } // End showExistingBudgets
 
@@ -106,12 +105,12 @@ namespace Presupuestos.cts
         /// </summary>
         /// <param name="MainView">MainViewModel brought from the view containing the data</param>
         /// <param name="viewModel">Pass-By-Reference from the static MainViewModel</param>
-        public void dashboardLoad(MainViewModel MainView, ref MainViewModel viewModel) 
+        public void DashboardLoad(MainViewModel MainView, ref MainViewModel viewModel) 
         {
             int last = _db.DetailPipeline.Count() == 0 ? (ushort)0 : (ushort)_db.DetailPipeline.Select(p => p.IdDoc).Max();
             viewModel.documentNumber = (ushort)last;
             //Si se ocupa traer las proyecciones por meses, entonces se deben enviar por referencia en showExistingBudgets()
-            IEnumerable<ProjectionViewModel> list = showExistingBudgets(last).ToList();
+            IEnumerable<ProjectionViewModel> list = ShowExistingBudgets(last).ToList();
             
             if (!string.IsNullOrEmpty(MainView.SearchBudget))
             {
@@ -164,7 +163,7 @@ namespace Presupuestos.cts
         /// </summary>
         /// <param name="Entregas">Pass-By-Reference generic list of ProjectionVieModel</param>
         /// <param name="document">The number of the actual document</param>
-        private void getProjections(ref List<ProjectionViewModel> Entregas, int document) 
+        private void GetProjections(ref List<ProjectionViewModel> Entregas, int document) 
         {
             DateTime firstMonth = DateTime.Now;
             DateTime secondMonth = DateTime.Now.AddMonths(1);
@@ -196,7 +195,7 @@ namespace Presupuestos.cts
         /// </summary>
         /// <param name="date">A params vector containing the year int type and month int type</param>
         /// <returns>A string type containing a month name in Spanish</returns>
-        private string GetMonthName(params int[] date)
+        public string GetMonthName(params int[] date)
         {
             DateTime fecha = new DateTime(date[0], date[1], 15);
             return fecha.ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
@@ -263,8 +262,8 @@ namespace Presupuestos.cts
                         month.Mes = Month.Mes;
                         month.Año = Month.Año;
                         month.Cantidad = Month.Cantidad;
-                        month.CantidadKilos = (decimal)calculateKG(item, Month.Cantidad.ToString());
-                        month.CantidadMedida = (decimal)calculateSheet(item, Month.CantidadMedida.ToString());
+                        month.CantidadKilos = (decimal)CalculateKG(item, Month.Cantidad.ToString());
+                        month.CantidadMedida = (decimal)CalculateSheet(item, Month.CantidadMedida.ToString());
                         month.Presupuestos = item.Presupuesto;
                         _db.Entry(month).State = EntityState.Added;
                     } // End foreach
@@ -282,7 +281,7 @@ namespace Presupuestos.cts
         /// <param name="Projection"></param>
         /// <param name="Month"></param>
         /// <param name="lastDocument"></param>
-        private void insertUpdateEntregas(ProjectionViewModel Projection, List<MonthViewModel> Month, ushort lastDocument) 
+        private void InsertUpdateEntregas(ProjectionViewModel Projection, List<MonthViewModel> Month, ushort lastDocument) 
         {
             foreach (var item in Month)
             {
@@ -305,8 +304,8 @@ namespace Presupuestos.cts
                     var updateRow = _db.DetailPipelineEntregas.Where(p => p.Presupuestos == Projection.Presupuesto
                         && p.Mes == item.month && p.Año == item.year && p.IdDoc == lastDocument && p.IdLine == Projection.idLinea).SingleOrDefault();
                     updateRow.Cantidad = decimal.Parse(item.value);
-                    updateRow.CantidadKilos = (decimal)calculateKG(Projection, item.value);
-                    updateRow.CantidadMedida = (decimal)calculateSheet(Projection, item.value);
+                    updateRow.CantidadKilos = (decimal)CalculateKG(Projection, item.value);
+                    updateRow.CantidadMedida = (decimal)CalculateSheet(Projection, item.value);
                 }
                 else if (item.value != "0")
                 {
@@ -315,8 +314,8 @@ namespace Presupuestos.cts
                     entregas.Mes = item.month;
                     entregas.Cantidad = decimal.Parse(item.value);
                     entregas.Presupuestos = Projection.Presupuesto;
-                    entregas.CantidadKilos = (decimal)calculateKG(Projection, item.value);
-                    entregas.CantidadMedida = (decimal)calculateSheet(Projection, item.value);
+                    entregas.CantidadKilos = (decimal)CalculateKG(Projection, item.value);
+                    entregas.CantidadMedida = (decimal)CalculateSheet(Projection, item.value);
                     entregas.IdDoc = lastDocument;
                     entregas.IdLine = (int)Projection.idLinea;
                     _db.Entry(entregas).State = EntityState.Added;
@@ -358,7 +357,7 @@ namespace Presupuestos.cts
             {
                 if (month != null)
                 {
-                    insertUpdateEntregas(item, month, lastDocument);
+                    InsertUpdateEntregas(item, month, lastDocument);
                 }
             } // End foreach
             _db.SaveChanges();
@@ -370,7 +369,7 @@ namespace Presupuestos.cts
         /// <param name="Projection"></param>
         /// <param name="Month"></param>
         /// <returns></returns>
-        private double calculateKG(ProjectionViewModel Projection, string Month)
+        public double CalculateKG(ProjectionViewModel Projection, string Month)
         {
             double anchoPliego = Projection.Ancho_Pliego == null ? 0 : (double)Projection.Ancho_Pliego;
             double largoPliego = Projection.Largo_Pliego == null ? 0 : (double)Projection.Largo_Pliego;
@@ -415,7 +414,7 @@ namespace Presupuestos.cts
         /// <param name="Projection"></param>
         /// <param name="Month"></param>
         /// <returns></returns>
-        private double calculateSheet(ProjectionViewModel Projection, string Month) 
+        public double CalculateSheet(ProjectionViewModel Projection, string Month) 
         {
             double month = Month == null ? 0 : Double.Parse(Month);
             double montaje = Projection.Montaje == null ? 0 : (double)Projection.Montaje;

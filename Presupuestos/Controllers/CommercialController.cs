@@ -6,15 +6,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-using Presupuestos.Models;
 using Presupuestos.ViewModels;
 using Presupuestos.DAL;
 using Presupuestos.cts;
-using System.Data.Entity.SqlServer;
-using PagedList;
-using PagedList.Mvc;
 
 namespace Presupuestos.Controllers
 {
@@ -35,8 +30,7 @@ namespace Presupuestos.Controllers
             viewModel.MessageType = new Dictionary<string, string>();
             try
             {
-                checks.dashboardLoad(MainView, ref viewModel); // Pass viewModel by reference, as it works in C++
-
+                checks.DashboardLoad(MainView, ref viewModel); // Pass viewModel by reference, as it works in C++
             }
             catch (Exception e)
             {
@@ -78,7 +72,7 @@ namespace Presupuestos.Controllers
                 }// End for
                 check.InsertNewProjection(MainView.Projections, MainView.Month); 
                 viewModel.MessageType = newMessage.BuildMessage(true); // The messagge is built here
-                check.dashboardLoad(MainView, ref viewModel); // In order to mantain each search and orderby, run this method
+                check.DashboardLoad(MainView, ref viewModel); // In order to mantain each search and orderby, run this method
             }
             catch (Exception e)
             {

@@ -6,16 +6,10 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
-using System.Data.Entity;
-using Presupuestos.Models;
 using Presupuestos.ViewModels;
 using Presupuestos.DAL;
 using Presupuestos.cts;
-using System.Data.Entity.SqlServer;
-using System.Globalization;
-using PagedList;
 
 namespace Presupuestos.Controllers
 {
@@ -58,7 +52,7 @@ namespace Presupuestos.Controllers
             //viewModel.Data
             try
             {
-                IEnumerable<ProjectionViewModel> Data = check.newBudgets(); // LINQ that brings the latest Presupuestos
+                IEnumerable<ProjectionViewModel> Data = check.NewBudgets(); // LINQ that brings the latest Presupuestos
                 check.InsertNewBudgets(Data);
                 viewShow.Projections = Data.ToList();
                 viewShow.MessageType.Add("Success", "Se cargaron " + Data.Count() + " presupuestos");
