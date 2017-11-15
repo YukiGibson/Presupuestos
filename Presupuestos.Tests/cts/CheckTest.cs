@@ -55,7 +55,7 @@ namespace Presupuestos.Tests.cts
         [TestMethod]
         [Owner("Laureano")]
         [Priority(5)]
-        [Description("Checks if ")]
+        [Description("Checks if the calculation is correct ")]
         public void CalculateKG()
         {
             //Arrange
