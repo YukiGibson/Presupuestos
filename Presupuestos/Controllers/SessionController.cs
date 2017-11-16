@@ -59,7 +59,7 @@ namespace Presupuestos.Controllers
                 int? lastDocument = db.DetailPipeline.Select(p => p.IdDoc).Max();
                 viewShow.documentNumber = (lastDocument == null ? (ushort)0 : (ushort)lastDocument);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 viewShow.MessageType.Add("Error", "Ocurrió un fallo en la carga de los presupuestos, favor volver a intentar");
             }

@@ -65,11 +65,14 @@ namespace Presupuestos.cts
         /// <returns>IEnumerable type list of ProjectionViewModel containing the current budgets</returns>
         public IEnumerable<ProjectionViewModel> ShowExistingBudgets(int document) 
         {
-            string firstName = DateTime.Now.ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
-            string secondName = DateTime.Now.AddMonths(1).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
-            string thirdName = DateTime.Now.AddMonths(2).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
-            //TODO se tiene que agregar las fechas para que asi sean mostradas en la vista
-            List<ProjectionViewModel> Entregas = (from PipeLine in _db.DetailPipeline.Where(p => p.IdDoc == document)
+            string firstMonth = DateTime.Now.AddMonths(0).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
+            string secondMonth = DateTime.Now.AddMonths(1).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
+            string thirdMonth = DateTime.Now.AddMonths(2).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
+            string fourthMonth = DateTime.Now.AddMonths(3).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
+            string fifthMonth = DateTime.Now.AddMonths(4).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
+            string sixthMonth = DateTime.Now.AddMonths(5).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
+            string seventhMonth = DateTime.Now.AddMonths(6).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
+            List <ProjectionViewModel> Entregas = (from PipeLine in _db.DetailPipeline.Where(p => p.IdDoc == document)
                                                   join Projection in _db.A_Vista_Presupuestos on PipeLine.Presupuesto equals Projection.Presupuesto into PRJ
                                                   from Presupuesto in PRJ.DefaultIfEmpty()
                                                   select new ProjectionViewModel()
@@ -91,9 +94,13 @@ namespace Presupuestos.cts
                                                       Pliegos = (int)PipeLine.Pliegos,
                                                       Month = new List<MonthViewModel>
                                                      {
-                                                         new MonthViewModel{ month=0, value="0", year=0, monthName = firstName },
-                                                         new MonthViewModel{ month=0, value="0", year=0, monthName = secondName },
-                                                         new MonthViewModel{ month=0, value="0", year=0, monthName = thirdName }
+                                                         new MonthViewModel{ id = 0, month=0, value="0", year = 0, monthName = firstMonth },
+                                                         new MonthViewModel{ id = 1, month=0, value="0", year = 0, monthName = secondMonth },
+                                                         new MonthViewModel{ id = 2, month=0, value="0", year = 0, monthName = thirdMonth },
+                                                         new MonthViewModel{ id = 3, month=0, value="0", year = 0, monthName = fourthMonth },
+                                                         new MonthViewModel{ id = 4, month=0, value="0", year = 0, monthName = fifthMonth },
+                                                         new MonthViewModel{ id = 5, month=0, value="0", year = 0, monthName = sixthMonth },
+                                                         new MonthViewModel{ id = 6, month=0, value="0", year = 0, monthName = seventhMonth }
                                                      }
                                          }).ToList();
             GetProjections(ref Entregas, document);
@@ -107,6 +114,8 @@ namespace Presupuestos.cts
         /// <param name="viewModel">Pass-By-Reference from the static MainViewModel</param>
         public void DashboardLoad(MainViewModel MainView, ref MainViewModel viewModel) 
         {
+            
+
             int last = _db.DetailPipeline.Count() == 0 ? (ushort)0 : (ushort)_db.DetailPipeline.Select(p => p.IdDoc).Max();
             viewModel.documentNumber = (ushort)last;
             //Si se ocupa traer las proyecciones por meses, entonces se deben enviar por referencia en showExistingBudgets()
@@ -165,17 +174,23 @@ namespace Presupuestos.cts
         /// <param name="document">The number of the actual document</param>
         private void GetProjections(ref List<ProjectionViewModel> Entregas, int document) 
         {
-            DateTime firstMonth = DateTime.Now;
-            DateTime secondMonth = DateTime.Now.AddMonths(1);
-            DateTime thirdMonth = DateTime.Now.AddMonths(2);
+            byte firstMonth = (byte)DateTime.Today.AddMonths(0).Month;
+            byte secondMonth = (byte)DateTime.Today.AddMonths(1).Month;
+            byte thirdMonth = (byte)DateTime.Today.AddMonths(2).Month;
+            byte fourthMonth = (byte)DateTime.Today.AddMonths(3).Month;
+            byte fifthMonth = (byte)DateTime.Today.AddMonths(4).Month;
+            byte sixthMonth = (byte)DateTime.Today.AddMonths(5).Month;
+            byte seventhMonth = (byte)DateTime.Today.AddMonths(6).Month;
             foreach (var item in Entregas)
             {
                 if (_db.DetailPipelineEntregas.Where(p => p.Presupuestos.Equals(item.Presupuesto) && p.IdDoc == document && p.IdLine == item.idLinea).Any())
                 {
-                    //LINQ query that creates a list of MonthViewModel data based on Presupuesto, IdLinea and betweet the range specified
+                    //LINQ query that creates a list of MonthViewModel data based on Presupuesto, IdLinea and between the range specified
                     Entregas[Entregas.FindIndex(c => c.Presupuesto == item.Presupuesto && c.idLinea == item.idLinea)].Month =
                         (from s in _db.DetailPipelineEntregas.Where(x => x.Presupuestos.Equals(item.Presupuesto) && x.IdDoc == document
-                        && x.IdLine == item.idLinea && (x.Mes == firstMonth.Month || x.Mes == secondMonth.Month || x.Mes == thirdMonth.Month))
+                        && x.IdLine == item.idLinea && 
+                        (x.Mes == firstMonth || x.Mes == secondMonth || x.Mes == thirdMonth
+                        || x.Mes == fourthMonth || x.Mes == fifthMonth || x.Mes == sixthMonth || x.Mes == seventhMonth))
                          select new MonthViewModel
                          {
                              id = Math.Round((((double)s.Mes / 12) + (double)s.Año), 6),
@@ -301,12 +316,15 @@ namespace Presupuestos.cts
                     historico.Mes = item.month;
                     historico.FechaHora = DateTime.Now;
                     _db.Entry(historico).State = EntityState.Added;
-                    var updateRow = _db.DetailPipelineEntregas.Where(p => p.Presupuestos == Projection.Presupuesto
+                    if (item.value != "0") // If the value is not 0, then override the data in the DB
+                    {
+                        var updateRow = _db.DetailPipelineEntregas.Where(p => p.Presupuestos == Projection.Presupuesto
                         && p.Mes == item.month && p.Año == item.year && p.IdDoc == lastDocument && p.IdLine == Projection.idLinea).SingleOrDefault();
-                    updateRow.Cantidad = decimal.Parse(item.value);
-                    updateRow.CantidadKilos = (decimal)CalculateKG(Projection, item.value);
-                    updateRow.CantidadMedida = (decimal)CalculateSheet(Projection, item.value);
-                }
+                        updateRow.Cantidad = decimal.Parse(item.value);
+                        updateRow.CantidadKilos = (decimal)CalculateKG(Projection, item.value);
+                        updateRow.CantidadMedida = (decimal)CalculateSheet(Projection, item.value);
+                    } // End if
+                }    
                 else if (item.value != "0")
                 {
                     DetailPipelineEntregas entregas = new DetailPipelineEntregas();

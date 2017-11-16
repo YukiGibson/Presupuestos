@@ -40,7 +40,7 @@ namespace Presupuestos.Tests.Controllers
                 new ProjectionViewModel { Presupuesto="23459", Ancho_Bobina = 45, Checked = true, Cliente = "Guillermo" },
                 new ProjectionViewModel { Presupuesto="23460", Ancho_Bobina = 45, Checked = true, Cliente = "Meesa" }
             };
-            main.Month = new List<MonthViewModel>
+            main.month = new List<MonthViewModel>
             {
                 new MonthViewModel { month = 1, value = "0", year = 2017 },
                 new MonthViewModel { month = 2, value = "56,000", year = 2017 },
