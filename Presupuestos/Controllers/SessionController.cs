@@ -61,7 +61,8 @@ namespace Presupuestos.Controllers
             }
             catch (Exception e)
             {
-                viewShow.MessageType.Add("Error", "Ocurrió un fallo en la carga de los presupuestos, favor volver a intentar");
+                viewShow.MessageType.Add("Error", (String.IsNullOrEmpty(e.InnerException.Message) 
+                    ? e.Message : e.InnerException.Message));
             }
             finally // To finally free resources
             {

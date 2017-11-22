@@ -10,6 +10,7 @@ using System.Web.Mvc;
 using Presupuestos.ViewModels;
 using Presupuestos.DAL;
 using Presupuestos.cts;
+using System.Globalization;
 
 namespace Presupuestos.Controllers
 {
@@ -34,7 +35,7 @@ namespace Presupuestos.Controllers
             }
             catch (Exception e)
             {
-                viewModel.MessageType.Add("Error", "Excepción del sistema, favor volver a intentar o contacte al departamento de TI");
+                viewModel.MessageType.Add("Error", (String.IsNullOrEmpty(e.InnerException.Message) ? e.Message : e.InnerException.Message) );
                 viewModel.SortBy = MainView.SortBy;
                 viewModel.Sorts = new Dictionary<string, string>
                 {
@@ -45,9 +46,15 @@ namespace Presupuestos.Controllers
             }
             finally 
             {
+                DateTime baseDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 15);
+                viewModel.orderedCosts = new SortedSet<CostsViewModel>(new SortCostsById());
+                for (short i = 0; i < 7; i++)
+                {
+                    string spanishMonth = baseDate.AddMonths(i).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
+                    viewModel.orderedCosts.Add(new CostsViewModel { id = i, monthName = spanishMonth, monthValue = (byte)baseDate.AddMonths(i).Month, yearValue = (short)baseDate.AddMonths(i).Year });
+                }
                 checks.Dispose();
             }
-           
             return View(viewModel);
         }
 
@@ -61,20 +68,20 @@ namespace Presupuestos.Controllers
         {
             Check check = new Check(db);
             viewModel.MessageType = new Dictionary<string, string>();
-            DashBoardMessage newMessage = new DashBoardMessage(viewModel.MessageType, MainView.Month, MainView.Projections);
+            DashBoardMessage newMessage = new DashBoardMessage(viewModel.MessageType, MainView.month, MainView.Projections);
             try
             {
-                for (int i = 0; i < MainView.Month.Count(); i++)
+                for (int i = 0; i < MainView.month.Count(); i++)
                 {
-                    string monthProjectionValue = MainView.Month[i].value.Replace(",", string.Empty);
+                    string monthProjectionValue = MainView.month[i].value.Replace(",", string.Empty);
                     monthProjectionValue = monthProjectionValue.Replace('.', ',');
-                    MainView.Month[i].value = monthProjectionValue;
-                }// End for
-                check.InsertNewProjection(MainView.Projections, MainView.Month); 
+                    MainView.month[i].value = monthProjectionValue;
+                } // End for
+                check.InsertNewProjection(MainView.Projections, MainView.month); 
                 viewModel.MessageType = newMessage.BuildMessage(true); // The messagge is built here
                 check.DashboardLoad(MainView, ref viewModel); // In order to mantain each search and orderby, run this method
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 viewModel.MessageType = newMessage.BuildMessage(false);
             }
@@ -82,8 +89,6 @@ namespace Presupuestos.Controllers
             {
                 check.Dispose();
             }
-
-
             return View(viewModel);
         }
 
