@@ -25,7 +25,8 @@ namespace Presupuestos.cts
 
         public void DialogMessage()
         {
-            foreach (var item in insertedMonth.Where(p => p.month != 0))
+
+            foreach (var item in insertedMonth.Where(p => p.value != "0"))
             {
                 content.Append(String.Format("- {0} del mes {1} ", item.value, item.month));
             }

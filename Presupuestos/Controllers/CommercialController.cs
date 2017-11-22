@@ -35,7 +35,7 @@ namespace Presupuestos.Controllers
             }
             catch (Exception e)
             {
-                viewModel.MessageType.Add("Error", "Excepción del sistema, favor volver a intentar o contacte al departamento de TI");
+                viewModel.MessageType.Add("Error", (String.IsNullOrEmpty(e.InnerException.Message) ? e.Message : e.InnerException.Message) );
                 viewModel.SortBy = MainView.SortBy;
                 viewModel.Sorts = new Dictionary<string, string>
                 {

@@ -32,7 +32,8 @@ namespace Presupuestos.cts
         public IEnumerable<ProjectionViewModel> NewBudgets() 
         {
             return from Presupuestos in _db.A_Vista_Presupuestos
-                   join leftReserva in _db.A_Vista_OConversion_Reserva on Presupuestos.Presupuesto equals leftReserva.Presupuesto into Res
+                   join leftReserva in _db.A_Vista_OConversion_Reserva on Presupuestos.Presupuesto equals leftReserva.Presupuesto 
+                   into Res
                    from Reserva in Res.DefaultIfEmpty()
                    from Process in _db.EstrProcessos.Where(p => p.CodEstrutura == (SqlFunctions.CharIndex("P", Presupuestos.Presupuesto) != 0 ? 
                    Presupuestos.Presupuesto.Substring(0, Presupuestos.Presupuesto.Length - 1) : Presupuestos.Presupuesto)).Take(1).DefaultIfEmpty() // Outer Apply
@@ -65,13 +66,6 @@ namespace Presupuestos.cts
         /// <returns>IEnumerable type list of ProjectionViewModel containing the current budgets</returns>
         public IEnumerable<ProjectionViewModel> ShowExistingBudgets(int document) 
         {
-            string firstMonth = DateTime.Now.AddMonths(0).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
-            string secondMonth = DateTime.Now.AddMonths(1).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
-            string thirdMonth = DateTime.Now.AddMonths(2).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
-            string fourthMonth = DateTime.Now.AddMonths(3).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
-            string fifthMonth = DateTime.Now.AddMonths(4).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
-            string sixthMonth = DateTime.Now.AddMonths(5).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
-            string seventhMonth = DateTime.Now.AddMonths(6).ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
             List <ProjectionViewModel> Entregas = (from PipeLine in _db.DetailPipeline.Where(p => p.IdDoc == document)
                                                   join Projection in _db.A_Vista_Presupuestos on PipeLine.Presupuesto equals Projection.Presupuesto into PRJ
                                                   from Presupuesto in PRJ.DefaultIfEmpty()
@@ -92,16 +86,6 @@ namespace Presupuestos.cts
                                                       Paginas = (int)PipeLine.Paginas,
                                                       Montaje = PipeLine.Montaje,
                                                       Pliegos = (int)PipeLine.Pliegos,
-                                                      Month = new List<MonthViewModel>
-                                                     {
-                                                         new MonthViewModel{ id = 0, month=0, value="0", year = 0, monthName = firstMonth },
-                                                         new MonthViewModel{ id = 1, month=0, value="0", year = 0, monthName = secondMonth },
-                                                         new MonthViewModel{ id = 2, month=0, value="0", year = 0, monthName = thirdMonth },
-                                                         new MonthViewModel{ id = 3, month=0, value="0", year = 0, monthName = fourthMonth },
-                                                         new MonthViewModel{ id = 4, month=0, value="0", year = 0, monthName = fifthMonth },
-                                                         new MonthViewModel{ id = 5, month=0, value="0", year = 0, monthName = sixthMonth },
-                                                         new MonthViewModel{ id = 6, month=0, value="0", year = 0, monthName = seventhMonth }
-                                                     }
                                          }).ToList();
             GetProjections(ref Entregas, document);
             return Entregas;

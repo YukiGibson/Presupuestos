@@ -127,7 +127,8 @@
             <span class="BlackText">
                 Página @(Model.PagingMetaData.PageCount < Model.PagingMetaData.PageNumber ? 0 : Model.PagingMetaData.PageNumber) de @Model.PagingMetaData.PageCount
             </span>
-            @Html.PagedListPager(new StaticPagedList<ProjectionViewModel>(Model.Projections, Model.PagingMetaData), page => Url.Action("Dashboard", new MainViewModel { Page = page, SearchBudget = @Model.SearchBudget, SearchExecutive = @Model.SearchExecutive, SortBy = @Model.SortBy }), PagedListRenderOptions.Classic)
+            @Html.PagedListPager(new StaticPagedList<ProjectionViewModel>(Model.Projections, Model.PagingMetaData), page => Url.Action("Dashboard", 
+           new MainViewModel { Page = page, SearchBudget = @Model.SearchBudget, SearchExecutive = @Model.SearchExecutive, SortBy = @Model.SortBy }), PagedListRenderOptions.Classic)
             <!--Projections = Model.Projections-->
         </div>
     <!--The main list-->
@@ -150,13 +151,15 @@
                         @Html.HiddenFor(m => m.Projections[i].idLinea, new { id = "idLinea" })
                         | @Html.DisplayNameFor(model => model.Projection.Presupuesto) : <b>@Html.DisplayFor(m => m.Projections[i].Presupuesto)</b>
                         | @Html.DisplayNameFor(model => model.Projection.Cliente) : <b>@Html.DisplayFor(m => m.Projections[i].Cliente)</b>
-                        | @Html.DisplayNameFor(model => model.Projection.Sustrato) : <b>@Html.DisplayFor(m => m.Projections[i].Sustrato)</b>
+                        | @Html.DisplayNameFor(model => model.Projection.Producto) : <b>@Html.DisplayFor(m => m.Projections[i].Producto)</b>
 
-
-                        @foreach (var item in Model.Projections[i].Month)
-                        {
-                            <span>| @item.monthName :</span>
-                            <span><b>@item.value</b></span>
+                        @if (Model.Projections[i].Month != null)
+	                    {
+		                     foreach (var item in Model.Projections[i].Month)
+                             {
+                                <span>| @item.monthName :</span>
+                                <span><b>@item.value</b></span>
+                             }
                         }
                         <div class="collapse" id="@collapseVar">
                             <div class="well">
@@ -166,7 +169,7 @@
                                             <tr>
                                                 <th>@Html.DisplayNameFor(model => model.Projection.Ejecutivo)</th> <!--Ejecutivo-->
                                                 <th>@Html.DisplayNameFor(model => model.Projection.Familia)</th> <!--Familia-->
-                                                <th>@Html.DisplayNameFor(model => model.Projection.Producto)</th> <!--Producto-->
+                                                <th>@Html.DisplayNameFor(model => model.Projection.Sustrato)</th> <!--Producto-->
                                                 <!--Calibre                                                     -->
                                                 <th>@Html.DisplayNameFor(model => model.Projection.Gramaje)</th> <!--Gramaje-->
                                                 <th>@Html.DisplayNameFor(model => model.Projection.Ancho_Bobina)</th> <!--Ancho de bobina-->
@@ -181,7 +184,7 @@
                                             <tr>
                                                 <td>@Html.DisplayFor(m => m.Projections[i].Ejecutivo)</td>
                                                 <td>@Html.DisplayFor(m => m.Projections[i].Familia)</td>
-                                                <td>@Html.DisplayFor(m => m.Projections[i].Producto)</td>
+                                                <td>@Html.DisplayFor(m => m.Projections[i].Sustrato)</td>
                                                 <!--Calibre-->
                                                 <td>@Html.DisplayFor(m => m.Projections[i].Gramaje)</td>
                                                 @Html.HiddenFor(m => m.Projections[i].Gramaje, new { id = "Gramaje" })
