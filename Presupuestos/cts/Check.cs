@@ -107,6 +107,7 @@ namespace Presupuestos.cts
             
             if (!string.IsNullOrEmpty(MainView.SearchBudget))
             {
+                // Look for Budget number and Client
                 list = list.Where(p => p.Presupuesto.ToLower().Contains(MainView.SearchBudget.Trim().ToLower())
                     || p.Cliente.ToLower().Contains(MainView.SearchBudget.Trim().ToLower()));
                 viewModel.SearchBudget = MainView.SearchBudget.Trim();
@@ -117,8 +118,9 @@ namespace Presupuestos.cts
             }
             if (!string.IsNullOrEmpty(MainView.SearchExecutive))
             {
-                list = list.Where(p => p.Presupuesto.ToLower().Contains(MainView.SearchExecutive.Trim().ToLower()) ||
-                    p.Ejecutivo.ToLower().Contains(MainView.SearchExecutive.Trim().ToLower()) || p.Cliente.ToLower().Contains(MainView.SearchExecutive.Trim().ToLower()));
+                // Look for Product and Executive
+                list = list.Where(p => p.Producto.ToLower().Contains(MainView.SearchExecutive.Trim().ToLower()) ||
+                    p.Ejecutivo.ToLower().Contains(MainView.SearchExecutive.Trim().ToLower()));
                 viewModel.SearchExecutive = MainView.SearchExecutive.Trim();
             }
             else
@@ -299,6 +301,9 @@ namespace Presupuestos.cts
                     historico.Presupuestos = Projection.Presupuesto;
                     historico.Mes = item.month;
                     historico.FechaHora = DateTime.Now;
+                    
+                    //TO DO
+                    //Ingresar el nombre de la persona que este autenticada hasta ese momento
                     _db.Entry(historico).State = EntityState.Added;
                     if (item.value != "0") // If the value is not 0, then override the data in the DB
                     {
