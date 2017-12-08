@@ -16,7 +16,8 @@ namespace Presupuestos.Controllers
 {
     public class CommercialController : Controller
     {
-        private ProjectionContext db = new ProjectionContext();
+        private ProjectionContext _projectionContext = new ProjectionContext();
+        private SapDataContext _sapDataContext = new SapDataContext();
         private static MainViewModel viewModel = new MainViewModel();
         
         /// <summary>
@@ -27,7 +28,7 @@ namespace Presupuestos.Controllers
         [HttpGet]
         public ActionResult Dashboard(MainViewModel MainView)
         {
-            Check checks = new Check(db);
+            Check checks = new Check(_projectionContext, _sapDataContext);
             viewModel.MessageType = new Dictionary<string, string>();
             try
             {
@@ -66,7 +67,7 @@ namespace Presupuestos.Controllers
         [HttpPost]
         public ActionResult Dashboard(MainViewModel MainView, string Vacio) 
         {
-            Check check = new Check(db);
+            Check check = new Check(_projectionContext, _sapDataContext);
             viewModel.MessageType = new Dictionary<string, string>();
             DashBoardMessage newMessage = new DashBoardMessage(viewModel.MessageType, MainView.month, MainView.Projections);
             try
@@ -100,7 +101,8 @@ namespace Presupuestos.Controllers
         {
             if (disposing)
             {
-                db.Dispose();
+                _sapDataContext.Dispose();
+                _projectionContext.Dispose();
             }
             base.Dispose(disposing);
         }

@@ -46,13 +46,13 @@ namespace Presupuestos.ViewModels
         public double? Gramaje { get; set; } // Gramaje
 
         [Display(Name = "Ancho Bobina")]
-        public int? Ancho_Bobina { get; set; } // Ancho bobina
+        public decimal? Ancho_Bobina { get; set; } // Ancho bobina
 
         [Display(Name = "Ancho Pliego")]
-        public int? Ancho_Pliego { get; set; } // Ancho Pliego
+        public decimal? Ancho_Pliego { get; set; } // Ancho Pliego
 
         [Display(Name = "Largo Pliego")]
-        public int? Largo_Pliego { get; set; } // Largo Pliego
+        public decimal? Largo_Pliego { get; set; } // Largo Pliego
 
         [Display(Name = "Paginas")]
         public int? Paginas { get; set; } // paginas

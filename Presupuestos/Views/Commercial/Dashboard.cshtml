@@ -170,8 +170,23 @@
                                                 <th>@Html.DisplayNameFor(model => model.Projection.Ejecutivo)</th> <!--Ejecutivo-->
                                                 <th>@Html.DisplayNameFor(model => model.Projection.Familia)</th> <!--Familia-->
                                                 <th>@Html.DisplayNameFor(model => model.Projection.Sustrato)</th> <!--Producto-->
-                                                <!--Calibre                                                     -->
+                                                <th>@Html.DisplayNameFor(model => model.Projection.ItemCodeSustrato)</th>
                                                 <th>@Html.DisplayNameFor(model => model.Projection.Gramaje)</th> <!--Gramaje-->
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>@Html.DisplayFor(m => m.Projections[i].Ejecutivo)</td>
+                                                <td>@Html.DisplayFor(m => m.Projections[i].Familia)</td>
+                                                <td>@Html.DisplayFor(m => m.Projections[i].Sustrato)</td>
+                                                <th>@Html.DisplayFor(m => m.Projections[i].ItemCodeSustrato)</th>
+                                                <td>@Html.DisplayFor(m => m.Projections[i].Gramaje)</td>
+                                                @Html.HiddenFor(m => m.Projections[i].Gramaje, new { id = "Gramaje" })
+                                                
+                                            </tr>
+                                        </tbody>
+                                        <thead class="thead-default">
+                                            <tr>
                                                 <th>@Html.DisplayNameFor(model => model.Projection.Ancho_Bobina)</th> <!--Ancho de bobina-->
                                                 <th>@Html.DisplayNameFor(model => model.Projection.Ancho_Pliego)</th> <!--Ancho de pliego-->
                                                 <th>@Html.DisplayNameFor(model => model.Projection.Largo_Pliego)</th> <!--Largo de pliego-->
@@ -182,12 +197,6 @@
                                         </thead>
                                         <tbody>
                                             <tr>
-                                                <td>@Html.DisplayFor(m => m.Projections[i].Ejecutivo)</td>
-                                                <td>@Html.DisplayFor(m => m.Projections[i].Familia)</td>
-                                                <td>@Html.DisplayFor(m => m.Projections[i].Sustrato)</td>
-                                                <!--Calibre-->
-                                                <td>@Html.DisplayFor(m => m.Projections[i].Gramaje)</td>
-                                                @Html.HiddenFor(m => m.Projections[i].Gramaje, new { id = "Gramaje" })
                                                 <td>@Html.DisplayFor(m => m.Projections[i].Ancho_Bobina)</td>
                                                 @Html.HiddenFor(m => m.Projections[i].Ancho_Bobina, new { id = "Ancho" })
                                                 <td>@Html.DisplayFor(m => m.Projections[i].Ancho_Pliego)</td>
@@ -248,9 +257,6 @@
                         });
                     }
                 }
-            }
-            function getCheck() {
-
             }
         </script>
     }

@@ -22,6 +22,7 @@
         public virtual DbSet<DetailPipelineHistorico> DetailPipelineHistorico { get; set; }
         public virtual DbSet<DetailPipelineEntregasPruebas> DetailPipelineEntregasPruebas { get; set; }
         public virtual DbSet<HeaderPipeline> HeaderPipeline { get; set; }
+        public virtual DbSet<HeaderPipelinePruebas> HeaderPipelinePruebas { get; set; }
         public virtual DbSet<OrcHdr> OrcHdr { get; set; }
         public virtual DbSet<Vista_SAP> Vista_SAP { get; set; }
         public virtual DbSet<EstrProcessos> EstrProcessos { get; set; }

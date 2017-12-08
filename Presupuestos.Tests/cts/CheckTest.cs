@@ -19,20 +19,23 @@ namespace Presupuestos.Tests.cts
         public void NewBudgets()
         {
             //Arrange
-            ProjectionContext db = new ProjectionContext();
-            Check check = new Check(db);
+            ProjectionContext projectionContext = new ProjectionContext();
+            SapDataContext sapDataContext = new SapDataContext();
+            Check check = new Check(projectionContext, sapDataContext);
             //Act
             IEnumerable<ProjectionViewModel> newBudgets = check.NewBudgets();
             if (String.IsNullOrEmpty(newBudgets.ToString()))
             {
                 //Assert
-                db.Dispose();
+                projectionContext.Dispose();
+                sapDataContext.Dispose();
                 Assert.Inconclusive("Inconcluso: La lista no pudo traer ningun dato");
             }
             else
             {
                 //Assert
-                db.Dispose();
+                projectionContext.Dispose();
+                sapDataContext.Dispose();
                 Assert.IsNotNull(newBudgets, "La lista falló en traer datos");
             }
         }
@@ -44,8 +47,9 @@ namespace Presupuestos.Tests.cts
         public void GetMonthName()
         {
             //Arrange
-            ProjectionContext db = new ProjectionContext();
-            Check check = new Check(db);
+            ProjectionContext projectionContext = new ProjectionContext();
+            SapDataContext sapDataContext = new SapDataContext();
+            Check check = new Check(projectionContext, sapDataContext);
             //Act
             string monthName = check.GetMonthName(2017, 12);
             //Assert
@@ -59,8 +63,9 @@ namespace Presupuestos.Tests.cts
         public void CalculateKG()
         {
             //Arrange
-            ProjectionContext db = new ProjectionContext();
-            Check check = new Check(db);
+            ProjectionContext projectionContext = new ProjectionContext();
+            SapDataContext sapDataContext = new SapDataContext();
+            Check check = new Check(projectionContext, sapDataContext);
             //Act
             ProjectionViewModel projection = new ProjectionViewModel();
             projection.Ancho_Pliego = 677;
@@ -70,7 +75,7 @@ namespace Presupuestos.Tests.cts
             projection.Gramaje = 63;
             double kgTotal = check.CalculateKG(projection, "7800000");
             //Assert
-            Assert.AreEqual(kgTotal, 225222.8706);
+            Assert.AreEqual(kgTotal, 112611.4353);
         }
         /*
         [TestMethod]

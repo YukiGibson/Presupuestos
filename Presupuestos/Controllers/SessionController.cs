@@ -15,7 +15,8 @@ namespace Presupuestos.Controllers
 {
     public class SessionController : Controller
     {
-        private ProjectionContext db = new ProjectionContext();
+        private ProjectionContext _projectionContext = new ProjectionContext();
+        private SapDataContext _sapDataContext = new SapDataContext();
         static MainViewModel viewModel = new MainViewModel();
 
         /// <summary>
@@ -27,7 +28,7 @@ namespace Presupuestos.Controllers
         {
             try
             {
-                int? lastDocument = db.DetailPipeline.Select(p => p.IdDoc).Max();
+                int? lastDocument = _projectionContext.DetailPipeline.Select(p => p.IdDoc).Max();
                 viewModel.documentNumber = (lastDocument == null ? (ushort)0 : (ushort)lastDocument);
             }
             catch (Exception)
@@ -47,21 +48,20 @@ namespace Presupuestos.Controllers
         {
             MainViewModel viewShow = new MainViewModel();
             viewShow.MessageType = new Dictionary<string, string>();
-            Check check = new Check(db);
+            Check check = new Check(_projectionContext, _sapDataContext);
             viewShow.Projections = new List<ProjectionViewModel>();
-            //viewModel.Data
             try
             {
                 IEnumerable<ProjectionViewModel> Data = check.NewBudgets(); // LINQ that brings the latest Presupuestos
                 check.InsertNewBudgets(Data);
                 viewShow.Projections = Data.ToList();
                 viewShow.MessageType.Add("Success", "Se cargaron " + Data.Count() + " presupuestos");
-                int? lastDocument = db.DetailPipeline.Select(p => p.IdDoc).Max();
+                int? lastDocument = _projectionContext.DetailPipeline.Select(p => p.IdDoc).Max();
                 viewShow.documentNumber = (lastDocument == null ? (ushort)0 : (ushort)lastDocument);
             }
             catch (Exception e)
             {
-                viewShow.MessageType.Add("Error", (String.IsNullOrEmpty(e.InnerException.Message) 
+                viewShow.MessageType.Add("Error", (!String.IsNullOrEmpty(e.InnerException.Message) 
                     ? e.Message : e.InnerException.Message));
             }
             finally // To finally free resources
