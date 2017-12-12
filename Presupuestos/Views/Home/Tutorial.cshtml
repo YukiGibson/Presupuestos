@@ -1,0 +1,69 @@
+﻿
+@{
+    ViewBag.Title = "Tutorial";
+}
+
+<section class="BlackText">
+    <article>
+        <h2>Tutorial</h2>
+        <dl>
+            <dt>Importar</dt>
+            <dd>
+                <ol>
+                    <li>Metrics
+                        <p>Los presupuestos deben crearse primeramente en Metrics. Luego de que el presupuesto esté listo, se agrega 
+                        la palabra <span><strong><ins>PREV</ins></strong></span> en el campo Fax en Metrics, 
+                        esto permite a la aplicación distinguir entre los presupuestos para la proyección y los restantes.</p>
+                        <p>Si se ocupa sacar un presupuesto de la aplicación, solo es necesario quitar la palabra del campo
+                        del presupuesto.</p>
+                    </li>
+                    <li>Sesiones
+                        <p>Una sesión se crea cuando presionamos el botón <button type="button" class="btn btn-primary btn-sm">Ingresar</button>,
+                        genera un proceso que trae los presupuestos con la palabra clave, además de las medidas respectivas.</p>
+                        <p>La idea de la sesión es si hay cambios en Metrics, ya sea de ingeniería u otro valor, si se presiona el 
+                        botón ingresar, el proceso traerá los presupuestos actualizados hasta ese momento. Esto permite tener una 
+                        fotografía en el tiempo con las diferentes sesiones que se vayan a correr</p>
+                    </li>
+                    <li>Ingresar
+                        <p>Como ya se explicó anteriormente, el proceso de ingresar se refiere a presionar el botón de ingreso 
+                        arriba especificado, esto además de ingresar los nuevos presupuestos, mostrará una lista con los datos
+                        <span style="color:#460e97;font-style:oblique">Presupuesto | Cliente | Sustrato | Ejecutivo</span> en la 
+                        parte de abajo, esto para revisión.</p>
+                    </li>
+                </ol>
+            </dd>
+            <dt>Dashboard</dt>
+            <dd>
+                <ol>
+                    <li>Navegación
+                        <p>Primeramente notará el texto <b>Sesión</b>, con un número especificando la sesión en la que se encuentra
+                        la aplicación. Abajo encontrará la barra de navegación la cual le permitirá buscar por número de presupuesto,
+                        por cliente, por ejecutivo o por descripción de producto. Además de permitir ordenar por número de presupuesto,
+                        de forma ascendente o descendente.</p>
+                        <p>La parte principal de la aplicación es donde se mostrará los presupuestos traídos cuando se cargó una nueva
+                        sesión. Primeramente tendrá dos paginadores <img class="example-image" src="~/Images/paginador.PNG" alt="Paginador" /> 
+                        uno antes y después de la lista. Cada página contendrá 15 presupuestos. </p>
+                        <p>Cada presupuesto tendrá un botón de opción <a id="example-button" class="btn btn-toolbar" role="button">
+                            <span class="glyphicon glyphicon-option-horizontal"></span>
+                        </a> el cual desplegará el resto de información de cada presupuesto.</p>
+                    </li>
+                    <li>Ingreso de Proyecciones
+                        <p>El ingreso de las proyecciones se hacen a través de la misma página, en las cajas de texto que contienen 
+                        el título <b>Proyección de </b> y el mes en contexto. </p>
+                        <p>Para aplicar una proyección se ocupa escoger con un check <input type="checkbox" checked="" /> 
+                        el presupuesto al que se quiera proyectar. La aplicación permite hasta un máximo de 7 meses de proyección.
+                        Luego de escoger los presupuestos, el botón <button type="button" class="btn btn-primary btn-sm">Guardar</button>
+                        ejecutará un proceso donde las proyecciones que tengan un valor mayor a 0, son aplicadas directamente.</p>
+                        <p>Finalmente, luego de una carga exitosa, los valores de los meses proyectados se mostrarán en el título
+                        de cada presupuesto, ejemplo <span style="color:#460e97;font-style:oblique">
+                        | diciembre : 1150 | enero : 1150 | febrero : 1150 </span>
+</p>
+                    </li>
+                </ol>
+            </dd>
+            <dt>Comparativa</dt>
+            <dd><i>En construcción . . . </i></dd>
+        </dl>
+    </article>
+</section>
+

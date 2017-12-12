@@ -130,8 +130,6 @@ namespace Presupuestos.cts
         /// <param name="viewModel">Pass-By-Reference from the static MainViewModel</param>
         public void DashboardLoad(MainViewModel MainView, ref MainViewModel viewModel) 
         {
-            
-
             int last = _projectionContext.DetailPipeline.Count() == 0 ? (ushort)0 : (ushort)_projectionContext.DetailPipeline.Select(p => p.IdDoc).Max();
             viewModel.documentNumber = (ushort)last;
             //Si se ocupa traer las proyecciones por meses, entonces se deben enviar por referencia en showExistingBudgets()
@@ -244,9 +242,10 @@ namespace Presupuestos.cts
         private void InsertSingleBudget(ProjectionViewModel row, uint lineNumber, ushort lastDocument) 
         {
             DetailPipeline pipelineModel = new DetailPipeline();
-            var ordenDeProduccion = _projectionContext.A_Vista_Presupuestos.Where(p => p.Presupuesto == row.Presupuesto).Select(s => s.OP).SingleOrDefault();
-            var codigoCliente = _projectionContext.Vista_SAP.Where(s => s.U_OrdenProduccionMet == ordenDeProduccion).Select(p => p.CardCode).SingleOrDefault();
-
+            string nombreCliente = GetSearchName(row.Cliente);
+                //_projectionContext.A_Vista_Presupuestos.Where(p => p.Presupuesto == row.Presupuesto).Select(s => s.OP).SingleOrDefault();
+            var codigoCliente = _sapDataContext.OCRD.Where(s => s.CardName.Equals(nombreCliente)).Select(p => p.CardCode).FirstOrDefault();
+            //TODO hacer por el codigo de sustrato, no por la OP porque no es fiable
             pipelineModel.Ejecutivo = row.Ejecutivo;
             pipelineModel.Cliente = row.Cliente;
             pipelineModel.Producto = row.Producto;
@@ -414,7 +413,7 @@ namespace Presupuestos.cts
         {
             double anchoPliego = Projection.Ancho_Pliego == null ? 0 : (double)Projection.Ancho_Pliego;
             double largoPliego = Projection.Largo_Pliego == null ? 0 : (double)Projection.Largo_Pliego;
-            double month = Month == null ? 0 : Double.Parse(Month);
+            double cantidadRequerida = CalculateSheet(Projection, Month);
             double montaje = Projection.Montaje == null ? 0 : (double)Projection.Montaje;
             double pliegos = Projection.Pliegos == null ? 0 : (double)Projection.Pliegos;
             double gramaje = Projection.Gramaje == null ? 0 : (double)Projection.Gramaje;
@@ -424,13 +423,13 @@ namespace Presupuestos.cts
             if (Projection.Paginas > 2)
             {
                 double result = (((anchoPliego * largoPliego) / 1000000) *
-                    (month * pliegos)) * (gramaje / 1000);
+                    (cantidadRequerida)) * (gramaje / 1000);
                 return Double.IsInfinity(result) || Double.IsNaN(result) ? 0 : Math.Round(result, 4);
             }
             else
             {
                 double result = (((anchoPliego * largoPliego) / 1000000) *
-                    (month / montaje)) * (gramaje / 1000);
+                    (cantidadRequerida / montaje)) * (gramaje / 1000);
                 return Double.IsInfinity(result) || Double.IsNaN(result) ? 0 : Math.Round(result, 4);
             }
             /* Fórmulas para el cálculo de los KG y la cantidad de pliegos
@@ -460,17 +459,19 @@ namespace Presupuestos.cts
         /// <returns></returns>
         public double CalculateSheet(ProjectionViewModel Projection, string Month) 
         {
-            double month = Month == null ? 0 : Double.Parse(Month);
+            double cantidadProyectada = Month == null ? 0 : Double.Parse(Month);
             double montaje = Projection.Montaje == null ? 0 : (double)Projection.Montaje;
             double pliegos = Projection.Pliegos == null ? 0 : (double)Projection.Pliegos;
+            double paginas = Projection.Paginas == null ? 0 : (double)Projection.Paginas;
             if (Projection.Paginas > 2)
             {
-                double result = pliegos * month;
+                double result = (cantidadProyectada / montaje) * (paginas/pliegos);
+                // Formula month/montaje * (cantidadPaginas/Pliegos) 
                 return Double.IsInfinity(result) || Double.IsNaN(result) ? 0 : Math.Round(result, 4);
             }
             else
             {
-                double result = (1 / montaje) * month;
+                double result = (1 / montaje) * cantidadProyectada;
                 return Double.IsInfinity(result) || Double.IsNaN(result) ? 0 : Math.Round(result, 4);
             }
         } // End calculateSheet
@@ -479,5 +480,33 @@ namespace Presupuestos.cts
         {
             _projectionContext.Dispose();
         }
+        
+         private string GetSearchName(String clientName){
+            String[] arrayCliente = new String[2];
+            if (clientName.Contains((char)44))
+            {
+                clientName = clientName.Remove(clientName.IndexOf((char)44));
+            }
+            // End if, remueve la coma de cualquier nombre
+            for (int i = 0; i < arrayCliente.Length; i++)
+            {
+                if (clientName.IndexOf(" ") != 0 && clientName.IndexOf(" ") != -1)
+                {
+                    arrayCliente[i] = clientName.Substring(0, clientName.IndexOf(" "));
+                    clientName = clientName.Remove(0, clientName.IndexOf(" ") + 1);
+                }
+                else if (arrayCliente[0] != clientName)
+                {
+                    arrayCliente[i] = clientName;
+                } // End if/else
+            } // End for
+            if (arrayCliente[0] != null)
+            {
+                return arrayCliente[0] + " " + arrayCliente[1];
+            }// End If
+
+            return "";
+        } // End dividirClienteNombre
+         
     }
 }

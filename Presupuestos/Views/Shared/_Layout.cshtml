@@ -12,7 +12,6 @@
 </head>
 <body>
     <nav class="navbar navbar-default navbar-fixed-top">
-        <!--1A1E39-->
         <div class="container">
             <div class="navbar-header">
                 <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#CollapseNavBar">
@@ -26,17 +25,35 @@
                     <button class="img-responsive" type="submit" style="width:232px; height:auto; background-color:#ffffff">
                         <img src="~/Images/GrupoVargas.png" alt="Grupo Vargas S.A." title="Volver al menú principal" style="width:221px;height:auto" />
                     </button>
-
                 }
             </div>
             <div class="navbar-collapse collapse" id="CollapseNavBar">
                 <ul class="nav navbar-nav">
-                    <li>@Html.ActionLink("Dashboard", "Dashboard", "Commercial")</li>
-                    <li>@Html.ActionLink("Importar", "Imports", "Session")</li>
-                    <li>@Html.ActionLink("Comparativa", "Comparative", "Session")</li>
+                    <li>
+                    @Html.ActionLink("Dashboard", "Dashboard", "Commercial", null, new { @class= "glyphicon glyphicon-dashboard nav-txt-big" })
+                    </li>
+                    <li>
+                    @Html.ActionLink("Importar", "Imports", "Session", null, new { @class = "glyphicon glyphicon-download nav-txt-big" })
+                    </li>
+                    <li>
+                    @Html.ActionLink("Comparativa", "Comparative", "Session", null, new { @class = "glyphicon glyphicon-check nav-txt-big" })
+                    </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
-                    <li class="active"><a href="http://intranet/gv/DefaultPage.aspx">Regresar</a></li>
+                    <li>
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default dropdown-toggle glyphicon glyphicon-info-sign nav-txt-big" 
+                                    data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>@Html.ActionLink("Acerca de la página", "About", "Home")</li>
+                                <li>@Html.ActionLink("Tutorial", "Tutorial", "Home")</li>
+                            </ul>
+                        </div>
+                    
+                    </li>
+                    <li class="active nav-txt-big"><a href="http://intranet/gv/DefaultPage.aspx">Regresar</a></li>
                 </ul>
             </div>
         </div>
@@ -48,7 +65,7 @@
         <footer class="modal-footer">
             <div class="text-center">
                 <p>&copy; @DateTime.Now.Year - Grupo Vargas S.A.</p>
-                <p><em>Versión 1.25</em></p>
+                <p><em>Versión 1.27</em></p>
             </div>
         </footer>
     </div>

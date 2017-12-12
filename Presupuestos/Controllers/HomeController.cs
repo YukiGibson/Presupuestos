@@ -16,15 +16,11 @@ namespace Presupuestos.Controllers
 
         public ActionResult About()
         {
-            ViewBag.Message = "Your application description page.";
-
             return View();
         }
 
-        public ActionResult Contact()
+        public ActionResult Tutorial()
         {
-            ViewBag.Message = "Your contact page.";
-
             return View();
         }
     }

@@ -11,10 +11,10 @@
 <h2 class="BlackText">Pipeline de abastecimiento Comercial - Sesión #@Model.documentNumber</h2>
 <!--Searching result labels-->
 <p class="BlackText">
-    @((string.IsNullOrEmpty(Model.SearchBudget) && string.IsNullOrEmpty(Model.SearchExecutive)) ? "Mostrando " : "Etiquetas de búsqueda: '" +
-    (string.IsNullOrEmpty(Model.SearchBudget) ? string.Empty : Model.SearchBudget) +
-    (string.IsNullOrEmpty(Model.SearchExecutive) ? "" : (string.IsNullOrEmpty(Model.SearchBudget) ? Model.SearchExecutive : ", " + Model.SearchExecutive)) +
-      "', mostrando") @Model.PagingMetaData.TotalItemCount <i>resultados</i>
+    @((string.IsNullOrEmpty(Model.SearchBudget) && string.IsNullOrEmpty(Model.SearchExecutive)) ? "Mostrando " : 
+        "Etiquetas de búsqueda: '" + (string.IsNullOrEmpty(Model.SearchBudget) ? string.Empty : Model.SearchBudget) +
+    (string.IsNullOrEmpty(Model.SearchExecutive) ? "" : (string.IsNullOrEmpty(Model.SearchBudget) ? Model.SearchExecutive : ", " 
+    + Model.SearchExecutive)) + "', mostrando") @Model.PagingMetaData.TotalItemCount <i>resultados</i>
 </p>
 <!--First form that searches Executive, Budget number and so forth-->
 
@@ -25,19 +25,21 @@
         </div>
 
         <div class="form-group">
-            @Html.TextBox("SearchBudget", null, new { @class = "colored-border", @placeholder = "#Presupuesto o Cliente" })
+            @Html.TextBox("SearchBudget", null, new { @class = "colored-border", @placeholder = "#Presupuesto o Cliente", @type="search" })
         </div>
         <div class="form-group">
-            @Html.TextBox("SearchExecutive", null, new { @class = "colored-border", @placeholder = "Ejecutivo o Producto" })
+            @Html.TextBox("SearchExecutive", null, new { @class = "colored-border", @placeholder = "Ejecutivo o Producto", @type="search" })
         </div>
         <div class="form-group">
             <p class="BlackText">Ordenar por</p>
         </div>
         <div class="form-group">
-            @Html.DropDownListFor(vm => vm.SortBy, new SelectList(Model.Sorts, "Value", "Key"), "Default", new { @class = "btn btn-default dropdown-toggle" })
+            @Html.DropDownListFor(vm => vm.SortBy, new SelectList(Model.Sorts, "Value", "Key"), "Default", 
+           new { @class = "btn btn-default dropdown-toggle" })
         </div>
         <div class="input-group">
-            <input type="submit" value="Buscar" id="SortButton" data-loading-text="Buscando..." class="btn btn-primary" autocomplete="off" />
+            <input type="submit" value="Buscar" id="SortButton" data-loading-text="Buscando..." class="btn btn-primary" 
+                   autocomplete="off" />
         </div>
     }
 
@@ -56,14 +58,16 @@
                     <b class="BlackText first-three-months">Proyección de @item.monthName</b> 
                     @Html.HiddenFor(model => model.month[item.id].month, new { id = "month", Value = item.monthValue })
                     @Html.HiddenFor(model => model.month[item.id].year, new { id = "year", Value = item.yearValue })
-                    @Html.TextBoxFor(model => model.month[item.id].value, new { @class = "colored-border first-three-months", oninput = "thousandSeparator('month_" + item.id + "__value')" })
+                    @Html.TextBoxFor(model => model.month[item.id].value, new { @class = "colored-border first-three-months",
+                   oninput = "thousandSeparator('month_" + item.id + "__value')", @Value = "0" })
                     @Html.ValidationMessageFor(model => model.monthValues.value)
                 </div>
                 }
             </div>
         </div>
     <!--Inputs where you write each -->
-        <a class="btn btn-link" data-toggle="collapse" href="#collapse" aria-expanded="false" aria-controls="collapse">[Ingreso de meses siguientes]</a>
+        <a class="btn btn-link" data-toggle="collapse" href="#collapse" aria-expanded="false" aria-controls="collapse">
+    [Ingreso de meses siguientes]</a>
         <div class="collapse" id="collapse">
             <div class="form-horizontal">
                 <div class="form-group">
@@ -73,7 +77,8 @@
                             <b class="BlackText last-months">Proyección de @item.monthName</b> 
                             @Html.HiddenFor(model => model.month[item.id].month, new { id = "month", Value = item.monthValue })
                             @Html.HiddenFor(model => model.month[item.id].year, new { id = "year", Value = item.yearValue })
-                            @Html.TextBoxFor(model => model.month[item.id].value, new { @class = "colored-border", oninput = "thousandSeparator('month_" + item.id + "__value')" })
+                            @Html.TextBoxFor(model => model.month[item.id].value, new { @class = "colored-border",
+                           oninput = "thousandSeparator('month_" + item.id + "__value')", @Value = "0" })
                             @Html.ValidationMessageFor(model => model.monthValues.value)
                         </div>
                     }
@@ -83,7 +88,8 @@
         <div class="form-control">
             <div class="form-group">
                 <div class="col col-lg-6">
-                    <button class="btn btn-warning" type="submit" id="SubmitButton" data-loading-text="Guardando..." data-toggle="tooltip" data-placement="right" title=""
+                    <button class="btn btn-warning" type="submit" id="SubmitButton" data-loading-text="Guardando..." 
+                            data-toggle="tooltip" data-placement="right" title=""
                             data-original-title="Guardará los valores de los meses en curso en los presupuestos seleccionados">
                         Guardar
                     </button>
@@ -125,10 +131,13 @@
     <!--First page pager-->
         <div>
             <span class="BlackText">
-                Página @(Model.PagingMetaData.PageCount < Model.PagingMetaData.PageNumber ? 0 : Model.PagingMetaData.PageNumber) de @Model.PagingMetaData.PageCount
+                Página @(Model.PagingMetaData.PageCount < Model.PagingMetaData.PageNumber ? 0 : Model.PagingMetaData.PageNumber) 
+                de @Model.PagingMetaData.PageCount
             </span>
-            @Html.PagedListPager(new StaticPagedList<ProjectionViewModel>(Model.Projections, Model.PagingMetaData), page => Url.Action("Dashboard", 
-           new MainViewModel { Page = page, SearchBudget = @Model.SearchBudget, SearchExecutive = @Model.SearchExecutive, SortBy = @Model.SortBy }), PagedListRenderOptions.Classic)
+            @Html.PagedListPager(new StaticPagedList<ProjectionViewModel>(Model.Projections, Model.PagingMetaData), page =>
+       Url.Action("Dashboard",
+           new MainViewModel { Page = page, SearchBudget = @Model.SearchBudget, SearchExecutive = @Model.SearchExecutive,
+               SortBy = @Model.SortBy }), PagedListRenderOptions.Classic)
             <!--Projections = Model.Projections-->
         </div>
     <!--The main list-->
@@ -143,7 +152,7 @@
                            aria-expanded="false" aria-controls="@collapseVar">
                             <span class="glyphicon glyphicon-option-horizontal"></span>
                         </a>
-                        @Html.CheckBoxFor(m => m.Projections[i].Checked, new { id = "Checked" })
+                        @Html.CheckBoxFor(m => m.Projections[i].Checked, new { id = "Checked", @Checked="checked" })
                         @Html.HiddenFor(m => m.Projections[i].Presupuesto, new { id = "Presupuesto" })
                         @Html.HiddenFor(m => m.SortBy, new { id = "SortBy" })
                         @Html.HiddenFor(m => m.SearchBudget, new { id = "SearchBudget" })
@@ -152,13 +161,12 @@
                         | @Html.DisplayNameFor(model => model.Projection.Presupuesto) : <b>@Html.DisplayFor(m => m.Projections[i].Presupuesto)</b>
                         | @Html.DisplayNameFor(model => model.Projection.Cliente) : <b>@Html.DisplayFor(m => m.Projections[i].Cliente)</b>
                         | @Html.DisplayNameFor(model => model.Projection.Producto) : <b>@Html.DisplayFor(m => m.Projections[i].Producto)</b>
-
                         @if (Model.Projections[i].Month != null)
 	                    {
 		                     foreach (var item in Model.Projections[i].Month)
                              {
-                                <span>| @item.monthName :</span>
-                                <span><b>@item.value</b></span>
+                                <span>| <em>@item.monthName</em> :
+                                <b>@item.value</b></span>
                              }
                         }
                         <div class="collapse" id="@collapseVar">
@@ -223,40 +231,14 @@
     <!--Second page pager-->
     <div>
         <span class="BlackText">
-            Página @(Model.PagingMetaData.PageCount < Model.PagingMetaData.PageNumber ? 0 : Model.PagingMetaData.PageNumber) de @Model.PagingMetaData.PageCount
+            Página @(Model.PagingMetaData.PageCount < Model.PagingMetaData.PageNumber ? 0 : Model.PagingMetaData.PageNumber) de 
+            @Model.PagingMetaData.PageCount
         </span>
-        @Html.PagedListPager(new StaticPagedList<ProjectionViewModel>(Model.Projections, Model.PagingMetaData), page => Url.Action("Dashboard", new MainViewModel { Page = page, SearchBudget = @Model.SearchBudget, SearchExecutive = @Model.SearchExecutive, SortBy = @Model.SortBy }), PagedListRenderOptions.Classic)
+        @Html.PagedListPager(new StaticPagedList<ProjectionViewModel>(Model.Projections, Model.PagingMetaData), 
+       page => Url.Action("Dashboard", new MainViewModel { Page = page, SearchBudget = @Model.SearchBudget, SearchExecutive = 
+       @Model.SearchExecutive, SortBy = @Model.SortBy }), PagedListRenderOptions.Classic)
         <!--Projections = Model.Projections-->
     </div>
     @section Scripts {
-        <script type="text/javascript">
-            $('document').ready(function () {
-                for (var i = 0; i < 7; i++) {
-                    if ($('#month_' + i + '__value').val() != null) {
-                        thousandSeparator("month_" + i + "__value");
-                    }
-                }
-                $(function () {
-                    $('[data-toggle="tooltip"]').tooltip()
-                })
-                $('#SortButton').on('click', function () {
-                    var $btn = $(this).button('loading')
-                })
-                $('#SubmitButton').on('click', function () {
-                    var $btn = $(this).button('loading')
-                })
-            })
-            function thousandSeparator(name) {
-                if (document.getElementById(name).value != null) {
-                    var input = $('#' + name).val();
-                    var input = input.replace(/[^\d\.]+/g, "")
-                    if (input.charAt(input.length - 1) != '.') {
-                        input = input ? parseFloat(input, 10) : 0;
-                        $('#' + name).val(function () {
-                            return (input === 0) ? 0 : input.toLocaleString("en-US", { maximumFractionDigits: 2 });
-                        });
-                    }
-                }
-            }
-        </script>
+        @Scripts.Render("~/bundles/dashboardjs");
     }

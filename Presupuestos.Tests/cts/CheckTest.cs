@@ -59,8 +59,8 @@ namespace Presupuestos.Tests.cts
         [TestMethod]
         [Owner("Laureano")]
         [Priority(5)]
-        [Description("Checks if the calculation is correct ")]
-        public void CalculateKG()
+        [Description("Checks if the calculation is correct")]
+        public void CalculateKGBox()
         {
             //Arrange
             ProjectionContext projectionContext = new ProjectionContext();
@@ -68,14 +68,84 @@ namespace Presupuestos.Tests.cts
             Check check = new Check(projectionContext, sapDataContext);
             //Act
             ProjectionViewModel projection = new ProjectionViewModel();
-            projection.Ancho_Pliego = 677;
-            projection.Largo_Pliego = 677;
-            projection.Montaje = 2;
-            projection.Pliegos = 1;
-            projection.Gramaje = 63;
-            double kgTotal = check.CalculateKG(projection, "7800000");
+            projection.Ancho_Pliego = 445;
+            projection.Largo_Pliego = 838;
+            projection.Montaje = 1;
+            projection.Pliegos = 2;
+            projection.Paginas = 2;
+            projection.Gramaje = 44;
+            double kgTotal = check.CalculateKG(projection, "5000"); // el segundo valor es la proyección
             //Assert
-            Assert.AreEqual(kgTotal, 112611.4353);
+            Assert.AreEqual(kgTotal, 82.0402);
+        }
+
+        [TestMethod]
+        [Owner("Laureano")]
+        [Priority(5)]
+        [Description("Checks if the calculation is correct in the case of GV Medical Books")]
+        public void CalculateKGBooks()
+        {
+            //Arrange
+            ProjectionContext projectionContext = new ProjectionContext();
+            SapDataContext sapDataContext = new SapDataContext();
+            Check check = new Check(projectionContext, sapDataContext);
+            //Act
+            ProjectionViewModel projection = new ProjectionViewModel();
+            projection.Ancho_Pliego = 445;
+            projection.Largo_Pliego = 838;
+            projection.Montaje = 1;
+            projection.Pliegos = 16;
+            projection.Paginas = 48;
+            projection.Gramaje = 44;
+            double kgTotal = check.CalculateKG(projection, "5000"); // el segundo valor es la proyección
+            //Assert
+            Assert.AreEqual(kgTotal, 246.1206);
+        }
+
+        [TestMethod]
+        [Owner("Laureano")]
+        [Priority(5)]
+        [Description("Checks if the sheet calculation is correct")]
+        public void CalculateSheetsBooks()
+        {
+            //Arrange
+            ProjectionContext projectionContext = new ProjectionContext();
+            SapDataContext sapDataContext = new SapDataContext();
+            Check check = new Check(projectionContext, sapDataContext);
+            //Act
+            ProjectionViewModel projection = new ProjectionViewModel();
+            projection.Ancho_Pliego = 445;
+            projection.Largo_Pliego = 838;
+            projection.Montaje = 1;
+            projection.Pliegos = 16;
+            projection.Paginas = 48;
+            projection.Gramaje = 44;
+            double sheetTotal = check.CalculateSheet(projection, "5000"); // el segundo valor es la proyección
+            //Assert
+            Assert.AreEqual(sheetTotal, 15000);
+        }
+
+        [TestMethod]
+        [Owner("Laureano")]
+        [Priority(5)]
+        [Description("Checks if the sheet calculation is correct in the case of Medical")]
+        public void CalculateSheetsBox()
+        {
+            //Arrange
+            ProjectionContext projectionContext = new ProjectionContext();
+            SapDataContext sapDataContext = new SapDataContext();
+            Check check = new Check(projectionContext, sapDataContext);
+            //Act
+            ProjectionViewModel projection = new ProjectionViewModel();
+            projection.Ancho_Pliego = 445;
+            projection.Largo_Pliego = 838;
+            projection.Montaje = 4;
+            projection.Pliegos = 2;
+            projection.Paginas = 2;
+            projection.Gramaje = 44;
+            double sheetTotal = check.CalculateSheet(projection, "5000"); // el segundo valor es la proyección
+            //Assert
+            Assert.AreEqual(sheetTotal, 1250);
         }
         /*
         [TestMethod]
