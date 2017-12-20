@@ -1,0 +1,21 @@
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Web;
+
+namespace Presupuestos.cts
+{
+    public class ProjectionKg
+    {
+        public string IdLote { get; set; }
+        public string Lote { get; set; }
+        public int? CantidadUnidades { get; set; }
+        public DateTime FechaDeTermino { get; set; }
+    }
+    public class ConversionProcess
+    {
+        public string Lote { get; set; }
+        public string OP { get; set; }
+        public double? TotalKilogramosPorCodigo { get; set; }
+    }    
+}

@@ -50,3 +50,23 @@
     margin-left:3px;
     margin-right:3px;
 }
+
+.session-textbox {
+    width: 120px;
+    float: left;
+    margin-left:5px;
+}
+.session-button {
+    margin-top:25px;
+    width: 200px;
+    float: left;
+    margin-left: 5px;
+}
+
+#EndDate{
+    width:120px;
+}
+#StartDate{
+    width:120px;
+}
+

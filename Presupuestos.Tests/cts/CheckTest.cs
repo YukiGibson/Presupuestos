@@ -22,8 +22,9 @@ namespace Presupuestos.Tests.cts
             ProjectionContext projectionContext = new ProjectionContext();
             SapDataContext sapDataContext = new SapDataContext();
             Check check = new Check(projectionContext, sapDataContext);
+            SessionViewModel sessionView = new SessionViewModel();
             //Act
-            IEnumerable<ProjectionViewModel> newBudgets = check.NewBudgets();
+            IEnumerable<ProjectionViewModel> newBudgets = check.NewBudgets(sessionView);
             if (String.IsNullOrEmpty(newBudgets.ToString()))
             {
                 //Assert
@@ -68,15 +69,15 @@ namespace Presupuestos.Tests.cts
             Check check = new Check(projectionContext, sapDataContext);
             //Act
             ProjectionViewModel projection = new ProjectionViewModel();
-            projection.Ancho_Pliego = 445;
-            projection.Largo_Pliego = 838;
-            projection.Montaje = 1;
-            projection.Pliegos = 2;
+            projection.Ancho_Pliego = 981;
+            projection.Largo_Pliego = 576;
+            projection.Montaje = 2;
+            projection.Pliegos = 1;
             projection.Paginas = 2;
-            projection.Gramaje = 44;
-            double kgTotal = check.CalculateKG(projection, "5000"); // el segundo valor es la proyección
+            projection.Gramaje = 352;
+            double kgTotal = check.CalculateKG(projection, "168750"); // el segundo valor es la proyección
             //Assert
-            Assert.AreEqual(kgTotal, 82.0402);
+            Assert.AreEqual(kgTotal, 16782.1632);
         }
 
         [TestMethod]

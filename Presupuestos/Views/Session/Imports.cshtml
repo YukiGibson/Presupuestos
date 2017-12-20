@@ -1,4 +1,4 @@
-﻿@model Presupuestos.ViewModels.MainViewModel
+﻿@model Presupuestos.ViewModels.SessionViewModel
 @using System.Globalization
 <p id="Top"></p>
 @{
@@ -13,23 +13,26 @@
 @using (Html.BeginForm("Imports", "Session", FormMethod.Post, new { id = "CargarForm" }))
 {
     @Html.AntiForgeryToken()
-
+    @Html.ValidationSummary(true)
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">Sesión</h3>
+            <h3 class="panel-title">Sesión Número @Html.DisplayFor(model => model.DocumentNumber)</h3>
         </div>
         <div class="panel-body">
-            <div class="row">
-                <div class="col-lg-6 col-lg-offset-1">
-                    <span>
-                        Mes actual : <strong>@DateTime.Today.ToString("MMMM", CultureInfo.CreateSpecificCulture("es"))</strong>
-                        | Sesión # @Html.DisplayFor(model => model.documentNumber)
-                    </span>
-                </div>
-                <div class="col-lg-10 col-lg-offset-1">
-                    <input id="uploadButton" type="submit" value="Cargar" data-loading-text="Cargando..." class="btn btn-primary" autocomplete="off" />
-                </div>
-            </div>
+            <span class="session-textbox">
+                @Html.LabelFor(model => model.StartDate)
+                @Html.TextBoxFor(model => model.StartDate, new { @class = "form-control datepicker", @id = "startDatePicker",
+                Value = Model.StartDate.ToString("dd/mm/yy")})
+            </span>
+            <span class="session-textbox">
+                @Html.LabelFor(model => model.EndDate)
+                @Html.TextBoxFor(model => model.EndDate, new { @class = "form-control datepicker",
+                @readonly = "readonly", @id = "endDatePicker", Value = Model.StartDate.ToString("dd/mm/yy")})
+            </span>
+            <span class="session-button">
+                <input id="uploadButton" type="submit" value="Cargar" class="btn btn-primary" autocomplete="off" 
+                       onclick="loading('uploadButton')" onsubmit="loading('uploadButton')" />
+            </span>
         </div>
     </div>
 }
@@ -100,9 +103,13 @@
 @section Scripts {
     <script type="text/javascript">
         $(document).ready(function () {
-            $('#uploadButton').on('click', function () {
-                var $btn = $(this).button('loading')
-            })
+            var dateToday = new Date();
+            $(".datepicker").datepicker({
+                changeMonth: true,
+                changeYear: true,
+                yearRange: "-2:+2",
+                dateFormat: 'dd/mm/yy',
+            });
         })
     </script>
 }

@@ -31,34 +31,53 @@ namespace Presupuestos.cts
         /// Main method that brings all new budgets
         /// </summary>
         /// <returns> an IEnumerable<> type holding all ProjectionViewModel </returns>
-        public IEnumerable<ProjectionViewModel> NewBudgets() 
+        public IEnumerable<ProjectionViewModel> NewBudgets(SessionViewModel sessionView) 
         {
-            List<ProjectionViewModel> list = (from Presupuestos in _projectionContext.A_Vista_Presupuestos
-                   join leftReserva in _projectionContext.A_Vista_OConversion_Reserva on Presupuestos.Presupuesto equals leftReserva.Presupuesto 
-                   into Res
-                   from Reserva in Res.DefaultIfEmpty()
-                   from Process in _projectionContext.EstrProcessos.Where(p => p.CodEstrutura == (SqlFunctions.CharIndex("P", Presupuestos.Presupuesto) != 0 ? 
-                   Presupuestos.Presupuesto.Substring(0, Presupuestos.Presupuesto.Length - 1) : Presupuestos.Presupuesto)).Take(1).DefaultIfEmpty() // Outer Apply
-                   join Orc in _projectionContext.OrcHdr on Presupuestos.Presupuesto equals Orc.NumOrcamento
-                   where Orc.Fax.Contains("PREV") && Process.PIdClasse != "ACBMT" && Presupuestos.Presupuesto.Contains("P")
-                   select new ProjectionViewModel()
-                   {
-                       ID = Presupuestos.ID,
-                       Ejecutivo = Presupuestos.Vendedor,
-                       Cliente = Presupuestos.Cliente,
-                       Familia = Presupuestos.TipoProducto,
-                       Producto = Reserva.Titulo, // Sustrato => SAP
-                       Presupuesto = Presupuestos.Presupuesto,
-                       ItemCodeSustrato = Reserva.Material,
-                       Sustrato = "",
-                       Gramaje = 0, // SAP
-                       Ancho_Bobina = 0, // SAP
-                       Ancho_Pliego = 0, // SAP
-                       Largo_Pliego = 0, // SAP
-                       Paginas = Process.PQtdPagTot,  
-                       Montaje = Process.PQtdPagCad, 
-                       Pliegos = Process.QtdRepeticoes, 
-                   }).ToList();
+            _projectionContext.Database.Log = s => System.Diagnostics.Debug.WriteLine(s); // Log in output in order to see the generated sql query
+            var list = (from Budget in _projectionContext.A_Vista_Presupuestos.Where(o => o.FechaEmisión >= sessionView.StartDate
+                        && o.FechaEmisión <= sessionView.EndDate)
+                       join Reserva in _projectionContext.A_Vista_OConversion_Reserva on Budget.Presupuesto equals Reserva.Presupuesto
+                       join Process in _projectionContext.EstrProcessos on new
+                       {
+                           name = SqlFunctions.CharIndex("P", Budget.Presupuesto) != 0 ?
+                           Budget.Presupuesto.Substring(0, Budget.Presupuesto.Length - 1) : Budget.Presupuesto,
+                           name1 = Reserva.IDProcessoOrigem
+                       } equals new
+                       {
+                           name = Process.CodEstrutura,
+                           name1 = Process.IdProcesso
+                       } into Processos
+                       from Proc in Processos.DefaultIfEmpty()
+                       join Mater in _projectionContext.View_USR_OrdMateriaisM3 on new
+                       {
+                           first = Budget.OP,
+                           second = Reserva.IDProcessoOrigem,
+                           third = Reserva.Material
+                       } equals new
+                       {
+                           first = Mater.NumOrdem,
+                           second = Mater.IdProcessoUso,
+                           third = Mater.CodItem
+                       } into Materiais
+                        where Budget.Presupuesto.Contains("P") && !Reserva.Material.Equals("PAPELES") && Reserva.ProbVenta > 60
+                        select new ProjectionViewModel
+                       {
+                           ID = Budget.ID,
+                           Ejecutivo = Budget.Vendedor, // Vendedor
+                           Cliente = Budget.Cliente, // Cliente
+                           Familia = Budget.TipoProducto, // 
+                           Producto = Reserva.Titulo, // Producto
+                           Presupuesto = Budget.Presupuesto,
+                           ItemCodeSustrato = Reserva.Material,
+                           Sustrato = Reserva.Descripcion,
+                           Gramaje = 0, // SAP
+                           Ancho_Bobina = 0, // SAP
+                           Ancho_Pliego = 0, // SAP
+                           Largo_Pliego = 0, // SAP
+                           Paginas = Proc.PQtdPagTot,
+                           Montaje = (int?)Materiais.FirstOrDefault().FatorUnidades, //Cambiar ese 
+                           Pliegos = Proc.QtdRepeticoes,
+                       }).ToList();
 
             for (int i = 0; i < list.Count(); i++)
             {
@@ -243,8 +262,7 @@ namespace Presupuestos.cts
         {
             DetailPipeline pipelineModel = new DetailPipeline();
             string nombreCliente = GetSearchName(row.Cliente);
-                //_projectionContext.A_Vista_Presupuestos.Where(p => p.Presupuesto == row.Presupuesto).Select(s => s.OP).SingleOrDefault();
-            var codigoCliente = _sapDataContext.OCRD.Where(s => s.CardName.Equals(nombreCliente)).Select(p => p.CardCode).FirstOrDefault();
+            var codigoCliente = _projectionContext.Vista_SAP.Where(s => s.U_OrdenProduccionMet == row.ItemCodeSustrato).Select(p => p.CardCode).SingleOrDefault();
             //TODO hacer por el codigo de sustrato, no por la OP porque no es fiable
             pipelineModel.Ejecutivo = row.Ejecutivo;
             pipelineModel.Cliente = row.Cliente;
@@ -274,33 +292,68 @@ namespace Presupuestos.cts
         /// <param name="lastDocument">Last document number</param>
         private void CreateNewProjectionLine(ProjectionViewModel item, uint lineNumber, int lastDocument)
         {
-            if (_projectionContext.DetailPipeline.Where(p => p.IdDoc == lastDocument &&
-                           p.Presupuesto == item.Presupuesto && p.Sustrato == item.Sustrato && p.ItemCodeSustrato == item.ItemCodeSustrato).Any())
-            {
-                //When dealing with budgets holding the same budget number, I checked with LINQ everytime by Sustrato and Paper code
-                int idLine = (int)_projectionContext.DetailPipeline.Where(p => p.IdDoc == lastDocument &&
-                       p.Presupuesto == item.Presupuesto && p.Sustrato == item.Sustrato && p.ItemCodeSustrato == item.ItemCodeSustrato).
-                       Select(s => s.IdLinea).FirstOrDefault();
+            //TODO aca traer la data necesaria 
+            //A_Vista_OConversion_Reserva 
+            //[NumOrdem] = OP
+            //[Material] = Codigo de material
+            //[IdProcessOrigem] = codigo del proceso
+            //OrdLotesProducao 
+            //[NumOrdem] = OP
+            //[IdComponente] = Codigo de proceso
+            //[IdLote] = A, B, C, D, E, F, G
+            //[DataTermino] = Fechas
+            //VU_ACR_DON_012_OrcPapel
+            //[NumOrdem] = Número de orden de producción
+            //[totKgCot] = el total de los kilos
+            //[CodSubConta] = Código de papel
 
-                if (_projectionContext.DetailPipelineEntregas.Where(p => p.Presupuestos == item.Presupuesto
-                && p.IdDoc == lastDocument && p.IdLine == idLine).Any())
-                {
-                    List<DetailPipelineEntregas> existingBudgets = _projectionContext.DetailPipelineEntregas.Where(p => p.Presupuestos == item.Presupuesto
-                    && p.IdDoc == lastDocument && p.IdLine == idLine).ToList();
-                    foreach (var Month in existingBudgets)
+            ConversionProcess listaReserva = (from Reserva in _projectionContext.A_Vista_OConversion_Reserva
+                    where Reserva.Presupuesto == item.Presupuesto && Reserva.Material == item.ItemCodeSustrato
+                    join kgPapel in _projectionContext.VU_ACR_DON_012_OrcPapel on new
                     {
-                        DetailPipelineEntregas month = new DetailPipelineEntregas();
-                        month.IdDoc = lastDocument + 1;
-                        month.IdLine = (int?)lineNumber;
-                        month.Mes = Month.Mes;
-                        month.Año = Month.Año;
-                        month.Cantidad = Month.Cantidad;
-                        month.CantidadKilos = (decimal)CalculateKG(item, Month.Cantidad.ToString());
-                        month.CantidadMedida = (decimal)CalculateSheet(item, Month.CantidadMedida.ToString());
-                        month.Presupuestos = item.Presupuesto;
-                        _projectionContext.Entry(month).State = EntityState.Added;
-                    } // End foreach
-                } // End if
+                        CodigoPapel = Reserva.Material, 
+                        OP = Reserva.NumOrdem
+                    }
+                    equals new
+                    {
+                        CodigoPapel = kgPapel.CodSubConta,
+                        OP = kgPapel.NumOrdem
+                    }
+                    select new ConversionProcess
+                    { Lote = Reserva.IDProcessoOrigem, OP = Reserva.NumOrdem,
+                        TotalKilogramosPorCodigo = kgPapel.totKgCot }).FirstOrDefault();
+
+            string OP = listaReserva.OP;
+            string NombreProceso = listaReserva.Lote.Substring(0, listaReserva.Lote.IndexOf('-') == -1 ? 
+                listaReserva.Lote.Length : listaReserva.Lote.IndexOf('-'));
+
+            List<ProjectionKg> cantidadEnUnidades = (from Lote in _projectionContext.OrdLotesProducao
+                                                        where Lote.NumOrdem == OP
+                                                        select new ProjectionKg
+                                                        {
+                                                            IdLote = Lote.IdLote,
+                                                            Lote = Lote.IdComponente,
+                                                            CantidadUnidades = Lote.Quantidade,
+                                                            FechaDeTermino = Lote.DataTermino
+                                                        }).ToList();
+
+            foreach (ProjectionKg kgItem in cantidadEnUnidades.Where(p => p.Lote.Substring(0, p.Lote.IndexOf
+                ('-') == -1 ? p.Lote.Length : p.Lote.IndexOf('-')).Equals(NombreProceso)))
+            {
+                int totalUnidadesPorLote = (int)cantidadEnUnidades.Where(p => p.Lote.Substring(0, p.Lote.IndexOf('-') == -1 ?
+                    p.Lote.Length : p.Lote.IndexOf('-')).Equals(kgItem.Lote.Substring(0, kgItem.Lote.IndexOf('-') == -1 ?
+                    kgItem.Lote.Length : kgItem.Lote.IndexOf('-')))).Sum(o => o.CantidadUnidades);//Sum(p => p.CantidadUnidades);
+                DetailPipelineEntregas month = new DetailPipelineEntregas();
+                month.Cantidad = kgItem.CantidadUnidades;
+                //TODO revisar el calculo ya que no lo está realizando
+                double unidadesEntreTotalPorLote = (double)kgItem.CantidadUnidades / (double)totalUnidadesPorLote;
+                month.CantidadKilos = (decimal?)(unidadesEntreTotalPorLote * listaReserva.TotalKilogramosPorCodigo);
+                month.IdDoc = lastDocument + 1;
+                month.IdLine = (int?)lineNumber;
+                month.Mes = kgItem.FechaDeTermino.Month;
+                month.Año = kgItem.FechaDeTermino.Year;
+                month.Presupuestos = item.Presupuesto;
+                _projectionContext.Entry(month).State = EntityState.Added;
             }
         } // End CreateNewProjectionLine
 
@@ -318,34 +371,32 @@ namespace Presupuestos.cts
         {
             foreach (var item in Month)
             {
-                List<DetailPipelineEntregas> porLinea = _projectionContext.DetailPipelineEntregas.Where(x => x.Presupuestos == Projection.Presupuesto
+                List<DetailPipelineEntregas> list = _projectionContext.DetailPipelineEntregas.Where(x => x.Presupuestos == Projection.Presupuesto
                     && x.Mes == item.month && x.Año == item.year && x.IdDoc == lastDocument && x.IdLine == Projection.idLinea).ToList();
 
-                if (porLinea.Count != 0)
+                if (list.Count != 0)
                 {
                     //TODO Comentar si se va a publicar a la página de pruebas
-                    DetailPipelineHistorico historico = new DetailPipelineHistorico();
-                    historico.IdDoc = lastDocument;
-                    historico.IdLine = (int)Projection.idLinea;
-                    historico.Ano = item.year;
-                    historico.Cantidad = porLinea.Select(p => p.Cantidad).SingleOrDefault();
-                    historico.CantidadKilos = porLinea.Select(p => p.CantidadKilos).SingleOrDefault();
-                    historico.CantidadMedida = porLinea.Select(p => p.CantidadMedida).SingleOrDefault();
-                    historico.Presupuestos = Projection.Presupuesto;
-                    historico.Mes = item.month;
-                    historico.FechaHora = DateTime.Now;
+                    //DetailPipelineHistorico historico = new DetailPipelineHistorico();
+                    //historico.IdDoc = lastDocument;
+                    //historico.IdLine = (int)Projection.idLinea;
+                    //historico.Ano = item.year;
+                    //historico.Cantidad = list.Select(p => p.Cantidad).SingleOrDefault();
+                    //historico.CantidadKilos = list.Select(p => p.CantidadKilos).SingleOrDefault();
+                    //historico.CantidadMedida = list.Select(p => p.CantidadMedida).SingleOrDefault();
+                    //historico.Presupuestos = Projection.Presupuesto;
+                    //historico.Mes = item.month;
+                    //historico.FechaHora = DateTime.Now;
 
                     ////TO DO
                     ////Ingresar el nombre de la persona que este autenticada hasta ese momento
-                    _projectionContext.Entry(historico).State = EntityState.Added;
-                    if (item.value != "0") // If the value is not 0, then override the data in the DB
-                    {
-                        var updateRow = _projectionContext.DetailPipelineEntregas.Where(p => p.Presupuestos == Projection.Presupuesto
+                    //_projectionContext.Entry(historico).State = EntityState.Added;
+
+                    var updateRow = _projectionContext.DetailPipelineEntregas.Where(p => p.Presupuestos == Projection.Presupuesto
                         && p.Mes == item.month && p.Año == item.year && p.IdDoc == lastDocument && p.IdLine == Projection.idLinea).SingleOrDefault();
-                        updateRow.Cantidad = decimal.Parse(item.value);
-                        updateRow.CantidadKilos = (decimal)CalculateKG(Projection, item.value);
-                        updateRow.CantidadMedida = (decimal)CalculateSheet(Projection, item.value);
-                    } // End if
+                    updateRow.Cantidad = decimal.Parse(item.value);
+                    updateRow.CantidadKilos = (decimal)CalculateKG(Projection, item.value);
+                    updateRow.CantidadMedida = (decimal)CalculateSheet(Projection, item.value);
                 }    
                 else if (item.value != "0")
                 {
@@ -367,12 +418,12 @@ namespace Presupuestos.cts
         /// Inserts a new document number containing the list of new budgets, assigning projections from last documents 
         /// </summary>
         /// <param name="newBudgets">IEnumerable type that brings all the new budgets</param>
-        public void InsertNewBudgets(IEnumerable<ProjectionViewModel> newBudgets) 
+        public void InsertNewBudgets(IEnumerable<ProjectionViewModel> newBudgets, ushort lastDocument) 
         {
-            ushort lastDocument = _projectionContext.DetailPipeline.Count() == 0 ? (ushort)0 : (ushort)_projectionContext.DetailPipeline.Select(p => p.IdDoc).Max();
             uint lineNumber = 0;
             foreach (var item in newBudgets)
             {
+                //TODO ahora que las proyecciones vienen de la base de datos de Metrics, entonces cambiar CreateNewProjectionLine
                 lineNumber++;
                 InsertSingleBudget(item, lineNumber, lastDocument);
                 CreateNewProjectionLine(item, lineNumber, lastDocument);
@@ -413,13 +464,11 @@ namespace Presupuestos.cts
         {
             double anchoPliego = Projection.Ancho_Pliego == null ? 0 : (double)Projection.Ancho_Pliego;
             double largoPliego = Projection.Largo_Pliego == null ? 0 : (double)Projection.Largo_Pliego;
-            double cantidadRequerida = CalculateSheet(Projection, Month);
+            double cantidadRequerida = Projection.Paginas > 2 ? CalculateSheet(Projection, Month) : double.Parse(Month);
             double montaje = Projection.Montaje == null ? 0 : (double)Projection.Montaje;
             double pliegos = Projection.Pliegos == null ? 0 : (double)Projection.Pliegos;
             double gramaje = Projection.Gramaje == null ? 0 : (double)Projection.Gramaje;
-            //TODO revisar la cantidad de páginas
-            // Largo x ancho, mult por 2.54 div por 10000 para metro cuadrados de un pliego.
-            // ESto lo multiplico por cant total de pliegos = total de metros cuadrados
+
             if (Projection.Paginas > 2)
             {
                 double result = (((anchoPliego * largoPliego) / 1000000) *
@@ -432,23 +481,6 @@ namespace Presupuestos.cts
                     (cantidadRequerida / montaje)) * (gramaje / 1000);
                 return Double.IsInfinity(result) || Double.IsNaN(result) ? 0 : Math.Round(result, 4);
             }
-            /* Fórmulas para el cálculo de los KG y la cantidad de pliegos
-             if (dcPaginas != "0") // Es la cantidad de paginas, se refiere al campo Quantidade
-                {
-                       Kilos = (((double.Parse(intAnchoPliego) * double.Parse(intLargoPliego)) / 1000000) * 
-             * (double.Parse(intCantidad) * double.Parse(dcPliegos))) * (double.Parse(intGramaje) / 1000);
-             * 
-                       Pliegos = double.Parse(dcPliegos) * double.Parse(intCantidad);
-                               }
-                               else
-                               {
-                       Kilos = (((double.Parse(intAnchoPliego) * double.Parse(intLargoPliego)) / 1000000) * 
-             * (double.Parse(intCantidad) / double.Parse(strMontaje))) * (double.Parse(intGramaje) / 1000);
-             * 
-                       Pliegos = (1 / double.Parse(strMontaje)) * double.Parse(intCantidad);
-                  }                                
-             */
-        
         } // End calculateKG
 
         /// <summary>
@@ -463,17 +495,8 @@ namespace Presupuestos.cts
             double montaje = Projection.Montaje == null ? 0 : (double)Projection.Montaje;
             double pliegos = Projection.Pliegos == null ? 0 : (double)Projection.Pliegos;
             double paginas = Projection.Paginas == null ? 0 : (double)Projection.Paginas;
-            if (Projection.Paginas > 2)
-            {
-                double result = (cantidadProyectada / montaje) * (paginas/pliegos);
-                // Formula month/montaje * (cantidadPaginas/Pliegos) 
-                return Double.IsInfinity(result) || Double.IsNaN(result) ? 0 : Math.Round(result, 4);
-            }
-            else
-            {
-                double result = (1 / montaje) * cantidadProyectada;
-                return Double.IsInfinity(result) || Double.IsNaN(result) ? 0 : Math.Round(result, 4);
-            }
+            double result = (cantidadProyectada / montaje) * (paginas/pliegos);
+            return Double.IsInfinity(result) || Double.IsNaN(result) ? 0 : Math.Round(result, 4);
         } // End calculateSheet
 
         public void Dispose()
@@ -507,6 +530,34 @@ namespace Presupuestos.cts
 
             return "";
         } // End dividirClienteNombre
-         
+          /*List<ProjectionViewModel> list = (from Presupuestos in _projectionContext.A_Vista_Presupuestos
+                    join leftReserva in _projectionContext.A_Vista_OConversion_Reserva on Presupuestos.Presupuesto equals leftReserva.Presupuesto 
+                    into Res
+                    from Reserva in Res.DefaultIfEmpty()
+                    from Process in _projectionContext.EstrProcessos.Where(p => p.CodEstrutura == 
+                    (SqlFunctions.CharIndex("P", Presupuestos.Presupuesto) != 0 ? 
+                    Presupuestos.Presupuesto.Substring(0, Presupuestos.Presupuesto.Length - 1) : Presupuestos.Presupuesto)
+                    && p.IdProcesso == Reserva.IDProcessoOrigem).Take(1).DefaultIfEmpty() // Outer Apply
+                    //&& p.IdProcesso == Reserva.IDProcessoOrigem agregados el 13/12/2017 a las 11:55 am
+                    join Orc in _projectionContext.OrcHdr on Presupuestos.Presupuesto equals Orc.NumOrcamento
+                    where Orc.Fax.Contains("PREV") && Process.PIdClasse != "ACBMT" && Presupuestos.Presupuesto.Contains("P")
+                    select new ProjectionViewModel()
+                    {
+                        ID = Presupuestos.ID,
+                        Ejecutivo = Presupuestos.Vendedor,
+                        Cliente = Presupuestos.Cliente,
+                        Familia = Presupuestos.TipoProducto,
+                        Producto = Reserva.Titulo, // Sustrato => SAP
+                        Presupuesto = Presupuestos.Presupuesto,
+                        ItemCodeSustrato = Reserva.Material,
+                        Sustrato = "",
+                        Gramaje = 0, // SAP
+                        Ancho_Bobina = 0, // SAP
+                        Ancho_Pliego = 0, // SAP
+                        Largo_Pliego = 0, // SAP
+                        Paginas = Process.PQtdPagTot,  
+                        Montaje = Process.PQtdPagCad, //Cambiar ese 
+                        Pliegos = Process.QtdRepeticoes, 
+                    }).ToList();*/
     }
 }

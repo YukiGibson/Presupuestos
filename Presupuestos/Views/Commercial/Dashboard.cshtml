@@ -38,8 +38,8 @@
            new { @class = "btn btn-default dropdown-toggle" })
         </div>
         <div class="input-group">
-            <input type="submit" value="Buscar" id="SortButton" data-loading-text="Buscando..." class="btn btn-primary" 
-                   autocomplete="off" />
+            <input type="submit" value="Buscar" id="SortButton" class="btn btn-primary" 
+                   autocomplete="off" onclick="loading('SortButton')" onsubmit="loading('SortButton')" />
         </div>
     }
 
@@ -239,6 +239,3 @@
        @Model.SearchExecutive, SortBy = @Model.SortBy }), PagedListRenderOptions.Classic)
         <!--Projections = Model.Projections-->
     </div>
-    @section Scripts {
-        @Scripts.Render("~/bundles/dashboardjs");
-    }

@@ -27,6 +27,15 @@ namespace Presupuestos
                       "~/Content/bootstrap.css",
                       "~/Content/site.css",
                       "~/Content/Presupuestos.css"));
+
+            bundles.Add(new ScriptBundle("~/bundles/jquery-ui").Include(
+                      "~/Scripts/jquery-ui-1.12.1.js"));
+
+            bundles.Add(new StyleBundle("~/Content/jquery-ui.min.css").Include(
+                      "~/Content/themes/base/jquery-ui.css"));
+
+            bundles.Add(new ScriptBundle("~/Scripts/datepicker-es.js").Include(
+                      "~/Scripts/datepicker-es.js"));
         }
     }
 }

@@ -19,12 +19,13 @@ namespace Presupuestos.Controllers
         private ProjectionContext _projectionContext = new ProjectionContext();
         private SapDataContext _sapDataContext = new SapDataContext();
         private static MainViewModel viewModel = new MainViewModel();
-        
+
         /// <summary>
         /// Main controller method that manages the list with each parameter set in MainViewModel
         /// </summary>
         /// <param name="MainView"></param>
         /// <returns></returns>
+
         [HttpGet]
         public ActionResult Dashboard(MainViewModel MainView)
         {

@@ -1,4 +1,9 @@
-﻿$('document').ready(function () {
+﻿function loading(name) {
+    alert(name);
+    $('#' + name).prop('disabled', true);
+    $('#' + name).val('Cargando...');
+}
+$('document').ready(function () {
     $("input[type='checkbox']").each(function () { this.checked = false; });
     for (var i = 0; i < 7; i++) {
         if ($('#month_' + i + '__value').val() !== null) {
@@ -7,12 +12,6 @@
     }
     $(function () {
         $('[data-toggle="tooltip"]').tooltip();
-    });
-    $('#SortButton').on('click', function () {
-        var $btn = $(this).button('loading');
-    });
-    $('#SubmitButton').on('click', function () {
-        var $btn = $(this).button('loading');
     });
 });
 function thousandSeparator(name) {

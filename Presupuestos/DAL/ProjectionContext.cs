@@ -5,8 +5,7 @@
 
     public partial class ProjectionContext : DbContext
     {
-        public ProjectionContext()
-            : base("ProjectionContext")
+        public ProjectionContext() : base("ProjectionContext")
         {
         }
 
@@ -26,6 +25,8 @@
         public virtual DbSet<OrcHdr> OrcHdr { get; set; }
         public virtual DbSet<Vista_SAP> Vista_SAP { get; set; }
         public virtual DbSet<EstrProcessos> EstrProcessos { get; set; }
+        public virtual DbSet<OrdLotesProducao> OrdLotesProducao { get; set; }
+        public virtual DbSet<VU_ACR_DON_012_OrcPapel> VU_ACR_DON_012_OrcPapel { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
