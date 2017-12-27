@@ -1,6 +1,5 @@
 ﻿@model Presupuestos.ViewModels.SessionViewModel
 @using System.Globalization
-<p id="Top"></p>
 @{
     ViewBag.Title = "Imports";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -16,18 +15,13 @@
     @Html.ValidationSummary(true)
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">Sesión Número @Html.DisplayFor(model => model.DocumentNumber)</h3>
+            <h3 class="panel-title">Sesión #@Html.DisplayFor(model => model.DocumentNumber)</h3>
         </div>
         <div class="panel-body">
             <span class="session-textbox">
                 @Html.LabelFor(model => model.StartDate)
-                @Html.TextBoxFor(model => model.StartDate, new { @class = "form-control datepicker", @id = "startDatePicker",
-                Value = Model.StartDate.ToString("dd/mm/yy")})
-            </span>
-            <span class="session-textbox">
-                @Html.LabelFor(model => model.EndDate)
-                @Html.TextBoxFor(model => model.EndDate, new { @class = "form-control datepicker",
-                @readonly = "readonly", @id = "endDatePicker", Value = Model.StartDate.ToString("dd/mm/yy")})
+                @Html.TextBoxFor(model => model.StartDate, new { @class = "form-control",
+                @readonly = "readonly", Value = DateTime.Today.ToString("dd/MM/yy")})
             </span>
             <span class="session-button">
                 <input id="uploadButton" type="submit" value="Cargar" class="btn btn-primary" autocomplete="off" 
@@ -102,14 +96,15 @@
 
 @section Scripts {
     <script type="text/javascript">
-        $(document).ready(function () {
-            var dateToday = new Date();
-            $(".datepicker").datepicker({
-                changeMonth: true,
-                changeYear: true,
-                yearRange: "-2:+2",
-                dateFormat: 'dd/mm/yy',
-            });
-        })
+        //$(document).ready(function () {
+        //    var dateToday = new Date();
+        //    $(".datepicker").val(dateToday.toLocaleDateString('en-GB'));
+        //    $(".datepicker").datepicker({
+        //        changeMonth: true,
+        //        changeYear: true,
+        //        yearRange: "-2:+2",
+        //        dateFormat: 'dd/mm/yy'
+        //    });
+        //});
     </script>
 }

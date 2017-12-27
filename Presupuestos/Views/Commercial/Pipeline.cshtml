@@ -4,7 +4,7 @@
 @using Presupuestos.ViewModels
 
 @{
-    ViewBag.Title = "Dashboard";
+    ViewBag.Title = "Pipeline de abastecimiento";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -18,7 +18,7 @@
 </p>
 <!--First form that searches Executive, Budget number and so forth-->
 
-    @using (Html.BeginForm("Dashboard", "Commercial", FormMethod.Get, new { @class = "form-inline" }))
+    @using (Html.BeginForm("Pipeline", "Commercial", FormMethod.Get, new { @class = "form-inline" }))
     {
         <div class="form-group">
         <p class="BlackText">Buscar por</p>
@@ -39,90 +39,20 @@
         </div>
         <div class="input-group">
             <input type="submit" value="Buscar" id="SortButton" class="btn btn-primary" 
-                   autocomplete="off" onclick="loading('SortButton')" onsubmit="loading('SortButton')" />
+                   autocomplete="off" onclick="loading('SortButton')" />
         </div>
     }
-
-
-    <!--Main Form that holds a list of budgets-->
-    @using (Html.BeginForm("Dashboard", "Commercial", FormMethod.Post))
-    {
-        @Html.AntiForgeryToken()
-        @Html.ValidationSummary(true)
-        <br />
-        <div class="form-horizontal">
-            <div class="form-group">
-                @foreach (var item in Model.orderedCosts.Where(p => p.id < 3))
-                {
-                <div class="col col-md-4">
-                    <b class="BlackText first-three-months">Proyección de @item.monthName</b> 
-                    @Html.HiddenFor(model => model.month[item.id].month, new { id = "month", Value = item.monthValue })
-                    @Html.HiddenFor(model => model.month[item.id].year, new { id = "year", Value = item.yearValue })
-                    @Html.TextBoxFor(model => model.month[item.id].value, new { @class = "colored-border first-three-months",
-                   oninput = "thousandSeparator('month_" + item.id + "__value')", @Value = "0" })
-                    @Html.ValidationMessageFor(model => model.monthValues.value)
-                </div>
-                }
-            </div>
-        </div>
-    <!--Inputs where you write each -->
-        <a class="btn btn-link" data-toggle="collapse" href="#collapse" aria-expanded="false" aria-controls="collapse">
-    [Ingreso de meses siguientes]</a>
-        <div class="collapse" id="collapse">
-            <div class="form-horizontal">
-                <div class="form-group">
-                    @foreach (var item in Model.orderedCosts.Where(p => p.id >= 3))
-                    {
-                        <div class="col col-md-4">
-                            <b class="BlackText last-months">Proyección de @item.monthName</b> 
-                            @Html.HiddenFor(model => model.month[item.id].month, new { id = "month", Value = item.monthValue })
-                            @Html.HiddenFor(model => model.month[item.id].year, new { id = "year", Value = item.yearValue })
-                            @Html.TextBoxFor(model => model.month[item.id].value, new { @class = "colored-border",
-                           oninput = "thousandSeparator('month_" + item.id + "__value')", @Value = "0" })
-                            @Html.ValidationMessageFor(model => model.monthValues.value)
-                        </div>
-                    }
-                </div>
-            </div>
-        </div>
-        <div class="form-control">
-            <div class="form-group">
-                <div class="col col-lg-6">
-                    <button class="btn btn-warning" type="submit" id="SubmitButton" data-loading-text="Guardando..." 
-                            data-toggle="tooltip" data-placement="right" title=""
-                            data-original-title="Guardará los valores de los meses en curso en los presupuestos seleccionados">
-                        Guardar
-                    </button>
-                </div>
-            </div>
-        </div>
-        <br />
     <!--Each message element using BootStrap-->
-        if (Model != null)
+        @if (Model != null)
         {
             if (Model.MessageType.Count != 0)
             {
                 string value = "out";
-            <!--Using MessageType Type Of Dictionary<> from the controller, sending if Success, Error or Alert-->
-                if (Model.MessageType.TryGetValue("Success", out value))
-                {
-                    <div class="alert alert-dismissible alert-success">
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        <strong>!Exito!</strong> @Model.MessageType["Success"]
-                    </div>
-                }
-                else if (Model.MessageType.TryGetValue("Error", out value))
+                if (Model.MessageType.TryGetValue("Error", out value))
                 {
                     <div class="alert alert-dismissible alert-danger">
                         <button type="button" class="close" data-dismiss="alert">&times;</button>
                         <strong>!Error!</strong> @Model.MessageType["Error"]
-                    </div>
-                }
-                else if (Model.MessageType.TryGetValue("Alert", out value))
-                {
-                    <div class="alert alert-dismissible alert-warning">
-                        <button type="button" class="close" data-dismiss="alert">&times;</button>
-                        <strong>!Advertencia!</strong> @Model.MessageType["Alert"]
                     </div>
                 }
             }
@@ -135,7 +65,7 @@
                 de @Model.PagingMetaData.PageCount
             </span>
             @Html.PagedListPager(new StaticPagedList<ProjectionViewModel>(Model.Projections, Model.PagingMetaData), page =>
-       Url.Action("Dashboard",
+       Url.Action("Pipeline",
            new MainViewModel { Page = page, SearchBudget = @Model.SearchBudget, SearchExecutive = @Model.SearchExecutive,
                SortBy = @Model.SortBy }), PagedListRenderOptions.Classic)
             <!--Projections = Model.Projections-->
@@ -152,7 +82,6 @@
                            aria-expanded="false" aria-controls="@collapseVar">
                             <span class="glyphicon glyphicon-option-horizontal"></span>
                         </a>
-                        @Html.CheckBoxFor(m => m.Projections[i].Checked, new { id = "Checked", @Checked="checked" })
                         @Html.HiddenFor(m => m.Projections[i].Presupuesto, new { id = "Presupuesto" })
                         @Html.HiddenFor(m => m.SortBy, new { id = "SortBy" })
                         @Html.HiddenFor(m => m.SearchBudget, new { id = "SearchBudget" })
@@ -189,8 +118,6 @@
                                                 <td>@Html.DisplayFor(m => m.Projections[i].Sustrato)</td>
                                                 <th>@Html.DisplayFor(m => m.Projections[i].ItemCodeSustrato)</th>
                                                 <td>@Html.DisplayFor(m => m.Projections[i].Gramaje)</td>
-                                                @Html.HiddenFor(m => m.Projections[i].Gramaje, new { id = "Gramaje" })
-                                                
                                             </tr>
                                         </tbody>
                                         <thead class="thead-default">
@@ -206,17 +133,11 @@
                                         <tbody>
                                             <tr>
                                                 <td>@Html.DisplayFor(m => m.Projections[i].Ancho_Bobina)</td>
-                                                @Html.HiddenFor(m => m.Projections[i].Ancho_Bobina, new { id = "Ancho" })
                                                 <td>@Html.DisplayFor(m => m.Projections[i].Ancho_Pliego)</td>
-                                                @Html.HiddenFor(m => m.Projections[i].Ancho_Pliego, new { id = "Pliego_Impresion" })
                                                 <td>@Html.DisplayFor(m => m.Projections[i].Largo_Pliego)</td>
-                                                @Html.HiddenFor(m => m.Projections[i].Largo_Pliego, new { id = "Largo" })
                                                 <td>@Html.DisplayFor(m => m.Projections[i].Paginas)</td>
-                                                @Html.HiddenFor(m => m.Projections[i].Paginas, new { id = "Quantidade" })
                                                 <td>@Html.DisplayFor(m => m.Projections[i].Montaje)</td>
-                                                @Html.HiddenFor(m => m.Projections[i].Montaje, new { id = "FatorUnidades" })
                                                 <td>@Html.DisplayFor(m => m.Projections[i].Pliegos)</td>
-                                                @Html.HiddenFor(m => m.Projections[i].Pliegos, new { id = "Pliegos" })
                                             </tr>
                                         </tbody>
                                     </table>
@@ -227,7 +148,6 @@
                 }
             }
         </div>
-    }
     <!--Second page pager-->
     <div>
         <span class="BlackText">
@@ -235,7 +155,7 @@
             @Model.PagingMetaData.PageCount
         </span>
         @Html.PagedListPager(new StaticPagedList<ProjectionViewModel>(Model.Projections, Model.PagingMetaData), 
-       page => Url.Action("Dashboard", new MainViewModel { Page = page, SearchBudget = @Model.SearchBudget, SearchExecutive = 
+       page => Url.Action("Pipeline", new MainViewModel { Page = page, SearchBudget = @Model.SearchBudget, SearchExecutive = 
        @Model.SearchExecutive, SortBy = @Model.SortBy }), PagedListRenderOptions.Classic)
         <!--Projections = Model.Projections-->
     </div>

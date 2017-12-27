@@ -14,8 +14,6 @@ namespace Presupuestos.ViewModels
 
         public long ID { get; set; }
 
-        public bool Checked { get; set; }
-
         [Display(Name = "Ejecutivo")]
         [StringLength(40)]
         public string Ejecutivo { get; set; } // Vendedor
@@ -35,7 +33,7 @@ namespace Presupuestos.ViewModels
         [StringLength(12)]
         public string Presupuesto { get; set; } // Master Metrics
 
-        [Display(Name = "ItemCodeSustrato")]
+        [Display(Name = "Código de Sustrato")]
         [StringLength(30)]
         public string ItemCodeSustrato { get; set; }
 
@@ -64,6 +62,5 @@ namespace Presupuestos.ViewModels
 
         public virtual List<MonthViewModel> Month { get; set; }
 
-        public string CardCode { get; set; }
     }
 }

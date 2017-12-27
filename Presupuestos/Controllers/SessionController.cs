@@ -1,9 +1,4 @@
-﻿/*
- このsystemはラウレアノをしました。
- 今は２０１７年１１月八日。
- 一番お仕事です、そしてプログラミングはすこしむずかしいですから。
- */
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
@@ -11,6 +6,7 @@ using Presupuestos.ViewModels;
 using Presupuestos.DAL;
 using Presupuestos.cts;
 using Presupuestos.Repositories;
+using Presupuestos.Models;
 
 namespace Presupuestos.Controllers
 {
@@ -55,7 +51,7 @@ namespace Presupuestos.Controllers
                 IEnumerable<ProjectionViewModel> Data = check.NewBudgets(sessionViewModel);
                 ushort? lastDocument = pipeline.Read().Select(p => p.IdDoc).Max() == null ? (ushort)0 :
                 (ushort)pipeline.Read().Select(p => p.IdDoc).Max();
-                check.InsertNewBudgets(Data, (ushort)lastDocument);
+                check.InsertNewBudgets(Data, (ushort)lastDocument, sessionViewModel);
                 viewShow.Projections = Data.ToList();
                 viewShow.MessageType.Add("Success", "Se cargaron " + Data.Count() + " presupuestos");
                 viewShow.DocumentNumber = (ushort)lastDocument;

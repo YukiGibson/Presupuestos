@@ -7,6 +7,7 @@ namespace Presupuestos.cts
 {
     public class ProjectionKg
     {
+        public string NumOrdem { get; set; }
         public string IdLote { get; set; }
         public string Lote { get; set; }
         public int? CantidadUnidades { get; set; }
@@ -14,6 +15,7 @@ namespace Presupuestos.cts
     }
     public class ConversionProcess
     {
+        public string Presupuesto { get; set; }
         public string Lote { get; set; }
         public string OP { get; set; }
         public double? TotalKilogramosPorCodigo { get; set; }

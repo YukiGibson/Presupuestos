@@ -11,6 +11,7 @@
 
         public virtual DbSet<DetailPipeline> DetailPipeline { get; set; }
         public virtual DbSet<DetailPipelineEntregas> DetailPipelineEntregas { get; set; }
+        public virtual DbSet<DetailPipelineTotales> DetailPipelineTotales { get; set; }
         public virtual DbSet<DetailPipelinePruebas> DetailPipelinePruebas { get; set; }
         public virtual DbSet<A_Vista_OConversion> A_Vista_OConversion { get; set; }
         public virtual DbSet<A_Vista_OConversion_Reserva> A_Vista_OConversion_Reserva { get; set; }

@@ -17,24 +17,18 @@ namespace Presupuestos
                         "~/Scripts/modernizr-*"));
 
             bundles.Add(new ScriptBundle("~/bundles/bootstrap").Include(
-                      "~/Scripts/bootstrap.js",
+                      "~/Scripts/bootstrap.min.js",
                       "~/Scripts/respond.js"));
 
             bundles.Add(new ScriptBundle("~/bundles/dashboardjs").Include(
                         "~/Scripts/presupuestos.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/bootstrap.css",
+                      "~/Content/bootstrap.min.css",
                       "~/Content/site.css",
                       "~/Content/Presupuestos.css"));
 
-            bundles.Add(new ScriptBundle("~/bundles/jquery-ui").Include(
-                      "~/Scripts/jquery-ui-1.12.1.js"));
-
-            bundles.Add(new StyleBundle("~/Content/jquery-ui.min.css").Include(
-                      "~/Content/themes/base/jquery-ui.css"));
-
-            bundles.Add(new ScriptBundle("~/Scripts/datepicker-es.js").Include(
+            bundles.Add(new ScriptBundle("~/bundles/datepicker-es.js").Include(
                       "~/Scripts/datepicker-es.js"));
         }
     }

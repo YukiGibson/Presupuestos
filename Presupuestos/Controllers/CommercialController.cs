@@ -1,9 +1,4 @@
-﻿/*
- このsystemはラウレアノをしました。
- 今は２０１７年１１月八日。
- 一番お仕事です、そしてプログラミングはすこしむずかしいですから。
- */
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Web.Mvc;
@@ -27,13 +22,13 @@ namespace Presupuestos.Controllers
         /// <returns></returns>
 
         [HttpGet]
-        public ActionResult Dashboard(MainViewModel MainView)
+        public ActionResult Pipeline(MainViewModel MainView)
         {
             Check checks = new Check(_projectionContext, _sapDataContext);
             viewModel.MessageType = new Dictionary<string, string>();
             try
             {
-                checks.DashboardLoad(MainView, ref viewModel); // Pass viewModel by reference, as it works in C++
+                checks.PipelineLoad(MainView, ref viewModel); // Pass viewModel by reference, as it works in C++
             }
             catch (Exception e)
             {
@@ -56,40 +51,6 @@ namespace Presupuestos.Controllers
                     viewModel.orderedCosts.Add(new CostsViewModel { id = i, monthName = spanishMonth, monthValue = (byte)baseDate.AddMonths(i).Month, yearValue = (short)baseDate.AddMonths(i).Year });
                 }
                 checks.Dispose();
-            }
-            return View(viewModel);
-        }
-
-        /// <summary>
-        /// Controller method in charge of setting each Projection value to each chosen line
-        /// </summary>
-        /// <param name="MainView"></param>
-        /// <returns></returns>
-        [HttpPost]
-        public ActionResult Dashboard(MainViewModel MainView, string Vacio) 
-        {
-            Check check = new Check(_projectionContext, _sapDataContext);
-            viewModel.MessageType = new Dictionary<string, string>();
-            DashBoardMessage newMessage = new DashBoardMessage(viewModel.MessageType, MainView.month, MainView.Projections);
-            try
-            {
-                for (int i = 0; i < MainView.month.Count(); i++)
-                {
-                    string monthProjectionValue = MainView.month[i].value.Replace(",", string.Empty);
-                    monthProjectionValue = monthProjectionValue.Replace('.', ',');
-                    MainView.month[i].value = monthProjectionValue;
-                } // End for
-                check.InsertNewProjection(MainView.Projections, MainView.month); 
-                viewModel.MessageType = newMessage.BuildMessage(true); // The messagge is built here
-                check.DashboardLoad(MainView, ref viewModel); // In order to mantain each search and orderby, run this method
-            }
-            catch (Exception)
-            {
-                viewModel.MessageType = newMessage.BuildMessage(false);
-            }
-            finally 
-            {
-                check.Dispose();
             }
             return View(viewModel);
         }
