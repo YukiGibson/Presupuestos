@@ -1,7 +1,55 @@
 ﻿@{
     ViewBag.Title = "About";
 }
-<h2>@ViewBag.Title.</h2>
-<h3>@ViewBag.Message</h3>
-
-<p>Use this area to provide additional information.</p>
+<section class="BlackText">
+    <article>
+        <h2><span class="glyphicon glyphicon-info-sign"></span>Información de la página</h2>
+        <dl>
+            <dt>v1.25</dt>
+            <dd>Los códigos de papel ahora se mostrarán en el dashboard. Se separaron los detalles del presupuesto en
+            2 líneas.</dd>
+            <dt>v1.26</dt>
+            <dd><p>
+                Los valores de las cajas de texto volverán a 0 (cero) y los checkbox escogidos volverán
+                a su estado default luego de cargar una proyección.
+            </p>
+            <p>Se agregó un botón de información en la esquina derecha de la barra de navegación, 
+                conteniendo información de la página y un tutorial de uso.</p>
+            </dd>
+            <dt>v1.27</dt>
+            <dd>
+                <p>Las fórmulas de cálculo de kg y pliegos fueron depuradas y finalmente probadas a través de
+                pruebas unitarias.</p>
+            </dd>
+            <dt>v2.0</dt>
+            <dd>
+                <p>El ingreso de proyecciones ahora son traídas directamente de 
+                Metrics. Se agregó la posibilidad de migrar los presupuestos 
+                por un rango de fecha en la página de importar sesión.</p>
+                <p>Los kilogramos de cada consumo/proyección son ahora traídos 
+                igualmente de Metrics y divididos por cada entrega</p>
+            </dd>
+            <dt>v2.1</dt>
+            <dd>
+                <p>Se eliminó las cajas de texto del dashboard o página de vista 
+                de presupuestos</p>
+            </dd>
+            <dt>v2.11</dt>
+            <dd>
+                <p>Se agregó una regla de negocio de ingreso de presupuestos y 
+                proyecciones, la cual traerá en la página de sesiones,
+                todas aquellas órdenes de producción y sus respectivos presupuestos 
+                que contengan fechas de entrega del día en curso en adelante.</p>
+            </dd>
+            <dt>v2.2</dt>
+            <dd>
+                <p>
+                    Al ingreso de nuevos presupuestoos a través de la creación 
+                    de una nueva sesión, se ingresarán el total de la entrega del producto
+                    y el total de kilos en otra tabla de la base de datos, para consumo
+                    de la aplicación de MRP.
+                </p>
+            </dd>
+        </dl>
+    </article>
+</section>

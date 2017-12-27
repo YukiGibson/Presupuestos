@@ -1,0 +1,161 @@
+﻿@model Presupuestos.ViewModels.MainViewModel
+@using PagedList
+@using PagedList.Mvc
+@using Presupuestos.ViewModels
+
+@{
+    ViewBag.Title = "Pipeline de abastecimiento";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2 class="BlackText">Pipeline de abastecimiento Comercial - Sesión #@Model.documentNumber</h2>
+<!--Searching result labels-->
+<p class="BlackText">
+    @((string.IsNullOrEmpty(Model.SearchBudget) && string.IsNullOrEmpty(Model.SearchExecutive)) ? "Mostrando " : 
+        "Etiquetas de búsqueda: '" + (string.IsNullOrEmpty(Model.SearchBudget) ? string.Empty : Model.SearchBudget) +
+    (string.IsNullOrEmpty(Model.SearchExecutive) ? "" : (string.IsNullOrEmpty(Model.SearchBudget) ? Model.SearchExecutive : ", " 
+    + Model.SearchExecutive)) + "', mostrando") @Model.PagingMetaData.TotalItemCount <i>resultados</i>
+</p>
+<!--First form that searches Executive, Budget number and so forth-->
+
+    @using (Html.BeginForm("Pipeline", "Commercial", FormMethod.Get, new { @class = "form-inline" }))
+    {
+        <div class="form-group">
+        <p class="BlackText">Buscar por</p>
+        </div>
+
+        <div class="form-group">
+            @Html.TextBox("SearchBudget", null, new { @class = "colored-border", @placeholder = "#Presupuesto o Cliente", @type="search" })
+        </div>
+        <div class="form-group">
+            @Html.TextBox("SearchExecutive", null, new { @class = "colored-border", @placeholder = "Ejecutivo o Producto", @type="search" })
+        </div>
+        <div class="form-group">
+            <p class="BlackText">Ordenar por</p>
+        </div>
+        <div class="form-group">
+            @Html.DropDownListFor(vm => vm.SortBy, new SelectList(Model.Sorts, "Value", "Key"), "Default", 
+           new { @class = "btn btn-default dropdown-toggle" })
+        </div>
+        <div class="input-group">
+            <input type="submit" value="Buscar" id="SortButton" class="btn btn-primary" 
+                   autocomplete="off" onclick="loading('SortButton')" />
+        </div>
+    }
+    <!--Each message element using BootStrap-->
+        @if (Model != null)
+        {
+            if (Model.MessageType.Count != 0)
+            {
+                string value = "out";
+                if (Model.MessageType.TryGetValue("Error", out value))
+                {
+                    <div class="alert alert-dismissible alert-danger">
+                        <button type="button" class="close" data-dismiss="alert">&times;</button>
+                        <strong>!Error!</strong> @Model.MessageType["Error"]
+                    </div>
+                }
+            }
+        }
+        <hr />
+    <!--First page pager-->
+        <div>
+            <span class="BlackText">
+                Página @(Model.PagingMetaData.PageCount < Model.PagingMetaData.PageNumber ? 0 : Model.PagingMetaData.PageNumber) 
+                de @Model.PagingMetaData.PageCount
+            </span>
+            @Html.PagedListPager(new StaticPagedList<ProjectionViewModel>(Model.Projections, Model.PagingMetaData), page =>
+       Url.Action("Pipeline",
+           new MainViewModel { Page = page, SearchBudget = @Model.SearchBudget, SearchExecutive = @Model.SearchExecutive,
+               SortBy = @Model.SortBy }), PagedListRenderOptions.Classic)
+            <!--Projections = Model.Projections-->
+        </div>
+    <!--The main list-->
+        <div class="list-group">
+            @if (Model != null)
+            {
+                for (int i = 0; i < Model.Projections.Count; i++)
+                {
+                    string collapseVar = String.Format("collapse{0}", i);
+                    <div class="list-group-item" style="border-width: 4px;border-bottom: ridge;border-bottom-color: aliceblue">
+                        <a class="btn btn-toolbar btn-lg" role="button" data-toggle="collapse" href="#@collapseVar"
+                           aria-expanded="false" aria-controls="@collapseVar">
+                            <span class="glyphicon glyphicon-option-horizontal"></span>
+                        </a>
+                        @Html.HiddenFor(m => m.Projections[i].Presupuesto, new { id = "Presupuesto" })
+                        @Html.HiddenFor(m => m.SortBy, new { id = "SortBy" })
+                        @Html.HiddenFor(m => m.SearchBudget, new { id = "SearchBudget" })
+                        @Html.HiddenFor(m => m.SearchExecutive, new { id = "SearchExecutive" })
+                        @Html.HiddenFor(m => m.Projections[i].idLinea, new { id = "idLinea" })
+                        | @Html.DisplayNameFor(model => model.Projection.Presupuesto) : <b>@Html.DisplayFor(m => m.Projections[i].Presupuesto)</b>
+                        | @Html.DisplayNameFor(model => model.Projection.Cliente) : <b>@Html.DisplayFor(m => m.Projections[i].Cliente)</b>
+                        | @Html.DisplayNameFor(model => model.Projection.Producto) : <b>@Html.DisplayFor(m => m.Projections[i].Producto)</b>
+                        @if (Model.Projections[i].Month != null)
+	                    {
+		                     foreach (var item in Model.Projections[i].Month)
+                             {
+                                <span>| <em>@item.monthName</em> :
+                                <b>@item.value</b></span>
+                             }
+                        }
+                        <div class="collapse" id="@collapseVar">
+                            <div class="well">
+                                <div class="table-responsive table-condensed">
+                                    <table class="table table-inverse">
+                                        <thead class="thead-default">
+                                            <tr>
+                                                <th>@Html.DisplayNameFor(model => model.Projection.Ejecutivo)</th> <!--Ejecutivo-->
+                                                <th>@Html.DisplayNameFor(model => model.Projection.Familia)</th> <!--Familia-->
+                                                <th>@Html.DisplayNameFor(model => model.Projection.Sustrato)</th> <!--Producto-->
+                                                <th>@Html.DisplayNameFor(model => model.Projection.ItemCodeSustrato)</th>
+                                                <th>@Html.DisplayNameFor(model => model.Projection.Gramaje)</th> <!--Gramaje-->
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>@Html.DisplayFor(m => m.Projections[i].Ejecutivo)</td>
+                                                <td>@Html.DisplayFor(m => m.Projections[i].Familia)</td>
+                                                <td>@Html.DisplayFor(m => m.Projections[i].Sustrato)</td>
+                                                <th>@Html.DisplayFor(m => m.Projections[i].ItemCodeSustrato)</th>
+                                                <td>@Html.DisplayFor(m => m.Projections[i].Gramaje)</td>
+                                            </tr>
+                                        </tbody>
+                                        <thead class="thead-default">
+                                            <tr>
+                                                <th>@Html.DisplayNameFor(model => model.Projection.Ancho_Bobina)</th> <!--Ancho de bobina-->
+                                                <th>@Html.DisplayNameFor(model => model.Projection.Ancho_Pliego)</th> <!--Ancho de pliego-->
+                                                <th>@Html.DisplayNameFor(model => model.Projection.Largo_Pliego)</th> <!--Largo de pliego-->
+                                                <th>@Html.DisplayNameFor(model => model.Projection.Paginas)</th> <!--Paginas-->
+                                                <th>@Html.DisplayNameFor(model => model.Projection.Montaje)</th> <!--Montaje-->
+                                                <th>@Html.DisplayNameFor(model => model.Projection.Pliegos)</th> <!--Pliegos-->
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <tr>
+                                                <td>@Html.DisplayFor(m => m.Projections[i].Ancho_Bobina)</td>
+                                                <td>@Html.DisplayFor(m => m.Projections[i].Ancho_Pliego)</td>
+                                                <td>@Html.DisplayFor(m => m.Projections[i].Largo_Pliego)</td>
+                                                <td>@Html.DisplayFor(m => m.Projections[i].Paginas)</td>
+                                                <td>@Html.DisplayFor(m => m.Projections[i].Montaje)</td>
+                                                <td>@Html.DisplayFor(m => m.Projections[i].Pliegos)</td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+        </div>
+    <!--Second page pager-->
+    <div>
+        <span class="BlackText">
+            Página @(Model.PagingMetaData.PageCount < Model.PagingMetaData.PageNumber ? 0 : Model.PagingMetaData.PageNumber) de 
+            @Model.PagingMetaData.PageCount
+        </span>
+        @Html.PagedListPager(new StaticPagedList<ProjectionViewModel>(Model.Projections, Model.PagingMetaData), 
+       page => Url.Action("Pipeline", new MainViewModel { Page = page, SearchBudget = @Model.SearchBudget, SearchExecutive = 
+       @Model.SearchExecutive, SortBy = @Model.SortBy }), PagedListRenderOptions.Classic)
+        <!--Projections = Model.Projections-->
+    </div>

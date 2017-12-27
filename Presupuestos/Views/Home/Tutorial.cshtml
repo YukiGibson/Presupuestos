@@ -1,0 +1,57 @@
+﻿
+@{
+    ViewBag.Title = "Tutorial";
+}
+
+<section class="BlackText">
+    <article>
+        <h2>Tutorial</h2>
+        <dl>
+            <dt>Importar</dt>
+            <dd>
+                <ol>
+                    <li>Sesiones
+                        <p>Una sesión se crea cuando presionamos el botón <button type="button" class="btn btn-primary btn-sm">Cargar</button>,
+                        genera un proceso que trae los presupuestos con un porcentaje de probabilidad de venta mayor al 60%, además de las medidas respectivas.</p>
+                        <p>La idea de la sesión es si hay cambios en Metrics, ya sea de ingeniería u otro valor, si se presiona el 
+                        botón ingresar, el proceso traerá los presupuestos actualizados hasta ese momento. Esto permite tener una 
+                        fotografía en el tiempo con las diferentes sesiones que se vayan a correr</p>
+                        <p>Solo se cargarán los presupuestos que tengan fechas de entrega en las órdenes de producción a partir del día en curso en adelante.</p>
+                    </li>
+                    <li>Ingresar
+                        <p>Como ya se explicó anteriormente, el proceso de ingresar se refiere a presionar el botón de ingreso 
+                        arriba especificado, esto además de ingresar los nuevos presupuestos, mostrará una lista con los datos
+                        <span style="color:#460e97;font-style:oblique">Presupuesto | Cliente | Sustrato | Ejecutivo</span> en la 
+                        parte de abajo, esto para revisión.</p>
+                    </li>
+                </ol>
+            </dd>
+            <dt>Pipeline</dt>
+            <dd>
+                <ol>
+                    <li>Navegación
+                        <p>Primeramente notará el texto <b>Sesión</b>, con un número especificando la sesión en la que se encuentra
+                        la aplicación. Abajo encontrará la barra de navegación la cual le permitirá buscar por número de presupuesto,
+                        por cliente, por ejecutivo o por descripción de producto. Además de permitir ordenar por número de presupuesto,
+                        de forma ascendente o descendente.</p>
+                        <p>La parte principal de la aplicación es donde se mostrará los presupuestos traídos cuando se cargó una nueva
+                        sesión. Primeramente tendrá dos paginadores <img class="example-image" src="~/Images/paginador.PNG" alt="Paginador" /> 
+                        uno antes y después de la lista. Cada página contendrá 15 presupuestos. </p>
+                        <p>Cada presupuesto tendrá un botón de opción <a id="example-button" class="btn btn-toolbar" role="button">
+                            <span class="glyphicon glyphicon-option-horizontal"></span>
+                        </a> el cual desplegará el resto de información de cada presupuesto.</p>
+                    </li>
+                    <li>Revisión de proyecciones
+                        <p>Finalmente, luego de una carga exitosa, los valores de los meses proyectados se mostrarán en el título
+                        de cada presupuesto, ejemplo <span style="color:#460e97;font-style:oblique">
+                        | diciembre : 1150 | enero : 1150 | febrero : 1150 </span>
+</p>
+                    </li>
+                </ol>
+            </dd>
+            <dt>Comparativa</dt>
+            <dd><i>En construcción . . . </i></dd>
+        </dl>
+    </article>
+</section>
+

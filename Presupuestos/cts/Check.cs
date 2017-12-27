@@ -1,9 +1,4 @@
-﻿/*
- このsystemはラウレアノをしました。
- 今は２０１７年１１月八日。
- 一番お仕事です、そしてプログラミングはすこしむずかしいですから。
- */
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using Presupuestos.ViewModels;
@@ -18,45 +13,105 @@ namespace Presupuestos.cts
 {
     public class Check : IDisposable
     {
-        private ProjectionContext _db;
+        private ProjectionContext _projectionContext;
+        private SapDataContext _sapDataContext;
 
-        public Check(ProjectionContext db) 
+        public Check(ProjectionContext projectionContext, SapDataContext sapDataContext) 
         {
-            _db = db;
+            _projectionContext = projectionContext;
+            _sapDataContext = sapDataContext;
         } // End ctor
 
         /// <summary>
         /// Main method that brings all new budgets
         /// </summary>
         /// <returns> an IEnumerable<> type holding all ProjectionViewModel </returns>
-        public IEnumerable<ProjectionViewModel> NewBudgets() 
+        public IEnumerable<ProjectionViewModel> NewBudgets(SessionViewModel sessionView) 
         {
-            return from Presupuestos in _db.A_Vista_Presupuestos
-                   join leftReserva in _db.A_Vista_OConversion_Reserva on Presupuestos.Presupuesto equals leftReserva.Presupuesto 
-                   into Res
-                   from Reserva in Res.DefaultIfEmpty()
-                   from Process in _db.EstrProcessos.Where(p => p.CodEstrutura == (SqlFunctions.CharIndex("P", Presupuestos.Presupuesto) != 0 ? 
-                   Presupuestos.Presupuesto.Substring(0, Presupuestos.Presupuesto.Length - 1) : Presupuestos.Presupuesto)).Take(1).DefaultIfEmpty() // Outer Apply
-                   join Orc in _db.OrcHdr on Presupuestos.Presupuesto equals Orc.NumOrcamento
-                   where Orc.Fax.Contains("PREV") && Process.PIdClasse != "ACBMT" 
-                   select new ProjectionViewModel()
-                   {
-                       ID = Presupuestos.ID,
-                       Ejecutivo = Presupuestos.Vendedor,
-                       Cliente = Presupuestos.Cliente,
-                       Familia = Presupuestos.TipoProducto,
-                       Producto = Presupuestos.Título,
-                       Presupuesto = Presupuestos.Presupuesto,
-                       ItemCodeSustrato = Reserva.Material,
-                       Sustrato = Reserva.Apelido,
-                       Gramaje = Process.PGramatura, // This
-                       Ancho_Bobina = Process.PFmtFabL, // This
-                       Ancho_Pliego = Process.PFmtCadA, // This
-                       Largo_Pliego = Process.PFmtFabA, // This
-                       Paginas = Process.PQtdPagTot,  //This
-                       Montaje = Process.PQtdPagCad, // This
-                       Pliegos = Process.QtdRepeticoes, // This
-                   };
+            //_projectionContext.Database.Log = s => System.Diagnostics.Debug.WriteLine(s); // Log in output in order to see the generated sql query
+            var list = 
+            (from Budget in _projectionContext.A_Vista_Presupuestos
+             join Reserva in _projectionContext.A_Vista_OConversion_Reserva on Budget.Presupuesto equals Reserva.Presupuesto
+             join Process in _projectionContext.EstrProcessos on new
+             {
+                 name = SqlFunctions.CharIndex("P", Budget.Presupuesto) != 0 ?
+                 Budget.Presupuesto.Substring(0, Budget.Presupuesto.Length - 1) : Budget.Presupuesto,
+                 name1 = Reserva.IDProcessoOrigem
+             } equals new
+             {
+                 name = Process.CodEstrutura,
+                 name1 = Process.IdProcesso
+             } into Processos
+             from Proc in Processos.DefaultIfEmpty()
+             join Mater in _projectionContext.View_USR_OrdMateriaisM3 on new
+             {
+                 first = Budget.OP,
+                 second = Reserva.IDProcessoOrigem,
+                 third = Reserva.Material
+             } equals new
+             {
+                 first = Mater.NumOrdem,
+                 second = Mater.IdProcessoUso,
+                 third = Mater.CodItem
+             } into Materiais
+             where Budget.Presupuesto.Contains("P") && !Reserva.Material.Equals("PAPELES") && Reserva.ProbVenta > 60 &&
+             !Budget.Status.Equals("Cancelado") && Budget.F1 >= sessionView.StartDate ||
+             Budget.F2 >= sessionView.StartDate || Budget.F3 >= sessionView.StartDate || Budget.F4 >= sessionView.StartDate ||
+             Budget.F5 >= sessionView.StartDate || Budget.F6 >= sessionView.StartDate || Budget.F7 >= sessionView.StartDate ||
+             Budget.F8 >= sessionView.StartDate || Budget.F9 >= sessionView.StartDate || Budget.F10 >= sessionView.StartDate
+             select new ProjectionViewModel
+             {
+                 ID = Budget.ID,
+                 Ejecutivo = Budget.Vendedor,
+                 Cliente = Budget.Cliente,
+                 Familia = Budget.TipoProducto,
+                 Producto = Reserva.Titulo,
+                 Presupuesto = Budget.Presupuesto,
+                 ItemCodeSustrato = Reserva.Material,
+                 Sustrato = Reserva.Descripcion,
+                 Gramaje = 0, // SAP
+                 Ancho_Bobina = 0, // SAP
+                 Ancho_Pliego = 0, // SAP
+                 Largo_Pliego = 0, // SAP
+                 Paginas = Proc.PQtdPagTot,
+                 Montaje = (int?)Materiais.FirstOrDefault().FatorUnidades,
+                 Pliegos = Proc.QtdRepeticoes,
+             }).ToList();
+
+            for (int i = 0; i < list.Count(); i++)
+            {
+                long test = 0;
+                string sustratoCode = list[i].ItemCodeSustrato;
+                // Tries to parse the value to integer, if it is a text, then false
+                if (Int64.TryParse(sustratoCode, out test)) 
+                {
+                    var sap = _sapDataContext.OITM.Where(p => p.ItemCode 
+                    == sustratoCode).FirstOrDefault();
+                    list[i].Sustrato = sap.ItemName;
+                    // Esta preguntando si es Bobina, si lo es entonces guardar el ancho de bobina y pliego
+                    if (sustratoCode.Substring(10)
+                        .Equals("0000")) 
+                    {
+                        list[i].Gramaje = (double?)sap.U_Gramaje;
+                        list[i].Ancho_Bobina = list[i].Ancho_Pliego 
+                            = sap.U_Ancho_Plg;
+                    }
+                    else // Si es pliego, entonces:
+                    {
+                        //Agregamos 4 ceros al codigo existente para poder buscar la bobina a la que pertenece
+                        string bobinaCode = list[i].ItemCodeSustrato
+                            .Substring(0 , sustratoCode.Length - 4) + "0000";
+                        list[i].Ancho_Bobina = _sapDataContext.OITM
+                            .Where(p => p.ItemCode == bobinaCode)
+                            .Select(o => o.U_Ancho_Plg).FirstOrDefault();
+                        list[i].Gramaje = (double?)sap.U_Gramaje;
+                        list[i].Ancho_Pliego = sap.U_Ancho_Plg;
+                        list[i].Largo_Pliego = sap.U_Largo_Plg;
+                    }
+                }
+            }
+
+            return list;
         } // End newBudgets
 
         /// <summary>
@@ -66,8 +121,8 @@ namespace Presupuestos.cts
         /// <returns>IEnumerable type list of ProjectionViewModel containing the current budgets</returns>
         public IEnumerable<ProjectionViewModel> ShowExistingBudgets(int document) 
         {
-            List <ProjectionViewModel> Entregas = (from PipeLine in _db.DetailPipeline.Where(p => p.IdDoc == document)
-                                                  join Projection in _db.A_Vista_Presupuestos on PipeLine.Presupuesto equals Projection.Presupuesto into PRJ
+            List <ProjectionViewModel> Entregas = (from PipeLine in _projectionContext.DetailPipeline.Where(p => p.IdDoc == document)
+                                                  join Projection in _projectionContext.A_Vista_Presupuestos on PipeLine.Presupuesto equals Projection.Presupuesto into PRJ
                                                   from Presupuesto in PRJ.DefaultIfEmpty()
                                                   select new ProjectionViewModel()
                                                   {
@@ -77,6 +132,7 @@ namespace Presupuestos.cts
                                                       Cliente = PipeLine.Cliente,
                                                       Familia = Presupuesto.TipoProducto,
                                                       Producto = PipeLine.Producto,
+                                                      ItemCodeSustrato = PipeLine.ItemCodeSustrato,
                                                       Presupuesto = PipeLine.Presupuesto,
                                                       Sustrato = PipeLine.Sustrato,
                                                       Gramaje = PipeLine.Gramaje,
@@ -88,6 +144,7 @@ namespace Presupuestos.cts
                                                       Pliegos = (int)PipeLine.Pliegos,
                                          }).ToList();
             GetProjections(ref Entregas, document);
+
             return Entregas;
         } // End showExistingBudgets
 
@@ -96,38 +153,11 @@ namespace Presupuestos.cts
         /// </summary>
         /// <param name="MainView">MainViewModel brought from the view containing the data</param>
         /// <param name="viewModel">Pass-By-Reference from the static MainViewModel</param>
-        public void DashboardLoad(MainViewModel MainView, ref MainViewModel viewModel) 
+        public void PipelineLoad(MainViewModel MainView, ref MainViewModel viewModel) 
         {
-            
-
-            int last = _db.DetailPipeline.Count() == 0 ? (ushort)0 : (ushort)_db.DetailPipeline.Select(p => p.IdDoc).Max();
-            viewModel.documentNumber = (ushort)last;
-            //Si se ocupa traer las proyecciones por meses, entonces se deben enviar por referencia en showExistingBudgets()
-            IEnumerable<ProjectionViewModel> list = ShowExistingBudgets(last).ToList();
-            
-            if (!string.IsNullOrEmpty(MainView.SearchBudget))
-            {
-                // Look for Budget number and Client
-                list = list.Where(p => p.Presupuesto.ToLower().Contains(MainView.SearchBudget.Trim().ToLower())
-                    || p.Cliente.ToLower().Contains(MainView.SearchBudget.Trim().ToLower()));
-                viewModel.SearchBudget = MainView.SearchBudget.Trim();
-            }
-            else
-            {
-                viewModel.SearchBudget = string.Empty;
-            }
-            if (!string.IsNullOrEmpty(MainView.SearchExecutive))
-            {
-                // Look for Product and Executive
-                list = list.Where(p => p.Producto.ToLower().Contains(MainView.SearchExecutive.Trim().ToLower()) ||
-                    p.Ejecutivo.ToLower().Contains(MainView.SearchExecutive.Trim().ToLower()));
-                viewModel.SearchExecutive = MainView.SearchExecutive.Trim();
-            }
-            else
-            {
-                viewModel.SearchExecutive = string.Empty;
-            }
-
+            viewModel.documentNumber = _projectionContext.DetailPipeline.Count() == 0 ? (ushort)0 : (ushort)_projectionContext.DetailPipeline.Select(p => p.IdDoc).Max();
+            IEnumerable<ProjectionViewModel> list = ShowExistingBudgets(viewModel.documentNumber).ToList();
+            list = OrderContentBy(list, ref MainView);
             switch (MainView.SortBy)
             {
                 case "oldest":
@@ -140,8 +170,7 @@ namespace Presupuestos.cts
                     list = list.OrderBy(p => p.Cliente);
                     break;
             }
-
-            const int PageItems = 15;
+            const int PageItems = 20;
             int currentPage = (MainView.Page ?? 1);
             viewModel.Projections = list.Skip((currentPage - 1) * PageItems).Take(PageItems).ToList();
             viewModel.PagingMetaData = new StaticPagedList<ProjectionViewModel>(viewModel.Projections, currentPage, PageItems, list.Count()).GetMetaData();
@@ -152,6 +181,33 @@ namespace Presupuestos.cts
                 {"Nuevo a antiguo", "newest"}
             };
         } // End dashboardLoad
+
+        private IEnumerable<ProjectionViewModel> OrderContentBy(IEnumerable<ProjectionViewModel> projection, ref MainViewModel main)
+        {
+            if (!string.IsNullOrEmpty(main.SearchBudget))
+            {
+                // Look for Budget number and Client
+                string SearchBudget = main.SearchBudget;
+                projection = projection.Where(p => p.Presupuesto.ToLower().Contains(SearchBudget.Trim().ToLower())
+                    || p.Cliente.ToLower().Contains(SearchBudget.Trim().ToLower()));
+            }
+            else
+            {
+                main.SearchBudget = String.Empty;
+            }
+            if (!string.IsNullOrEmpty(main.SearchExecutive))
+            {
+                // Look for Product and Executive
+                string SearchExecutive = main.SearchExecutive;
+                projection = projection.Where(p => p.Producto.ToLower().Contains(SearchExecutive.Trim().ToLower()) ||
+                    p.Ejecutivo.ToLower().Contains(SearchExecutive.Trim().ToLower()));
+            }
+            else
+            {
+                main.SearchExecutive = String.Empty;
+            }
+            return projection;
+        }
 
         /// <summary>
         /// Void method that connects each projection with the respective budget found in the DataBase 
@@ -169,11 +225,11 @@ namespace Presupuestos.cts
             byte seventhMonth = (byte)DateTime.Today.AddMonths(6).Month;
             foreach (var item in Entregas)
             {
-                if (_db.DetailPipelineEntregas.Where(p => p.Presupuestos.Equals(item.Presupuesto) && p.IdDoc == document && p.IdLine == item.idLinea).Any())
+                if (_projectionContext.DetailPipelineEntregas.Where(p => p.Presupuestos.Equals(item.Presupuesto) && p.IdDoc == document && p.IdLine == item.idLinea).Any())
                 {
                     //LINQ query that creates a list of MonthViewModel data based on Presupuesto, IdLinea and between the range specified
                     Entregas[Entregas.FindIndex(c => c.Presupuesto == item.Presupuesto && c.idLinea == item.idLinea)].Month =
-                        (from s in _db.DetailPipelineEntregas.Where(x => x.Presupuestos.Equals(item.Presupuesto) && x.IdDoc == document
+                        (from s in _projectionContext.DetailPipelineEntregas.Where(x => x.Presupuestos.Equals(item.Presupuesto) && x.IdDoc == document
                         && x.IdLine == item.idLinea && 
                         (x.Mes == firstMonth || x.Mes == secondMonth || x.Mes == thirdMonth
                         || x.Mes == fourthMonth || x.Mes == fifthMonth || x.Mes == sixthMonth || x.Mes == seventhMonth))
@@ -211,9 +267,7 @@ namespace Presupuestos.cts
         private void InsertSingleBudget(ProjectionViewModel row, uint lineNumber, ushort lastDocument) 
         {
             DetailPipeline pipelineModel = new DetailPipeline();
-            var ordenDeProduccion = _db.A_Vista_Presupuestos.Where(p => p.Presupuesto == row.Presupuesto).Select(s => s.OP).SingleOrDefault();
-            var codigoCliente = _db.Vista_SAP.Where(s => s.U_OrdenProduccionMet == ordenDeProduccion).Select(p => p.CardCode).SingleOrDefault();
-
+            var codigoCliente = _projectionContext.Vista_SAP.Where(s => s.U_OrdenProduccionMet == row.ItemCodeSustrato).Select(p => p.CardCode).SingleOrDefault();
             pipelineModel.Ejecutivo = row.Ejecutivo;
             pipelineModel.Cliente = row.Cliente;
             pipelineModel.Producto = row.Producto;
@@ -221,9 +275,9 @@ namespace Presupuestos.cts
             pipelineModel.ItemCodeSustrato = row.ItemCodeSustrato;
             pipelineModel.Sustrato = row.Sustrato;
             pipelineModel.Gramaje = row.Gramaje == null ? 0 : (int)row.Gramaje;
-            pipelineModel.AnchoBobina = row.Ancho_Bobina == null ? 0 : row.Ancho_Bobina;
-            pipelineModel.AnchoPliego = row.Ancho_Pliego == null ? 0 : row.Ancho_Pliego;
-            pipelineModel.LargoPliego = row.Largo_Pliego == null ? 0 : row.Largo_Pliego;
+            pipelineModel.AnchoBobina = row.Ancho_Bobina == null ? 0 : (int?)row.Ancho_Bobina;
+            pipelineModel.AnchoPliego = row.Ancho_Pliego == null ? 0 : (int?)row.Ancho_Pliego;
+            pipelineModel.LargoPliego = row.Largo_Pliego == null ? 0 : (int?)row.Largo_Pliego;
             pipelineModel.Paginas = row.Paginas == null ? 0 : row.Paginas;
             pipelineModel.Montaje = row.Montaje == null ? 0 : row.Montaje;
             pipelineModel.Pliegos = row.Pliegos == null ? 0 : row.Pliegos;
@@ -231,7 +285,7 @@ namespace Presupuestos.cts
             pipelineModel.IdLinea = (int?)lineNumber;
             pipelineModel.FechaHora = DateTime.Now;
             pipelineModel.CardName = codigoCliente;
-            _db.Entry(pipelineModel).State = EntityState.Added;
+            _projectionContext.Entry(pipelineModel).State = EntityState.Added;
         } // End InsertSingelBudget
 
         /// <summary>
@@ -240,135 +294,102 @@ namespace Presupuestos.cts
         /// <param name="item">Contains the data of each budgets</param>
         /// <param name="lineNumber">The line number of the main query</param>
         /// <param name="lastDocument">Last document number</param>
-        private void CreateNewProjectionLine(ProjectionViewModel item, uint lineNumber, int lastDocument)
+        public void InsertProjections(ProjectionViewModel row, uint lineNumber, ushort lastDocument, SessionViewModel session)
         {
-            if (_db.DetailPipeline.Where(p => p.IdDoc == lastDocument &&
-                           p.Presupuesto == item.Presupuesto && p.Sustrato == item.Sustrato && p.ItemCodeSustrato == item.ItemCodeSustrato).Any())
-            {
-                //When dealing with budgets holding the same budget number, I checked with LINQ everytime by Sustrato and Paper code
-                int idLine = (int)_db.DetailPipeline.Where(p => p.IdDoc == lastDocument &&
-                       p.Presupuesto == item.Presupuesto && p.Sustrato == item.Sustrato && p.ItemCodeSustrato == item.ItemCodeSustrato).
-                       Select(s => s.IdLinea).FirstOrDefault();
-
-                if (_db.DetailPipelineEntregas.Where(p => p.Presupuestos == item.Presupuesto
-                && p.IdDoc == lastDocument && p.IdLine == idLine).Any())
-                {
-                    List<DetailPipelineEntregas> existingBudgets = _db.DetailPipelineEntregas.Where(p => p.Presupuestos == item.Presupuesto
-                    && p.IdDoc == lastDocument && p.IdLine == idLine).ToList();
-                    foreach (var Month in existingBudgets)
+            ConversionProcess listaReserva = (from Reserva in _projectionContext.A_Vista_OConversion_Reserva
+                    where Reserva.Presupuesto == row.Presupuesto && Reserva.Material == row.ItemCodeSustrato
+                    join kgPapel in _projectionContext.VU_ACR_DON_012_OrcPapel on new
                     {
-                        DetailPipelineEntregas month = new DetailPipelineEntregas();
-                        month.IdDoc = lastDocument + 1;
-                        month.IdLine = (int?)lineNumber;
-                        month.Mes = Month.Mes;
-                        month.Año = Month.Año;
-                        month.Cantidad = Month.Cantidad;
-                        month.CantidadKilos = (decimal)CalculateKG(item, Month.Cantidad.ToString());
-                        month.CantidadMedida = (decimal)CalculateSheet(item, Month.CantidadMedida.ToString());
-                        month.Presupuestos = item.Presupuesto;
-                        _db.Entry(month).State = EntityState.Added;
-                    } // End foreach
-                } // End if
+                        CodigoPapel = Reserva.Material, 
+                        OP = Reserva.NumOrdem
+                    }
+                    equals new
+                    {
+                        CodigoPapel = kgPapel.CodSubConta,
+                        OP = kgPapel.NumOrdem
+                    }
+                    select new ConversionProcess
+                    { Lote = Reserva.IDProcessoOrigem, OP = Reserva.NumOrdem,
+                        TotalKilogramosPorCodigo = kgPapel.totKgCot }).FirstOrDefault();
+
+            string OP = listaReserva.OP;
+            string NombreProceso = listaReserva.Lote.Substring(0, listaReserva.Lote.IndexOf('-') == -1 ? 
+                listaReserva.Lote.Length : listaReserva.Lote.IndexOf('-'));
+
+            List<ProjectionKg> cantidadEnUnidades = 
+                (from Lote in _projectionContext.OrdLotesProducao
+                 where Lote.DataTermino >= session.StartDate && Lote.NumOrdem == OP
+                 select new ProjectionKg
+                 {
+                     NumOrdem = Lote.NumOrdem,
+                     IdLote = Lote.IdLote,
+                     Lote = Lote.IdComponente,
+                     CantidadUnidades = Lote.Quantidade,
+                     FechaDeTermino = Lote.DataTermino
+                 }).ToList();
+
+            if (row.Presupuesto == "25810P")
+            {
+                Console.WriteLine("Test");
             }
-        } // End CreateNewProjectionLine
 
-        /// <summary>
-        /// When inserting a new Projection on Checked budgets:
-        /// if it has values
-        ///     Writes in a Log called Historico the old data, and updates each projection in DetailPipelineEntregas
-        /// if it does exist and is not empty
-        ///     Inserts a new projection in PipelineEntregas
-        /// </summary>
-        /// <param name="Projection"></param>
-        /// <param name="Month"></param>
-        /// <param name="lastDocument"></param>
-        private void InsertUpdateEntregas(ProjectionViewModel Projection, List<MonthViewModel> Month, ushort lastDocument) 
-        {
-            foreach (var item in Month)
+            DetailPipelineTotales pipelineTotales = new DetailPipelineTotales();
+            pipelineTotales.IdDoc = lastDocument + 1;
+            pipelineTotales.IdLine = (int?)lineNumber;
+            pipelineTotales.Mes = cantidadEnUnidades.Select(p => p.FechaDeTermino).Min().Month;
+            pipelineTotales.Año = cantidadEnUnidades.Select(p => p.FechaDeTermino).Min().Year;
+            pipelineTotales.Cantidad = (int)cantidadEnUnidades.Where(p => p.Lote.Substring(0, p.Lote.IndexOf('-') == -1 ?
+                    p.Lote.Length : p.Lote.IndexOf('-')).Equals(listaReserva.Lote.Substring(0, listaReserva.Lote.IndexOf('-') == -1 ?
+                    listaReserva.Lote.Length : listaReserva.Lote.IndexOf('-')))).Sum(o => o.CantidadUnidades);
+            pipelineTotales.CantidadKilos = (decimal)listaReserva.TotalKilogramosPorCodigo;
+            pipelineTotales.Presupuestos = row.Presupuesto;
+            pipelineTotales.ItemCodeSustrato = row.ItemCodeSustrato;
+            _projectionContext.Entry(pipelineTotales).State = EntityState.Added;
+
+            foreach (ProjectionKg kgItem in cantidadEnUnidades.Where(p => p.Lote.Substring(0, p.Lote.IndexOf
+                ('-') == -1 ? p.Lote.Length : p.Lote.IndexOf('-')).Equals(NombreProceso)))
             {
-                List<DetailPipelineEntregas> porLinea = _db.DetailPipelineEntregas.Where(x => x.Presupuestos == Projection.Presupuesto
-                    && x.Mes == item.month && x.Año == item.year && x.IdDoc == lastDocument && x.IdLine == Projection.idLinea).ToList();
-
-                if (porLinea.Count != 0)
-                {
-                    DetailPipelineHistorico historico = new DetailPipelineHistorico();
-                    historico.IdDoc = lastDocument;
-                    historico.IdLine = (int)Projection.idLinea;
-                    historico.Ano = item.year;
-                    historico.Cantidad = porLinea.Select(p => p.Cantidad).SingleOrDefault();
-                    historico.CantidadKilos = porLinea.Select(p => p.CantidadKilos).SingleOrDefault();
-                    historico.CantidadMedida = porLinea.Select(p => p.CantidadMedida).SingleOrDefault();
-                    historico.Presupuestos = Projection.Presupuesto;
-                    historico.Mes = item.month;
-                    historico.FechaHora = DateTime.Now;
-                    
-                    //TO DO
-                    //Ingresar el nombre de la persona que este autenticada hasta ese momento
-                    _db.Entry(historico).State = EntityState.Added;
-                    if (item.value != "0") // If the value is not 0, then override the data in the DB
-                    {
-                        var updateRow = _db.DetailPipelineEntregas.Where(p => p.Presupuestos == Projection.Presupuesto
-                        && p.Mes == item.month && p.Año == item.year && p.IdDoc == lastDocument && p.IdLine == Projection.idLinea).SingleOrDefault();
-                        updateRow.Cantidad = decimal.Parse(item.value);
-                        updateRow.CantidadKilos = (decimal)CalculateKG(Projection, item.value);
-                        updateRow.CantidadMedida = (decimal)CalculateSheet(Projection, item.value);
-                    } // End if
-                }    
-                else if (item.value != "0")
-                {
-                    DetailPipelineEntregas entregas = new DetailPipelineEntregas();
-                    entregas.Año = item.year;
-                    entregas.Mes = item.month;
-                    entregas.Cantidad = decimal.Parse(item.value);
-                    entregas.Presupuestos = Projection.Presupuesto;
-                    entregas.CantidadKilos = (decimal)CalculateKG(Projection, item.value);
-                    entregas.CantidadMedida = (decimal)CalculateSheet(Projection, item.value);
-                    entregas.IdDoc = lastDocument;
-                    entregas.IdLine = (int)Projection.idLinea;
-                    _db.Entry(entregas).State = EntityState.Added;
-                } // End if/else        
-            } // End foreach
-        } // End insertUpdateEntregas
+                int totalUnidadesPorLote = (int)cantidadEnUnidades.Where(p => p.Lote.Substring(0, p.Lote.IndexOf('-') == -1 ?
+                    p.Lote.Length : p.Lote.IndexOf('-')).Equals(kgItem.Lote.Substring(0, kgItem.Lote.IndexOf('-') == -1 ?
+                    kgItem.Lote.Length : kgItem.Lote.IndexOf('-')))).Sum(o => o.CantidadUnidades);//Sum(p => p.CantidadUnidades);
+                DetailPipelineEntregas month = new DetailPipelineEntregas();
+                
+                month.Cantidad = kgItem.CantidadUnidades;
+                double unidadesEntreTotalPorLote = (double)kgItem.CantidadUnidades / (double)totalUnidadesPorLote;
+                month.CantidadKilos = (decimal?)(unidadesEntreTotalPorLote * listaReserva.TotalKilogramosPorCodigo);
+                month.IdDoc = lastDocument + 1;
+                month.IdLine = (int?)lineNumber;
+                month.Mes = kgItem.FechaDeTermino.Month;
+                month.Año = kgItem.FechaDeTermino.Year;
+                month.Presupuestos = row.Presupuesto;
+                _projectionContext.Entry(month).State = EntityState.Added;
+                //detail.Add(month);
+            }
+        } // End GetProjections
         
         /// <summary>
         /// Inserts a new document number containing the list of new budgets, assigning projections from last documents 
         /// </summary>
         /// <param name="newBudgets">IEnumerable type that brings all the new budgets</param>
-        public void InsertNewBudgets(IEnumerable<ProjectionViewModel> newBudgets) 
+        public void InsertNewBudgets(IEnumerable<ProjectionViewModel> newBudgets, ushort lastDocument, SessionViewModel session) 
         {
-            ushort lastDocument = _db.DetailPipeline.Count() == 0 ? (ushort)0 : (ushort)_db.DetailPipeline.Select(p => p.IdDoc).Max();
             uint lineNumber = 0;
             foreach (var item in newBudgets)
             {
-                lineNumber++;
-                InsertSingleBudget(item, lineNumber, lastDocument);
-                CreateNewProjectionLine(item, lineNumber, lastDocument);
+                if (!item.ItemCodeSustrato.Equals("PAPELES"))
+                {
+                    lineNumber++;
+                    InsertSingleBudget(item, lineNumber, lastDocument);
+                    InsertProjections(item, lineNumber, lastDocument, session);
+                }
             } // End foreach
             HeaderPipeline headerPipeline = new HeaderPipeline();
             headerPipeline.FechaDoc = DateTime.Now;
             headerPipeline.IdDoc = lastDocument + 1;
             headerPipeline.Usuario = "rcast";
-            _db.Entry(headerPipeline).State = EntityState.Added;
-            _db.SaveChanges();
+            _projectionContext.Entry(headerPipeline).State = EntityState.Added;
+            _projectionContext.SaveChanges();
         } // End InsertNewBudgets
-
-        /// <summary>
-        /// Using the values from the budgets that have the Checked Boolean on true, assign those value to each budgets
-        /// </summary>
-        /// <param name="projection">New projection</param>
-        /// <param name="month"></param>
-        public void InsertNewProjection(List<ProjectionViewModel> projection, List<MonthViewModel> month) 
-        {
-            ushort lastDocument = _db.DetailPipeline.Count() == 0 ? (ushort)0 : (ushort)_db.DetailPipeline.Select(p => p.IdDoc).Max();
-            foreach (var item in projection.Where(p => p.Checked)) // Where the item is checked
-            {
-                if (month != null)
-                {
-                    InsertUpdateEntregas(item, month, lastDocument);
-                }
-            } // End foreach
-            _db.SaveChanges();
-        } // End InsertNewProjection
 
         /// <summary>
         /// Calculates the KG of each month
@@ -380,39 +401,23 @@ namespace Presupuestos.cts
         {
             double anchoPliego = Projection.Ancho_Pliego == null ? 0 : (double)Projection.Ancho_Pliego;
             double largoPliego = Projection.Largo_Pliego == null ? 0 : (double)Projection.Largo_Pliego;
-            double month = Month == null ? 0 : Double.Parse(Month);
+            double cantidadRequerida = Projection.Paginas > 2 ? CalculateSheet(Projection, Month) : double.Parse(Month);
             double montaje = Projection.Montaje == null ? 0 : (double)Projection.Montaje;
             double pliegos = Projection.Pliegos == null ? 0 : (double)Projection.Pliegos;
             double gramaje = Projection.Gramaje == null ? 0 : (double)Projection.Gramaje;
-            if (Projection.Paginas != 0)
+
+            if (Projection.Paginas > 2)
             {
                 double result = (((anchoPliego * largoPliego) / 1000000) *
-                    (month * pliegos)) * (gramaje / 1000);
+                    (cantidadRequerida)) * (gramaje / 1000);
                 return Double.IsInfinity(result) || Double.IsNaN(result) ? 0 : Math.Round(result, 4);
             }
             else
             {
                 double result = (((anchoPliego * largoPliego) / 1000000) *
-                    (month / montaje)) * (gramaje / 1000);
+                    (cantidadRequerida / montaje)) * (gramaje / 1000);
                 return Double.IsInfinity(result) || Double.IsNaN(result) ? 0 : Math.Round(result, 4);
             }
-            /* Fórmulas para el cálculo de los KG y la cantidad de pliegos
-             if (dcPaginas != "0") // Es la cantidad de paginas, se refiere al campo Quantidade
-                {
-                       Kilos = (((double.Parse(intAnchoPliego) * double.Parse(intLargoPliego)) / 1000000) * 
-             * (double.Parse(intCantidad) * double.Parse(dcPliegos))) * (double.Parse(intGramaje) / 1000);
-             * 
-                       Pliegos = double.Parse(dcPliegos) * double.Parse(intCantidad);
-                               }
-                               else
-                               {
-                       Kilos = (((double.Parse(intAnchoPliego) * double.Parse(intLargoPliego)) / 1000000) * 
-             * (double.Parse(intCantidad) / double.Parse(strMontaje))) * (double.Parse(intGramaje) / 1000);
-             * 
-                       Pliegos = (1 / double.Parse(strMontaje)) * double.Parse(intCantidad);
-                  }                                
-             */
-        
         } // End calculateKG
 
         /// <summary>
@@ -423,24 +428,18 @@ namespace Presupuestos.cts
         /// <returns></returns>
         public double CalculateSheet(ProjectionViewModel Projection, string Month) 
         {
-            double month = Month == null ? 0 : Double.Parse(Month);
+            double cantidadProyectada = Month == null ? 0 : Double.Parse(Month);
             double montaje = Projection.Montaje == null ? 0 : (double)Projection.Montaje;
             double pliegos = Projection.Pliegos == null ? 0 : (double)Projection.Pliegos;
-            if (Projection.Paginas != 0)
-            {
-                double result = pliegos * month;
-                return Double.IsInfinity(result) || Double.IsNaN(result) ? 0 : Math.Round(result, 4);
-            }
-            else
-            {
-                double result = (1 / montaje) * month;
-                return Double.IsInfinity(result) || Double.IsNaN(result) ? 0 : Math.Round(result, 4);
-            }
+            double paginas = Projection.Paginas == null ? 0 : (double)Projection.Paginas;
+            double result = (cantidadProyectada / montaje) * (paginas/pliegos);
+            return Double.IsInfinity(result) || Double.IsNaN(result) ? 0 : Math.Round(result, 4);
         } // End calculateSheet
 
         public void Dispose()
         {
-            _db.Dispose();
+            _projectionContext.Dispose();
+            _sapDataContext.Dispose();
         }
     }
 }

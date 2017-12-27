@@ -14,8 +14,6 @@ namespace Presupuestos.ViewModels
 
         public long ID { get; set; }
 
-        public bool Checked { get; set; }
-
         [Display(Name = "Ejecutivo")]
         [StringLength(40)]
         public string Ejecutivo { get; set; } // Vendedor
@@ -35,7 +33,7 @@ namespace Presupuestos.ViewModels
         [StringLength(12)]
         public string Presupuesto { get; set; } // Master Metrics
 
-        [Display(Name = "ItemCodeSustrato")]
+        [Display(Name = "Código de Sustrato")]
         [StringLength(30)]
         public string ItemCodeSustrato { get; set; }
 
@@ -46,13 +44,13 @@ namespace Presupuestos.ViewModels
         public double? Gramaje { get; set; } // Gramaje
 
         [Display(Name = "Ancho Bobina")]
-        public int? Ancho_Bobina { get; set; } // Ancho bobina
+        public decimal? Ancho_Bobina { get; set; } // Ancho bobina
 
         [Display(Name = "Ancho Pliego")]
-        public int? Ancho_Pliego { get; set; } // Ancho Pliego
+        public decimal? Ancho_Pliego { get; set; } // Ancho Pliego
 
         [Display(Name = "Largo Pliego")]
-        public int? Largo_Pliego { get; set; } // Largo Pliego
+        public decimal? Largo_Pliego { get; set; } // Largo Pliego
 
         [Display(Name = "Paginas")]
         public int? Paginas { get; set; } // paginas
@@ -64,6 +62,5 @@ namespace Presupuestos.ViewModels
 
         public virtual List<MonthViewModel> Month { get; set; }
 
-        public string CardCode { get; set; }
     }
 }

@@ -1,6 +1,5 @@
-﻿@model Presupuestos.ViewModels.MainViewModel
+﻿@model Presupuestos.ViewModels.SessionViewModel
 @using System.Globalization
-<p id="Top"></p>
 @{
     ViewBag.Title = "Imports";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -13,23 +12,21 @@
 @using (Html.BeginForm("Imports", "Session", FormMethod.Post, new { id = "CargarForm" }))
 {
     @Html.AntiForgeryToken()
-
+    @Html.ValidationSummary(true)
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">Sesión</h3>
+            <h3 class="panel-title">Sesión #@Html.DisplayFor(model => model.DocumentNumber)</h3>
         </div>
         <div class="panel-body">
-            <div class="row">
-                <div class="col-lg-6 col-lg-offset-1">
-                    <span>
-                        Mes actual : <strong>@DateTime.Today.ToString("MMMM", CultureInfo.CreateSpecificCulture("es"))</strong>
-                        | Sesión # @Html.DisplayFor(model => model.documentNumber)
-                    </span>
-                </div>
-                <div class="col-lg-10 col-lg-offset-1">
-                    <input id="uploadButton" type="submit" value="Cargar" data-loading-text="Cargando..." class="btn btn-primary" autocomplete="off" />
-                </div>
-            </div>
+            <span class="session-textbox">
+                @Html.LabelFor(model => model.StartDate)
+                @Html.TextBoxFor(model => model.StartDate, new { @class = "form-control",
+                @readonly = "readonly", Value = DateTime.Today.ToString("dd/MM/yy")})
+            </span>
+            <span class="session-button">
+                <input id="uploadButton" type="submit" value="Cargar" class="btn btn-primary" autocomplete="off" 
+                       onclick="loading('uploadButton')" onsubmit="loading('uploadButton')" />
+            </span>
         </div>
     </div>
 }
@@ -99,10 +96,15 @@
 
 @section Scripts {
     <script type="text/javascript">
-        $(document).ready(function () {
-            $('#uploadButton').on('click', function () {
-                var $btn = $(this).button('loading')
-            })
-        })
+        //$(document).ready(function () {
+        //    var dateToday = new Date();
+        //    $(".datepicker").val(dateToday.toLocaleDateString('en-GB'));
+        //    $(".datepicker").datepicker({
+        //        changeMonth: true,
+        //        changeYear: true,
+        //        yearRange: "-2:+2",
+        //        dateFormat: 'dd/mm/yy'
+        //    });
+        //});
     </script>
 }
