@@ -41,6 +41,14 @@ namespace Presupuestos.ViewModels
         [StringLength(20)]
         public string Sustrato { get; set; } // Sustrato
 
+        public int? Quantidade { get; set; }
+
+        [StringLength(30)]
+        public string Lote { get; set; }
+
+        [StringLength(12)]
+        public string NumOrdem { get; set; }
+
         public double? Gramaje { get; set; } // Gramaje
 
         [Display(Name = "Ancho Bobina")]
@@ -56,7 +64,7 @@ namespace Presupuestos.ViewModels
         public int? Paginas { get; set; } // paginas
 
         [Display(Name = "Montaje")]
-        public int? Montaje { get; set; } // Montaje
+        public double? Montaje { get; set; } // Montaje
 
         public int? Pliegos { get; set; }  // Pliegos
 

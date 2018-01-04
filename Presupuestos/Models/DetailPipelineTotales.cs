@@ -28,5 +28,8 @@ namespace Presupuestos.Models
 
         [StringLength(10)]
         public string Presupuestos { get; set; }
+
+        [StringLength(13)]
+        public string NumeroPresupuesto { get; set; }
     }
 }

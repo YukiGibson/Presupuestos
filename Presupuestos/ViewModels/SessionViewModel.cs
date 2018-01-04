@@ -18,6 +18,8 @@ namespace Presupuestos.ViewModels
         [DisplayFormat(DataFormatString = "{0:dd/mm/yy}", ApplyFormatInEditMode = true)]
         public DateTime StartDate { get; set; }
 
+        public DateTime? LastUpdate { get; set; }
+
         //[Display(Name = "Fecha de Fin")]
         //[DataType(DataType.Date)]
         //[DisplayFormat(DataFormatString = "{0:dd/mm/yy}", ApplyFormatInEditMode = true)]

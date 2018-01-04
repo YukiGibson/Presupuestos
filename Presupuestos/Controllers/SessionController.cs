@@ -21,7 +21,9 @@ namespace Presupuestos.Controllers
             try
             {
                 int? lastDocument = pipeline.Read().Select(p => p.IdDoc).Max();
+                DateTime? lastUpdate = pipeline.Read().Select(p => p.FechaHora).Max();
                 viewModel.DocumentNumber = (lastDocument == null ? (ushort)0 : (ushort)lastDocument);
+                viewModel.LastUpdate = lastUpdate;
             }
             catch (Exception)
             {

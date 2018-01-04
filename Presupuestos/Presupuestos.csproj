@@ -154,6 +154,10 @@
     <Compile Include="Migrations\201712272042460_Added_new_column.Designer.cs">
       <DependentUpon>201712272042460_Added_new_column.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201801021555436_Added_OP.cs" />
+    <Compile Include="Migrations\201801021555436_Added_OP.Designer.cs">
+      <DependentUpon>201801021555436_Added_OP.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\DetailPipelineTotales.cs" />
     <Compile Include="Migrations\201712191412470_New Projections Change.cs" />
     <Compile Include="Migrations\201712191412470_New Projections Change.Designer.cs">
@@ -237,8 +241,6 @@
     <Content Include="Content\themes\base\images\ui-icons_cc0000_256x240.png" />
     <Content Include="Content\themes\base\images\ui-icons_cd0a0a_256x240.png" />
     <Content Include="Content\themes\base\images\ui-icons_ffffff_256x240.png" />
-    <Content Include="Content\themes\base\jquery-ui.css" />
-    <Content Include="Content\themes\base\jquery-ui.min.css" />
     <Content Include="Content\themes\base\menu.css" />
     <Content Include="Content\themes\base\progressbar.css" />
     <Content Include="Content\themes\base\resizable.css" />
@@ -277,8 +279,6 @@
     <Content Include="Scripts\jquery-3.2.1.min.js" />
     <Content Include="Scripts\jquery-3.2.1.slim.js" />
     <Content Include="Scripts\jquery-3.2.1.slim.min.js" />
-    <Content Include="Scripts\jquery-ui-1.12.1.js" />
-    <Content Include="Scripts\jquery-ui-1.12.1.min.js" />
     <Content Include="Scripts\modernizr-2.6.2.js" />
     <Content Include="Scripts\presupuestos.js" />
     <Content Include="Scripts\respond.js" />
@@ -325,6 +325,9 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201712272042460_Added_new_column.resx">
       <DependentUpon>201712272042460_Added_new_column.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801021555436_Added_OP.resx">
+      <DependentUpon>201801021555436_Added_OP.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
