@@ -27,9 +27,6 @@ namespace Presupuestos
                       "~/Content/bootstrap.min.css",
                       "~/Content/site.css",
                       "~/Content/Presupuestos.css"));
-
-            bundles.Add(new ScriptBundle("~/bundles/datepicker-es.js").Include(
-                      "~/Scripts/datepicker-es.js"));
         }
     }
 }

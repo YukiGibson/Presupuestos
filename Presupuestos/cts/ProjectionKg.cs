@@ -15,9 +15,7 @@ namespace Presupuestos.cts
     }
     public class ConversionProcess
     {
-        public string Presupuesto { get; set; }
-        public string Lote { get; set; }
-        public string OP { get; set; }
+        public string CodeSustrato { get; set; }
         public double? TotalKilogramosPorCodigo { get; set; }
     }    
 }
