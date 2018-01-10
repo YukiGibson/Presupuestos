@@ -70,3 +70,33 @@
     width:120px;
 }
 
+.detail-table {
+    width: 100%;
+    border-collapse: separate;
+    border: 4px groove #808080;
+    text-align: center;
+}
+
+.detail-table th{
+    padding: 2px;
+    border-bottom: 1px solid #000;
+    border-left: 1px solid #000;
+    background-color: #808080;
+    color: #fff;
+    text-align: center;
+}
+
+.detail-table td {
+    z-index: 0;
+    padding: 1px;
+    border-bottom: 1px solid #000;
+    border-left: 1px solid #000;
+}
+
+.highlight-row:hover{
+    z-index: auto;
+    background-color:#485563;
+    color: #ffffff;
+    color: rgb(255, 255, 255);
+}
+

@@ -1,5 +1,4 @@
 ﻿@model Presupuestos.ViewModels.SessionViewModel
-@using System.Globalization
 @{
     ViewBag.Title = "Imports";
     Layout = "~/Views/Shared/_Layout.cshtml";
@@ -15,7 +14,12 @@
     @Html.ValidationSummary(true)
     <div class="panel panel-default">
         <div class="panel-heading">
-            <h3 class="panel-title">Sesión #@Html.DisplayFor(model => model.DocumentNumber)</h3>
+            <h3 class="panel-title">Sesión #@Html.DisplayFor(model => model.DocumentNumber) - 
+            @if (Model.LastUpdate != null)
+                {
+                <span>Última vez corrido: @Html.DisplayFor(model => model.LastUpdate)</span>
+            }
+            </h3>
         </div>
         <div class="panel-body">
             <span class="session-textbox">
@@ -26,7 +30,7 @@
             <span class="session-button">
                 <input id="uploadButton" type="submit" value="Cargar" class="btn btn-primary" autocomplete="off" 
                        onclick="loading('uploadButton')" onsubmit="loading('uploadButton')" />
-            </span>
+            </span>    
         </div>
     </div>
 }

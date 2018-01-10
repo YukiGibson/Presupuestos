@@ -1,0 +1,91 @@
+﻿@model Presupuestos.ViewModels.PipelineViewModel
+@{
+    ViewBag.Title = "Meses";
+}
+
+<section id="search-bar" class="BlackText">
+    <h2>Análisis Mensual</h2>
+    @using (Html.BeginForm("analisisMeses", "Pipeline", FormMethod.Get))
+    {
+        <div class="form-inline">
+            <label>@Html.DisplayNameFor(model => model.venta.Año)</label>
+            @Html.DropDownListFor(model => model.year, new SelectList(Model.yearDropDown, "Value", "Key"), "Todos",
+            new { @class = "form-control" })
+            <label>@Html.DisplayNameFor(model => model.venta.Mes)</label>
+            @Html.DropDownListFor(model => model.month, new SelectList(Model.monthDropDown, "Value", "Key"), "Todos",
+            new { @class = "form-control" })
+            <label>@Html.DisplayNameFor(model => model.venta.Estimado)</label>
+            @Html.DropDownListFor(model => model.estimated, new SelectList(Model.estimatedDropDown, "Value", "Key"), "Todos",
+            new { @class = "form-control" })
+            <label>@Html.DisplayNameFor(model => model.venta.Vendedor)</label>
+            @Html.DropDownListFor(model => model.executive, new SelectList(Model.executiveDropDown, "Value", "Key"), "Todos",
+            new { @class = "form-control" })
+            <input type="submit" class="btn btn-primary" value="Buscar" />
+        </div>
+    }
+</section>
+<hr />
+<section id="detail" class="BlackText">
+    <div class="table-responsive">
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(model => model.venta.Cliente)</th>
+                    <th>@Html.DisplayNameFor(model => model.venta.Titulo)</th>
+                    <th>@Html.DisplayNameFor(model => model.venta.Presupuesto)</th>
+                    <th>@Html.DisplayNameFor(model => model.venta.OP)</th>
+                    <th>@Html.DisplayNameFor(model => model.venta.ProbabilidadVenta)</th>
+                    <th>@Html.DisplayNameFor(model => model.venta.Cantidad)</th>
+                    <th>@Html.DisplayNameFor(model => model.venta.PorFacturar)</th>
+                    <th>@Html.DisplayNameFor(model => model.venta.Rentabilidad)</th>
+                    <th>@Html.DisplayNameFor(model => model.venta.Porcentaje)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.ventas != null)
+                {
+                    foreach (var cliente in Model.ventas.Select(p => p.Cliente).Distinct())
+                    {
+                        <tr class="highlight-row">
+                            <th scope="row" rowspan="
+                                @(1 + Model.ventas.Where(o => o.Cliente.Contains(cliente)).Count())">
+                                @Html.DisplayFor(p => cliente)
+                            </th>
+                        </tr>
+                        foreach (var row in Model.ventas.Where(p => p.Cliente.Equals(cliente)))
+                        {
+                            <tr class="highlight-row">
+                                <td>@Html.DisplayFor(p => row.Titulo)</td>
+                                <td>@Html.DisplayFor(p => row.Presupuesto)</td>
+                                <td>@Html.DisplayFor(p => row.OP)</td>
+                                <td>@Html.DisplayFor(p => row.ProbabilidadVenta)</td>
+                                <td>@Html.DisplayFor(p => row.Cantidad)</td>
+                                <td>$@Html.DisplayFor(p => row.PorFacturar)</td>
+                                <td>$@Html.DisplayFor(p => row.Rentabilidad)</td>
+                                <td>@Html.DisplayFor(p => row.Porcentaje)%</td>
+                            </tr>
+                        }
+                        <tr>
+                            <td colspan="5"><b>Suma de @cliente</b></td>
+                            <td>@Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.Cantidad)</td>
+                            <td>$@Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.PorFacturar)</td>
+                            <td>$@Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.Rentabilidad)</td>
+                            <td>%</td>
+                        </tr>
+
+                    }
+                }        
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="9">Fin</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+    
+</section>
+
+<section class="text-center">
+    <a href="#Top" class="btn btn-info">Volver al inicio</a>
+</section>

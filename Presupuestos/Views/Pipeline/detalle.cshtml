@@ -1,0 +1,100 @@
+﻿@model Presupuestos.ViewModels.PipelineViewModel
+@{
+    ViewBag.Title = "detalle";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section id="search-bar" class="BlackText">
+    @using (Html.BeginForm("detalle", "Pipeline", FormMethod.Post))
+    {
+        <h2>Detalle Pipeline Ventas</h2>
+        <p>Status : </p>@Html.DisplayFor(o => o.status)
+        <input type="submit" class="btn btn-default" value="Cargar" />
+        <input type="hidden" value="@Html.DisplayFor(p => p.session)" id="session" name="session"/>
+    }
+    @if (Model.loadStatus != null)
+    {
+        if (Model.loadStatus.Count != 0)
+        {
+            string value = "out";
+            if (Model.loadStatus.TryGetValue("Error", out value))
+            {
+                <div class="alert alert-dismissible alert-danger">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>!Error!</strong> @Model.loadStatus["Error"]
+                </div>
+            }
+            else if (Model.loadStatus.TryGetValue("Success", out value))
+            {
+                <div class="alert alert-dismissible alert-success">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>!Éxito!</strong> @Model.loadStatus["Success"]
+                </div>
+            }
+        }
+    }
+</section>
+
+<section id="list-display" class="BlackText">
+    <h3>Resultados :</h3>
+    <div class="table-responsive">
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th>@Html.DisplayNameFor(p => p.venta.Vendedor)</th>
+                    <th>@Html.DisplayNameFor(p => p.venta.Mes)</th>
+                    <th>@Html.DisplayNameFor(p => p.venta.Año)</th>
+                    <th>@Html.DisplayNameFor(p => p.venta.MesesDiferencia)</th>
+                    <th>@Html.DisplayNameFor(p => p.venta.Presupuesto)</th>
+                    <th>@Html.DisplayNameFor(p => p.venta.OP)</th>
+                    <th>@Html.DisplayNameFor(p => p.venta.TipoProducto)</th>
+                    <th>@Html.DisplayNameFor(p => p.venta.CantidadTotal)</th>
+                    <th>@Html.DisplayNameFor(p => p.venta.Cantidad)</th>
+                    <th>@Html.DisplayNameFor(p => p.venta.Titulo)</th>
+                    <th>@Html.DisplayNameFor(p => p.venta.Cliente)</th>
+                    <th>@Html.DisplayNameFor(p => p.venta.PorFacturar)</th>
+                    <th>@Html.DisplayNameFor(p => p.venta.Costo)</th>
+                    <th>@Html.DisplayNameFor(p => p.venta.Rentabilidad)</th>
+                    <th>@Html.DisplayNameFor(p => p.venta.ProbabilidadVenta)</th>
+                    <th>@Html.DisplayNameFor(p => p.venta.Estimado)</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.ventas != null)
+                {
+                    foreach (var item in Model.ventas)
+                    {
+                        <tr class="highlight-row">
+                            <td>@Html.DisplayFor(p => item.Vendedor)</td>
+                            <td>@Html.DisplayFor(p => item.Mes)</td>
+                            <td>@Html.DisplayFor(p => item.Año)</td>
+                            <td>@Html.DisplayFor(p => item.MesesDiferencia)</td>
+                            <td>@Html.DisplayFor(p => item.Presupuesto)</td>
+                            <td>@Html.DisplayFor(p => item.OP)</td>
+                            <td>@Html.DisplayFor(p => item.TipoProducto)</td>
+                            <td>@Html.DisplayFor(p => item.CantidadTotal)</td>
+                            <td>@Html.DisplayFor(p => item.Cantidad)</td>
+                            <td>@Html.DisplayFor(p => item.Titulo)</td>
+                            <td>@Html.DisplayFor(p => item.Cliente)</td>
+                            <td>@Html.DisplayFor(p => item.PorFacturar)</td>
+                            <td>@Html.DisplayFor(p => item.Costo)</td>
+                            <td>@Html.DisplayFor(p => item.Rentabilidad)</td>
+                            <td>@Html.DisplayFor(p => item.ProbabilidadVenta)</td>
+                            <td>@Html.DisplayFor(p => item.Estimado)</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="16">Fin</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</section>
+
+<section class="text-center">
+    <a href="#Top" class="btn btn-info">Volver al inicio</a>
+</section>
+

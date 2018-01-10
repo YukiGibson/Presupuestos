@@ -28,6 +28,7 @@
         public virtual DbSet<EstrProcessos> EstrProcessos { get; set; }
         public virtual DbSet<OrdLotesProducao> OrdLotesProducao { get; set; }
         public virtual DbSet<VU_ACR_DON_012_OrcPapel> VU_ACR_DON_012_OrcPapel { get; set; }
+        public virtual DbSet<DetailPipelineVentas> DetailPipelineVentas { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -626,6 +627,45 @@
             modelBuilder.Entity<EstrProcessos>()
                 .Property(e => e.PGruposTracado)
                 .IsUnicode(false);
+            modelBuilder.Entity<DetailPipelineVentas>()
+               .Property(e => e.Pipeline)
+               .IsUnicode(false);
+
+            modelBuilder.Entity<DetailPipelineVentas>()
+                .Property(e => e.Vendedor)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<DetailPipelineVentas>()
+                .Property(e => e.Presupuesto)
+                .IsFixedLength();
+
+            modelBuilder.Entity<DetailPipelineVentas>()
+                .Property(e => e.OP)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<DetailPipelineVentas>()
+                .Property(e => e.TipoProducto)
+                .IsUnicode(false);
+
+            modelBuilder.Entity<DetailPipelineVentas>()
+                .Property(e => e.CantidadTotal)
+                .HasPrecision(19, 4);
+
+            modelBuilder.Entity<DetailPipelineVentas>()
+                .Property(e => e.Cantidad)
+                .HasPrecision(19, 4);
+
+            modelBuilder.Entity<DetailPipelineVentas>()
+                .Property(e => e.PorFacturar)
+                .HasPrecision(19, 4);
+
+            modelBuilder.Entity<DetailPipelineVentas>()
+                .Property(e => e.Costo)
+                .HasPrecision(19, 4);
+
+            modelBuilder.Entity<DetailPipelineVentas>()
+                .Property(e => e.Rentabilidad)
+                .HasPrecision(19, 4);
         }
     }
 }

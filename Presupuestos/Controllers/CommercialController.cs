@@ -20,7 +20,6 @@ namespace Presupuestos.Controllers
         /// </summary>
         /// <param name="MainView"></param>
         /// <returns></returns>
-
         [HttpGet]
         public ActionResult Pipeline(MainViewModel MainView)
         {

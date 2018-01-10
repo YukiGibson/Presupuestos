@@ -13,6 +13,7 @@
     <title>@ViewBag.Title - Pipeline Presupuestos</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
+    
 </head>
 <body>
     <p id="Top"></p>
@@ -37,11 +38,23 @@
                     <li>
                     @Html.ActionLink("Pipeline", "Pipeline", "Commercial", null, new { @class= "glyphicon glyphicon-dashboard nav-txt-big" })
                     </li>
-                    <li>
-                    @Html.ActionLink("Importar", "Imports", "Session", null, new { @class = "glyphicon glyphicon-download nav-txt-big" })
+                    <li class="dropdown">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default dropdown-toggle glyphicon glyphicon-th-list nav-txt-big" data-toggle="dropdown"
+                                    aria-expanded="false" aria-haspopup="true">Ventas <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    @Html.ActionLink("Detalle Pipeline", "detalle", "Pipeline")
+                                </li>
+                                <li>
+                                    @Html.ActionLink("Análisis Meses", "analisisMeses", "Pipeline")
+                                </li>
+                            </ul>
+                        </div>
                     </li>
                     <li>
-                    @Html.ActionLink("Comparativa", "Comparative", "Session", null, new { @class = "glyphicon glyphicon-check nav-txt-big" })
+                    @Html.ActionLink("Importar", "Imports", "Session", null, new { @class = "glyphicon glyphicon-download nav-txt-big" })
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
@@ -63,18 +76,16 @@
             </div>
         </div>
     </nav>
-    
     <div class="container body-content" style="background-color:#ffffff">
         @RenderBody()
         <hr />
         <footer class="modal-footer">
             <div class="text-center">
                 <p>&copy; @DateTime.Now.Year - Grupo Vargas S.A.</p>
-                <p><em>Versión 2.2</em></p>
+                <p><em>Versión 2.3</em></p>
             </div>
         </footer>
     </div>
-
     @Scripts.Render("~/bundles/jquery")
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>

@@ -15,6 +15,7 @@ namespace Presupuestos.DAL
 
         public virtual DbSet<OITM> OITM { get; set; }
         public virtual DbSet<OCRD> OCRD { get; set; }
+        public virtual DbSet<OSLP> OSLPs { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -755,6 +756,20 @@ namespace Presupuestos.DAL
             modelBuilder.Entity<OITM>()
                 .Property(e => e.U_Gramaje)
                 .HasPrecision(19, 6);
+
+            modelBuilder.Entity<OSLP>()
+                .Property(e => e.Commission)
+                .HasPrecision(19, 6);
+
+            modelBuilder.Entity<OSLP>()
+                .Property(e => e.Locked)
+                .IsFixedLength()
+                .IsUnicode(false);
+
+            modelBuilder.Entity<OSLP>()
+                .Property(e => e.DataSource)
+                .IsFixedLength()
+                .IsUnicode(false);
         }
     }
 }

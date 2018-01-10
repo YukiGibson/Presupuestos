@@ -30,10 +30,6 @@ namespace Presupuestos.ViewModels
 
         public IPagedList PagingMetaData { get; set; }
 
-        public virtual List<MonthViewModel> month { get; set; } // IEnumerable Generic List for the View Model MonthViewModel
-
-        public MonthViewModel monthValues { get; set; }
-
         public SortedSet<CostsViewModel> orderedCosts { get; set; }
 
         public MainViewModel()
