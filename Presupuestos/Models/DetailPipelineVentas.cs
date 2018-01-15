@@ -46,9 +46,11 @@ namespace Presupuestos.Models
 
         [Column(TypeName = "money")]
         [Display(Name = "Total")]
+        [DisplayFormat(DataFormatString = "{0:0,0.##}")]
         public decimal CantidadTotal { get; set; }
 
         [Column(TypeName = "money")]
+        [DisplayFormat(DataFormatString = "{0:0,0.##}")]
         public decimal Cantidad { get; set; }
 
         [Required]
@@ -61,12 +63,15 @@ namespace Presupuestos.Models
 
         [Column(TypeName = "money")]
         [Display(Name = "Por Facturar")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:0,0.##}")]
         public decimal PorFacturar { get; set; }
 
         [Column(TypeName = "money")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:0,0.##}")]
         public decimal Costo { get; set; }
 
         [Column(TypeName = "money")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:0,0.##}")]
         public decimal Rentabilidad { get; set; }
 
         [Display(Name = "Prob Venta")]

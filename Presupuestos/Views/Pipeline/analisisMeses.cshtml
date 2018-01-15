@@ -1,25 +1,26 @@
 ﻿@model Presupuestos.ViewModels.PipelineViewModel
+    @using System.Globalization
 @{
     ViewBag.Title = "Meses";
 }
 
 <section id="search-bar" class="BlackText">
-    <h2>Análisis Mensual</h2>
+    <h2>Análisis Mensual - Sesion # @Html.DisplayFor(model => model.session)</h2>
     @using (Html.BeginForm("analisisMeses", "Pipeline", FormMethod.Get))
     {
         <div class="form-inline">
             <label>@Html.DisplayNameFor(model => model.venta.Año)</label>
             @Html.DropDownListFor(model => model.year, new SelectList(Model.yearDropDown, "Value", "Key"), "Todos",
-            new { @class = "form-control" })
+            new { @class = "form-control colored-border" })
             <label>@Html.DisplayNameFor(model => model.venta.Mes)</label>
             @Html.DropDownListFor(model => model.month, new SelectList(Model.monthDropDown, "Value", "Key"), "Todos",
-            new { @class = "form-control" })
+            new { @class = "form-control colored-border" })
             <label>@Html.DisplayNameFor(model => model.venta.Estimado)</label>
             @Html.DropDownListFor(model => model.estimated, new SelectList(Model.estimatedDropDown, "Value", "Key"), "Todos",
-            new { @class = "form-control" })
+            new { @class = "form-control colored-border" })
             <label>@Html.DisplayNameFor(model => model.venta.Vendedor)</label>
             @Html.DropDownListFor(model => model.executive, new SelectList(Model.executiveDropDown, "Value", "Key"), "Todos",
-            new { @class = "form-control" })
+            new { @class = "form-control colored-border" })
             <input type="submit" class="btn btn-primary" value="Buscar" />
         </div>
     }
@@ -65,12 +66,13 @@
                                 <td>@Html.DisplayFor(p => row.Porcentaje)%</td>
                             </tr>
                         }
-                        <tr>
+                        <tr class="sum-row">
                             <td colspan="5"><b>Suma de @cliente</b></td>
-                            <td>@Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.Cantidad)</td>
-                            <td>$@Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.PorFacturar)</td>
-                            <td>$@Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.Rentabilidad)</td>
-                            <td>%</td>
+                            <td>@(Decimal.Round(Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.Cantidad), 2))</td>
+                            <td>$@(Decimal.Round(Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.PorFacturar), 2))</td>
+                            <td>$@(Decimal.Round(Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.Rentabilidad), 2))</td>
+                            <td>@(Decimal.Round((Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.Rentabilidad) /
+                                Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.PorFacturar)) * 100, 2)) %</td>
                         </tr>
 
                     }

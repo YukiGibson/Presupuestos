@@ -22,6 +22,11 @@ namespace Presupuestos.ViewModels
         public List<DetailPipelineVentas> ventas { get; set; }
         public DetailPipelineVentas venta { get; set; }
 
+        //Dropdown Detalles
+
+        public string searchKeyword { get; set; }
+        public Dictionary<string, string> searchDropDown { get; set; }
+
         //Analisis Meses
         public string year { get; set; }
         public Dictionary<string, string> yearDropDown { get; set; }

@@ -4,7 +4,6 @@ using Presupuestos.Models;
 using Presupuestos.Ventas;
 using Presupuestos.ViewModels;
 using System.Linq;
-using System.Web;
 using System.Web.Mvc;
 
 namespace Presupuestos.Controllers
@@ -16,7 +15,7 @@ namespace Presupuestos.Controllers
          * Get: When the page is loaded, a list of the actual session is loaded
          ***********************************************************************/
         [HttpGet]
-        public ActionResult detalle()
+        public ActionResult detalle(string searchKeyword)
         {
             VentaPipe venta = new VentaPipe();
             PipelineViewModel pipeline = new PipelineViewModel();
@@ -26,6 +25,8 @@ namespace Presupuestos.Controllers
                 {
                     List<DetailPipelineVentas> wholeSales = venta.GetWholeList();
                     pipeline.ventas = venta.OrderSalesPipeline(wholeSales);
+                    pipeline.ventas = venta.Sort(pipeline.ventas, searchKeyword);
+                    pipeline.searchDropDown = venta.fillDropDownSearchDetalle();
                     pipeline.session = pipeline.ventas.Count() == 0 ? (short)0 : (short)pipeline.ventas.Select(o => o.Sesion).Max();
                     pipeline.status = "Viendo " + (pipeline.ventas.Count())
                         + " presupuestos";
@@ -51,6 +52,9 @@ namespace Presupuestos.Controllers
             try
             {
                 pipeline.ventas = venta.GetNewSales();
+                pipeline.ventas = venta.Sort(pipeline.ventas, "");
+                pipeline.searchDropDown = venta.fillDropDownSearchDetalle();
+                //TODO metodo que sortee la lista, enviar como parametro solo la lista pipeline.ventas 
                 venta.InsertNewSales(pipeline.ventas, session);
                 pipeline.loadStatus.Add("Success",
                     String.Format("Se cargaron {0} nuevos presupuestos de forma correcta",
@@ -65,8 +69,8 @@ namespace Presupuestos.Controllers
         } // End detalle
 
         /*************************************************************************
-         * Meses
-         * Get: 
+         * Analisis Meses
+         * Get: Presents an analisis of the data inserted in detalles
          *************************************************************************/
         [HttpGet]
         public ActionResult analisisMeses(PipelineViewModel model)
@@ -98,9 +102,30 @@ namespace Presupuestos.Controllers
         /************************************************************************
          * Resumen Por Ejecutivo
           ************************************************************************/
-        public ActionResult resumenPorEjecutivo()
+        [HttpGet]
+        public ActionResult resumenPorEjecutivo(DetailViewModel detailView)
         {
-            return View();
+            VentaPipe venta = new VentaPipe();
+            DetailViewModel executivesDetail = new DetailViewModel();
+            try
+            {
+                //Enviar parametro de carga del stored procedure
+                List<DetailPipelineVentas> wholeSales = venta.GetWholeList();
+                executivesDetail.estimado = detailView.estimado;
+                executivesDetail.executive = detailView.executive;
+                executivesDetail.month = detailView.month;
+                executivesDetail.year = detailView.year;
+                executivesDetail.executiveList = venta.GetExecutiveDetail(detailView);
+                executivesDetail.totalDetail = venta.GetTotalRow(executivesDetail.executiveList);
+                venta.LoadDetailDropdown(wholeSales, ref executivesDetail);
+            }
+            catch (Exception e)
+            {
+                //pipeline.status = "Ocurrió un error en la carga de información, favor contactar al " +
+                //    "administrador de la página";
+                //throw;
+            }
+            return View(executivesDetail);
         } // end resumenporejecutivo
     }
 }

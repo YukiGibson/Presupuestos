@@ -1,0 +1,130 @@
+﻿@model Presupuestos.ViewModels.DetailViewModel
+@{
+    ViewBag.Title = "resumenPorEjecutivo";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+
+<section class="BlackText">
+    <h2>Resumen por ejecutivo</h2>
+
+    <div class="form-inline">
+        @using (Html.BeginForm("resumenPorEjecutivo", "Pipeline", FormMethod.Get, new { @id = "dropdownsubmit" }))
+        {
+            <label>@Html.DisplayNameFor(model => model.year)</label>
+            @Html.DropDownListFor(model => model.year, new 
+            SelectList(Model.yearDrop, "Value", "Key"),
+            new { @class = "form-control colored-border", onchange = "this.form.submit()" })
+            <label>@Html.DisplayNameFor(model => model.month)</label>
+            @Html.DropDownListFor(model => model.month, new
+            SelectList(Model.monthDrop, "Value", "Key"),
+            new { @class = "form-control colored-border", onchange = "this.form.submit()" })
+            <label>@Html.DisplayNameFor(model => model.estimado)</label>
+            @Html.DropDownListFor(model => model.estimado, new 
+            SelectList(Model.estimadosDrop, "Value", "Key"), "Todos",
+            new { @class = "form-control colored-border", onchange = "this.form.submit()" })
+            <label>@Html.DisplayNameFor(model => model.executive)</label>
+            @Html.DropDownListFor(model => model.executive, new
+            SelectList(Model.executiveDrop, "Value", "Key"), "Todos",
+            new { @class = "form-control colored-border", onchange = "this.form.submit()" })
+        }
+    </div>
+
+    <div class="table-responsive">
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th rowspan="2"></th>
+                    <th colspan="2">Facturación</th>
+                    <th colspan="2">Margen</th>
+                    <th rowspan="3">Total Facturación</th>
+                    <th rowspan="3">Total Margen</th>
+                </tr>
+                <tr>
+                    <th colspan="2">9</th>
+                    <th colspan="2">9</th>
+                </tr>
+                <tr>
+                    <th>
+                    </th>
+                    <th>Estimado</th>
+                    <th>OP</th>
+                    <th>Estimado</th>
+                    <th>OP</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.executiveList != null)
+                {
+                    foreach (var row in Model.executiveList)
+                    {
+                        <tr>
+                            <td>@Html.DisplayFor(p => row.Vendedor)</td>
+                            <td>@Html.DisplayFor(p => row.FacturacionEstimado)</td>
+                            <td>@Html.DisplayFor(p => row.FacturacionOP)</td>
+                            <td>@Html.DisplayFor(p => row.MargenEstimado)</td>
+                            <td>@Html.DisplayFor(p => row.MargenOP)</td>
+                            <td>@Html.DisplayFor(p => row.TotalFacturacion)</td>
+                            <td>@Html.DisplayFor(p => row.TotalMargen)</td>
+                        </tr>
+                    }
+                }
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td></td>
+                    <td>@Html.DisplayFor(model => model.totalDetail.FacturacionEstimado)</td>
+                    <td>@Html.DisplayFor(model => model.totalDetail.FacturacionOP)</td>
+                    <td>@Html.DisplayFor(model => model.totalDetail.MargenEstimado)</td>
+                    <td>@Html.DisplayFor(model => model.totalDetail.MargenOP)</td>
+                    <td>@Html.DisplayFor(model => model.totalDetail.TotalFacturacion)</td>
+                    <td>@Html.DisplayFor(model => model.totalDetail.TotalMargen)</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</section>
+
+<br />
+
+<section class="BlackText">
+    <div class="table-responsive">
+        <table class="detail-table">
+            <thead>
+                <tr>
+                    <th colspan="2"></th>
+                    <th>Margen Actual</th>
+                    <th>Margen Proyección</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td rowspan="4">Total</td>
+                    <td>Ileana</td>
+                    <td>174,000</td>
+                    <td>84,971</td>
+                    <td>205%</td>
+                </tr>
+                <tr>
+                    <td>Karol</td>
+                    <td>87,575</td>
+                    <td>71,971</td>
+                    <td>334%</td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="2"></td>
+                    <td>466,860</td>
+                    <td>328,155</td>
+                    <td>142%</td>
+                </tr>
+            </tfoot>
+        </table>
+    </div>
+</section>
+
+<!--https://canvasjs.com/docs/charts/chart-options/data/color/ para hacer el chart-->
+

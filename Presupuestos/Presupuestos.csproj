@@ -155,6 +155,7 @@
     <Compile Include="Migrations\201801091612579_updatedColumnPorcentaje.Designer.cs">
       <DependentUpon>201801091612579_updatedColumnPorcentaje.cs</DependentUpon>
     </Compile>
+    <Compile Include="Models\DetalleEjecutivo.cs" />
     <Compile Include="Models\OSLP.cs" />
     <Compile Include="Migrations\201801081556283_Pipeline.cs" />
     <Compile Include="Migrations\201801081556283_Pipeline.Designer.cs">
@@ -230,6 +231,7 @@
     <Compile Include="Repositories\PipelineVentasRepository.cs" />
     <Compile Include="Ventas\VentaPipe.cs" />
     <Compile Include="ViewModels\CostsViewModel.cs" />
+    <Compile Include="ViewModels\DetailViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MonthViewModel.cs" />
     <Compile Include="ViewModels\PipelineViewModel.cs" />
@@ -337,6 +339,7 @@
     <Content Include="Scripts\jquery-3.2.1.min.map" />
     <Content Include="Views\Pipeline\detalle.cshtml" />
     <Content Include="Views\Pipeline\analisisMeses.cshtml" />
+    <Content Include="Views\Pipeline\resumenPorEjecutivo.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -401,9 +404,9 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>64802</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:60400/</IISUrl>
+          <IISUrl>http://localhost:61400/</IISUrl>
           <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
-          <IISAppRootUrl>http://localhost:60400/</IISAppRootUrl>
+          <IISAppRootUrl>http://localhost:61400/</IISAppRootUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>
