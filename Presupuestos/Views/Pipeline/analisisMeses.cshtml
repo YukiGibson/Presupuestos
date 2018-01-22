@@ -1,11 +1,12 @@
 ﻿@model Presupuestos.ViewModels.PipelineViewModel
-    @using System.Globalization
 @{
     ViewBag.Title = "Meses";
+    Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
 <section id="search-bar" class="BlackText">
-    <h2>Análisis Mensual - Sesion # @Html.DisplayFor(model => model.session)</h2>
+    <h2>Análisis Mensual - Sesion #@Html.DisplayFor(model => model.session)</h2>
+    <p>@Html.DisplayFor(model => model.status)</p>
     @using (Html.BeginForm("analisisMeses", "Pipeline", FormMethod.Get))
     {
         <div class="form-inline">
@@ -27,67 +28,133 @@
 </section>
 <hr />
 <section id="detail" class="BlackText">
-    <div class="table-responsive">
-        <table class="detail-table">
-            <thead>
-                <tr>
-                    <th>@Html.DisplayNameFor(model => model.venta.Cliente)</th>
-                    <th>@Html.DisplayNameFor(model => model.venta.Titulo)</th>
-                    <th>@Html.DisplayNameFor(model => model.venta.Presupuesto)</th>
-                    <th>@Html.DisplayNameFor(model => model.venta.OP)</th>
-                    <th>@Html.DisplayNameFor(model => model.venta.ProbabilidadVenta)</th>
-                    <th>@Html.DisplayNameFor(model => model.venta.Cantidad)</th>
-                    <th>@Html.DisplayNameFor(model => model.venta.PorFacturar)</th>
-                    <th>@Html.DisplayNameFor(model => model.venta.Rentabilidad)</th>
-                    <th>@Html.DisplayNameFor(model => model.venta.Porcentaje)</th>
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.ventas != null)
-                {
-                    foreach (var cliente in Model.ventas.Select(p => p.Cliente).Distinct())
+    @using (Html.BeginForm("analisisMeses", "Pipeline", FormMethod.Post))
+    {
+        <div class="table-responsive">
+            <table class="detail-table">
+                <thead>
+                    <tr>
+                        <th>@Html.DisplayNameFor(model => model.venta.Cliente)</th>
+                        <th>@Html.DisplayNameFor(model => model.venta.Titulo)</th>
+                        <th>@Html.DisplayNameFor(model => model.venta.Presupuesto)</th>
+                        <th>@Html.DisplayNameFor(model => model.venta.OP)</th>
+                        <th>@Html.DisplayNameFor(model => model.venta.ProbabilidadVenta)</th>
+                        <th>@Html.DisplayNameFor(model => model.venta.Cantidad)</th>
+                        <th>@Html.DisplayNameFor(model => model.venta.PorFacturar)</th>
+                        <th>@Html.DisplayNameFor(model => model.venta.Rentabilidad)</th>
+                        <th>@Html.DisplayNameFor(model => model.venta.Porcentaje)</th>
+                        <th>Color</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ventas != null)
                     {
-                        <tr class="highlight-row">
-                            <th scope="row" rowspan="
-                                @(1 + Model.ventas.Where(o => o.Cliente.Contains(cliente)).Count())">
-                                @Html.DisplayFor(p => cliente)
-                            </th>
-                        </tr>
-                        foreach (var row in Model.ventas.Where(p => p.Cliente.Equals(cliente)))
+                        foreach (var clientes in Model.detailList)
                         {
                             <tr class="highlight-row">
-                                <td>@Html.DisplayFor(p => row.Titulo)</td>
-                                <td>@Html.DisplayFor(p => row.Presupuesto)</td>
-                                <td>@Html.DisplayFor(p => row.OP)</td>
-                                <td>@Html.DisplayFor(p => row.ProbabilidadVenta)</td>
-                                <td>@Html.DisplayFor(p => row.Cantidad)</td>
-                                <td>$@Html.DisplayFor(p => row.PorFacturar)</td>
-                                <td>$@Html.DisplayFor(p => row.Rentabilidad)</td>
-                                <td>@Html.DisplayFor(p => row.Porcentaje)%</td>
+                                <th scope="row" rowspan="@clientes.rowspan">
+                                    @Html.DisplayFor(model => clientes.client)
+                                </th>
+                            </tr>
+                            foreach (var cliente in clientes.sales)
+                            {
+                                <tr class="highlight-row">
+                                    <td>@Html.DisplayFor(p => cliente.Titulo)</td>
+                                    <td>@Html.DisplayFor(p => cliente.Presupuesto)</td>
+                                    <td style="background-color:@Html.DisplayFor(model => cliente.Color)">
+                                    @Html.DisplayFor(p => cliente.OP)</td>
+                                    <td>@Html.DisplayFor(p => cliente.ProbabilidadVenta)</td>
+                                    <td>@Html.DisplayFor(p => cliente.Cantidad)</td>
+                                    <td>$@Html.DisplayFor(p => cliente.PorFacturar)</td>
+                                    <td>$@Html.DisplayFor(p => cliente.Rentabilidad)</td>
+                                    <td>@Html.DisplayFor(p => cliente.Porcentaje)%</td>
+                                    <td>
+                                        <button title="Agregar revisión" class="color-button"
+                                                type="button" data-toggle="modal" data-target=".bs-modal-sm" 
+                                                onclick="getId('@Html.DisplayFor(p => cliente.ID)')"></button>
+                                    </td>
+                                </tr>
+                            }
+                            <tr class="sum-row">
+                                <td colspan="5"><b>Suma de @Html.DisplayFor(model => clientes.client)</b></td>
+                                <td>@Html.DisplayFor(model => clientes.totals.Cantidad)</td>
+                                <td>$@Html.DisplayFor(model => clientes.totals.PorFacturar)</td>
+                                <td>$@Html.DisplayFor(model => clientes.totals.Rentabilidad)</td>
+                                <td>@Html.DisplayFor(model => clientes.totals.Porcentaje)%</td>
+                                <td></td>
                             </tr>
                         }
-                        <tr class="sum-row">
-                            <td colspan="5"><b>Suma de @cliente</b></td>
-                            <td>@(Decimal.Round(Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.Cantidad), 2))</td>
-                            <td>$@(Decimal.Round(Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.PorFacturar), 2))</td>
-                            <td>$@(Decimal.Round(Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.Rentabilidad), 2))</td>
-                            <td>@(Decimal.Round((Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.Rentabilidad) /
-                                Model.ventas.Where(o => o.Cliente.Contains(cliente)).Sum(p => p.PorFacturar)) * 100, 2)) %</td>
+                        <tr>
+                            <td colspan="5"><h4>Suma total</h4></td>
+                            <td>@Html.DisplayFor(model => model.venta.Cantidad)</td>
+                            <td>$@Html.DisplayFor(model => model.venta.PorFacturar)</td>
+                            <td>$@Html.DisplayFor(model => model.venta.Rentabilidad)</td>
+                            <td>@Html.DisplayFor(model => model.venta.Porcentaje) %</td>
+                            <td></td>
                         </tr>
-
                     }
-                }        
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="9">Fin</td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
-    
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="9">Fin</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+        <div class="modal fade bs-modal-sm" tabindex="-1" role="dialog" aria-labelledby="smModal">
+            <div class="modal-dialog modal-sm" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+                        <h3 style="color:#fff">Escoja el color de revisión</h3>
+                    </div>
+                    <div class="modal-body" style="background-color:#fff">
+                        <input name="colors" value="#ffffff" type="radio" checked="checked" />
+                        <input id="sin-revisar" disabled="disabled" />
+                        Sin revisar
+                        <br />
+                        <input name="colors" value="#7CD254" type="radio" />
+                        <input id="validado" disabled="disabled" />
+                        Validado
+                        <br />
+                        <input name="colors" value="#FFFF25" type="radio" />
+                        <input id="reserva" disabled="disabled" />
+                        Reserva
+                        <br />
+                        <input name="colors" value="#FFBE00" type="radio" />
+                        <input id="revisar" disabled="disabled" />
+                        Revisar
+                        <br />
+                        <input name="colors" value="#FF0000" type="radio" />
+                        <input id="insumos" disabled="disabled" />
+                        Insumos
+                        <br />
+                        <input name="colors" value="#7BCFDB" type="radio" />
+                        <input id="ajuste" disabled="disabled" />
+                        Con Ajuste
+                        <br />
+                    </div>
+                    <div class="modal-footer">
+                        @Html.HiddenFor(model => model.estimated)
+                        @Html.HiddenFor(model => model.month)
+                        @Html.HiddenFor(model => model.year)
+                        @Html.HiddenFor(model => model.executive)
+                        @Html.HiddenFor(model => model.id)
+                        <button type="button" class="btn btn-default" data-dismiss="modal">Cerrar</button>
+                        <button type="submit" class="btn btn-primary">Guardar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </section>
 
 <section class="text-center">
     <a href="#Top" class="btn btn-info">Volver al inicio</a>
 </section>
+
+<script type="text/javascript">
+    function getId(id) {
+        $('#id').val(id)
+    }
+</script>

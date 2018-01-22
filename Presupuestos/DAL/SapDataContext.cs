@@ -16,6 +16,7 @@ namespace Presupuestos.DAL
         public virtual DbSet<OITM> OITM { get; set; }
         public virtual DbSet<OCRD> OCRD { get; set; }
         public virtual DbSet<OSLP> OSLPs { get; set; }
+        public virtual DbSet<OWOR> OWOR { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

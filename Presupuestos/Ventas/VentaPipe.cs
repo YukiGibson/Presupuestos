@@ -28,7 +28,7 @@ namespace Presupuestos.Ventas
         /// Checks if there is any session
         /// </summary>
         /// <returns></returns>
-        public bool IsEmpty()
+        public bool HasContent()
         {
             return _ventasRepository.GetContext().DetailPipelineVentas.Select(p => p.Sesion).Any();
         }
@@ -40,6 +40,19 @@ namespace Presupuestos.Ventas
         public List<DetailPipelineVentas> GetWholeList()
         {
             return _ventasRepository.Read().ToList();
+        }
+
+        public int GetLastSession()
+        {
+            return _ventasRepository.GetContext().DetailPipelineVentas.Select(p => p.Sesion).Max();
+        }
+
+        public void SaveColor(int? id, string color)
+        {
+            DetailPipelineVentas detail = new DetailPipelineVentas();
+            detail.ID = id ?? 0;
+            _ventasRepository.Update(detail, color);
+            _ventasRepository.Save();
         }
 
         public Dictionary<string, string> fillDropDownSearchDetalle()
@@ -134,7 +147,8 @@ namespace Presupuestos.Ventas
                 MargenEstimado = list.Sum(o => o.MargenEstimado),
                 MargenOP = list.Sum(o => o.MargenOP),
                 TotalFacturacion = list.Sum(o => o.TotalFacturacion),
-                TotalMargen = list.Sum(o => o.TotalMargen)
+                TotalMargen = list.Sum(o => o.TotalMargen),
+                MargenProyectado = list.Sum(o => o.MargenProyectado),
             };
             return detalleEjecutivo;
         }
@@ -145,20 +159,11 @@ namespace Presupuestos.Ventas
         /// <returns></returns>
         public List<DetailPipelineVentas> GetNewSales()
         {
-            SqlParameter fechaActual = new SqlParameter("@fechaActual", DateTime.Today.ToString("yyyyMMdd"));
             List<DetailPipelineVentas> projectionList = _ventasRepository.GetContext().Database
-                .SqlQuery<DetailPipelineVentas>("PipelineVentas @fechaActual", fechaActual).ToList();
-            //SetSapClients(ref projectionList);
-            //TODO cambiar el nombre del vendedor por el de SAP
-            /*
-              --SELECT [OWOR].[CardCode], [OSLP].[SlpName]
-                --FROM [SBO_LITOGRAFIA].[dbo].[OWOR] AS [OWOR]
-                --INNER JOIN [SBO_LITOGRAFIA].[dbo].[OCRD] AS [OCRD] 
-                --ON [OWOR].[CardCode] = [OCRD].[CardCode]
-                --INNER JOIN [SBO_LITOGRAFIA].[dbo].[OSLP] AS [OSLP]
-                --ON [OCRD].[SlpCode] = [OSLP].[SlpCode]
-                --WHERE U_OrdenProduccionMet = '11200'
-             */
+                .SqlQuery<DetailPipelineVentas>("PCV_PipelineVentas").ToList();
+            //TODO Probar
+            SetSapClients(ref projectionList);
+
             return projectionList;
         } // End GetNewSales()
 
@@ -172,8 +177,9 @@ namespace Presupuestos.Ventas
             SqlParameter month = new SqlParameter("@Month", detail.month ?? DateTime.Today.Month.ToString());
             SqlParameter year = new SqlParameter("@Year", detail.year ?? DateTime.Today.Year.ToString());
             List<DetalleEjecutivo> executivesOverview = _ventasRepository.GetContext().Database
-                .SqlQuery<DetalleEjecutivo>("DetalleEjecutivo @Estimado, @Month, @Year", estimado, month, year).ToList();
+                .SqlQuery<DetalleEjecutivo>("PCV_DetalleEjecutivo @Estimado, @Month, @Year", estimado, month, year).ToList();
             //TODO aca vamos a cargar el SP que trae la data del resumen ejecutivo
+
             if (detail.executive != null)
             {
                 executivesOverview = executivesOverview.Where(o => o.Vendedor.Contains(detail.executive)).ToList();
@@ -186,8 +192,18 @@ namespace Presupuestos.Ventas
             SapDataContext dataContext = new SapDataContext();
             for (int i = 0; i < list.Count(); i++)
             {
-                //list[i].Vendedor = dataContext.;
+                string op = list[i].OP;
+                if (!String.IsNullOrEmpty(op))
+                {
+                    string sapName = (from OWOR in dataContext.OWOR
+                                      join OCRD in dataContext.OCRD on OWOR.CardCode equals OCRD.CardCode
+                                      join OSLP in dataContext.OSLPs on OCRD.SlpCode equals OSLP.SlpCode
+                                      where OWOR.U_OrdenProduccionMet.Contains(op)
+                                      select OSLP.SlpName).FirstOrDefault();
+                    list[i].Vendedor = sapName ?? list[i].Vendedor;
+                }
             }
+            dataContext.Dispose();
         }
 
         /// <summary>
@@ -211,7 +227,7 @@ namespace Presupuestos.Ventas
         /// <param name="list"></param>
         /// <param name="detail"></param>
         /// <returns></returns>
-        public List<DetailPipelineVentas> OrderSalesPipeline(List<DetailPipelineVentas> list, params PipelineViewModel[] detail)
+        public List<DetailPipelineVentas> SortSalesPipeline(List<DetailPipelineVentas> list, params PipelineViewModel[] detail)
         {
             if (detail.Count() != 0)
             {
@@ -244,9 +260,9 @@ namespace Presupuestos.Ventas
         {
             List<DetailPipelineVentas> temporalList = list.ToList();
             List<short> annos = temporalList.Select(p => p.Año).Distinct().ToList();
-            List<byte> meses = temporalList.Select(p => p.Mes).Distinct().ToList();
+            List<byte> meses = temporalList.OrderBy(o => o.Mes).Select(p => p.Mes).Distinct().ToList();
             List<string> estimados = temporalList.Select(p => p.Estimado).Distinct().ToList();
-            List<string> ejecutivos = temporalList.Select(p => p.Vendedor).Distinct().ToList();
+            List<string> ejecutivos = temporalList.OrderBy(o => o.Vendedor).Select(p => p.Vendedor).Distinct().ToList();
 
             foreach (var anno in annos)
             {
@@ -270,9 +286,9 @@ namespace Presupuestos.Ventas
         {
             List<DetailPipelineVentas> temporalList = list.ToList();
             List<short> annos = temporalList.Select(p => p.Año).Distinct().ToList();
-            List<byte> meses = temporalList.Select(p => p.Mes).Distinct().ToList();
+            List<byte> meses = temporalList.OrderBy(o => o.Mes).Select(p => p.Mes).Distinct().ToList();
             List<string> estimados = temporalList.Select(p => p.Estimado).Distinct().ToList();
-            List<string> ejecutivos = temporalList.Select(p => p.Vendedor).Distinct().ToList();
+            List<string> ejecutivos = temporalList.OrderBy(o => o.Vendedor).Select(p => p.Vendedor).Distinct().ToList();
 
             foreach (var anno in annos)
             {
@@ -291,6 +307,69 @@ namespace Presupuestos.Ventas
                 viewModel.executiveDrop.Add(ejecutivo.ToString(), ejecutivo.ToString());
             }
         }
+
+        public DetailPipelineVentas DetailTotal(List<DetailPipelineVentas> list)
+        {
+            //TODO prueba unitaria
+            decimal cantidad = list.Sum(o => o.Cantidad);
+            decimal facturar = list.Sum(o => o.PorFacturar);
+            decimal rentabilidad = list.Sum(o => o.Rentabilidad);
+            double porcentaje = (double)Decimal.Round(rentabilidad
+                / (facturar == 0 ? 1 : facturar) * 100, 2);
+            DetailPipelineVentas totals = new DetailPipelineVentas()
+            {
+                Cantidad = cantidad,
+                PorFacturar = facturar,
+                Rentabilidad = rentabilidad,
+                Porcentaje = porcentaje
+            };
+            return totals;
+        }
+
+        public List<Detail> BuildDetailTable(List<DetailPipelineVentas> list)
+        {
+            List<Detail> table = new List<Detail>();
+            foreach (var client in list.Select(p => p.Cliente).Distinct())
+            {
+                Detail detail = new Detail();
+                detail.client = client;
+                
+                foreach (var row in list.Where(p => p.Cliente.Equals(client)))
+                {
+                    detail.sales.Add(
+                        new DetailPipelineVentas
+                        {
+                            ID = row.ID,
+                            Cliente = row.Cliente,
+                            Titulo = row.Titulo,
+                            Presupuesto = row.Presupuesto,
+                            Color = row.Color,
+                            OP = row.OP,
+                            ProbabilidadVenta = row.ProbabilidadVenta,
+                            Cantidad = row.Cantidad,
+                            PorFacturar = row.PorFacturar,
+                            Rentabilidad = row.Rentabilidad,
+                            Porcentaje = row.Porcentaje
+                        }
+                        );
+                }
+                detail.rowspan = detail.sales.Count() + 1;
+                decimal cantidad = detail.sales.Where(o => o.Cliente.Contains(client)).Sum(o => o.Cantidad);
+                decimal porFacturar = detail.sales.Where(o => o.Cliente.Contains(client)).Sum(o => o.PorFacturar);
+                decimal rentabilidad = detail.sales.Where(o => o.Cliente.Contains(client)).Sum(o => o.Rentabilidad);
+                double porcentaje = (double)Decimal.Round(rentabilidad / (porFacturar == 0 ? 1 : porFacturar) * 100, 2);
+                detail.totals = new DetailPipelineVentas()
+                {
+                    Cantidad = cantidad,
+                    PorFacturar = porFacturar,
+                    Rentabilidad = rentabilidad,
+                    Porcentaje = porcentaje
+                };
+                table.Add(detail);
+            }
+            return table;
+        }
+
 
         /// <summary>
         /// Implements an IDisposable interface where it disposes resources such as the data context

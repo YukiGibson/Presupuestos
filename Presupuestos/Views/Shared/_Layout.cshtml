@@ -1,7 +1,7 @@
 ﻿<!DOCTYPE html>
 <html>
 <head>
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Web Page for the Commercial Department" />
@@ -13,7 +13,7 @@
     <title>@ViewBag.Title - Pipeline Presupuestos</title>
     @Styles.Render("~/Content/css")
     @Scripts.Render("~/bundles/modernizr")
-    
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.1/Chart.min.js"></script>
 </head>
 <body>
     <p id="Top"></p>
@@ -35,8 +35,20 @@
             </div>
             <div class="navbar-collapse collapse" id="CollapseNavBar">
                 <ul class="nav navbar-nav">
-                    <li>
-                    @Html.ActionLink("Pipeline", "Pipeline", "Commercial", null, new { @class= "glyphicon glyphicon-dashboard nav-txt-big" })
+                    <li class="dropdown">
+                        <div class="btn-group" role="group">
+                            <button type="button" class="btn btn-default dropdown-toggle glyphicon glyphicon-dashboard nav-txt-big" data-toggle="dropdown"
+                                    aria-expanded="false" aria-haspopup="true">Abastecimiento <span class="caret"></span>
+                            </button>
+                            <ul class="dropdown-menu">
+                                <li>
+                                    @Html.ActionLink("Pipeline", "Pipeline", "Commercial")
+                                </li>
+                                <li>
+                                    @Html.ActionLink("Importar", "Imports", "Session")
+                                </li>
+                            </ul>
+                        </div>
                     </li>
                     <li class="dropdown">
                         <div class="btn-group" role="group">
@@ -55,9 +67,6 @@
                                 </li>
                             </ul>
                         </div>
-                    </li>
-                    <li>
-                    @Html.ActionLink("Importar", "Imports", "Session", null, new { @class = "glyphicon glyphicon-download nav-txt-big" })
                     </li>
                 </ul>
                 <ul class="nav navbar-nav navbar-right">
@@ -84,14 +93,15 @@
         <hr />
         <footer class="modal-footer">
             <div class="text-center">
-                <p>&copy; @DateTime.Now.Year - Grupo Vargas S.A.</p>
-                <p><em>Versión 2.3</em></p>
+                <p>@DateTime.Now.Year - Grupo Vargas S.A.</p>
+                <p><em>Versión 2.4.2</em></p>
             </div>
         </footer>
     </div>
     @Scripts.Render("~/bundles/jquery")
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+
     @Scripts.Render("~/bundles/bootstrap")
     <script src="~/Scripts/datepicker-es.js"></script>
     <script src="~/Scripts/presupuestos.js"></script>

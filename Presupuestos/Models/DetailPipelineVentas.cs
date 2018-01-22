@@ -81,5 +81,7 @@ namespace Presupuestos.Models
         public string Estimado { get; set; }
 
         public double Porcentaje { get; set; }
+
+        public string Color { get; set; }
     }
 }

@@ -147,6 +147,16 @@
     <Compile Include="cts\Message.cs" />
     <Compile Include="cts\ProjectionKg.cs" />
     <Compile Include="cts\SortCostsById.cs" />
+    <Compile Include="Migrations\201801181557448_added color.cs" />
+    <Compile Include="Migrations\201801181557448_added color.Designer.cs">
+      <DependentUpon>201801181557448_added color.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\OWOR.cs" />
+    <Compile Include="Migrations\201801161626011_Added Projection Table.cs" />
+    <Compile Include="Migrations\201801161626011_Added Projection Table.Designer.cs">
+      <DependentUpon>201801161626011_Added Projection Table.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\DetailPipelineProyeccione.cs" />
     <Compile Include="Migrations\201801091558489_addedcolumnPorcentaje.cs" />
     <Compile Include="Migrations\201801091558489_addedcolumnPorcentaje.Designer.cs">
       <DependentUpon>201801091558489_addedcolumnPorcentaje.cs</DependentUpon>
@@ -229,6 +239,8 @@
     <Compile Include="Repositories\IRepository.cs" />
     <Compile Include="Repositories\PipelineRepository.cs" />
     <Compile Include="Repositories\PipelineVentasRepository.cs" />
+    <Compile Include="Repositories\ProjectionsRepository.cs" />
+    <Compile Include="Ventas\Detail.cs" />
     <Compile Include="Ventas\VentaPipe.cs" />
     <Compile Include="ViewModels\CostsViewModel.cs" />
     <Compile Include="ViewModels\DetailViewModel.cs" />
@@ -382,6 +394,12 @@
     <EmbeddedResource Include="Migrations\201801091612579_updatedColumnPorcentaje.resx">
       <DependentUpon>201801091612579_updatedColumnPorcentaje.cs</DependentUpon>
     </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801161626011_Added Projection Table.resx">
+      <DependentUpon>201801161626011_Added Projection Table.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801181557448_added color.resx">
+      <DependentUpon>201801181557448_added color.cs</DependentUpon>
+    </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>
     <VisualStudioVersion Condition="'$(VisualStudioVersion)' == ''">10.0</VisualStudioVersion>
@@ -404,9 +422,9 @@
           <AutoAssignPort>True</AutoAssignPort>
           <DevelopmentServerPort>64802</DevelopmentServerPort>
           <DevelopmentServerVPath>/</DevelopmentServerVPath>
-          <IISUrl>http://localhost:61400/</IISUrl>
+          <IISUrl>http://localhost:65500/</IISUrl>
           <OverrideIISAppRootUrl>True</OverrideIISAppRootUrl>
-          <IISAppRootUrl>http://localhost:61400/</IISAppRootUrl>
+          <IISAppRootUrl>http://localhost:65500/</IISAppRootUrl>
           <NTLMAuthentication>False</NTLMAuthentication>
           <UseCustomServer>False</UseCustomServer>
           <CustomServerUrl>

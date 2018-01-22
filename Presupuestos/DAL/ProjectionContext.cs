@@ -29,6 +29,8 @@
         public virtual DbSet<OrdLotesProducao> OrdLotesProducao { get; set; }
         public virtual DbSet<VU_ACR_DON_012_OrcPapel> VU_ACR_DON_012_OrcPapel { get; set; }
         public virtual DbSet<DetailPipelineVentas> DetailPipelineVentas { get; set; }
+        public virtual DbSet<DetailPipelineProyeccione> DetailPipelineProyecciones { get; set; }
+
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {
@@ -665,6 +667,14 @@
 
             modelBuilder.Entity<DetailPipelineVentas>()
                 .Property(e => e.Rentabilidad)
+                .HasPrecision(19, 4);
+
+            modelBuilder.Entity<DetailPipelineProyeccione>()
+               .Property(e => e.Vendedor)
+               .IsUnicode(false);
+
+            modelBuilder.Entity<DetailPipelineProyeccione>()
+                .Property(e => e.Proyeccion)
                 .HasPrecision(19, 4);
         }
     }

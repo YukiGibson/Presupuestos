@@ -4,10 +4,8 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-
-
 <section class="BlackText">
-    <h2>Resumen por ejecutivo</h2>
+    <h2>Resumen por ejecutivo - Sesion #@Html.DisplayFor(p => p.session)</h2>
 
     <div class="form-inline">
         @using (Html.BeginForm("resumenPorEjecutivo", "Pipeline", FormMethod.Get, new { @id = "dropdownsubmit" }))
@@ -30,7 +28,7 @@
             new { @class = "form-control colored-border", onchange = "this.form.submit()" })
         }
     </div>
-
+    <hr />
     <div class="table-responsive">
         <table class="detail-table">
             <thead>
@@ -42,8 +40,8 @@
                     <th rowspan="3">Total Margen</th>
                 </tr>
                 <tr>
-                    <th colspan="2">9</th>
-                    <th colspan="2">9</th>
+                    <th colspan="2">@Html.DisplayFor(model => model.month)</th>
+                    <th colspan="2">@Html.DisplayFor(model => model.month)</th>
                 </tr>
                 <tr>
                     <th>
@@ -59,7 +57,7 @@
                 {
                     foreach (var row in Model.executiveList)
                     {
-                        <tr>
+                        <tr class="highlight-row">
                             <td>@Html.DisplayFor(p => row.Vendedor)</td>
                             <td>@Html.DisplayFor(p => row.FacturacionEstimado)</td>
                             <td>@Html.DisplayFor(p => row.FacturacionOP)</td>
@@ -73,7 +71,7 @@
             </tbody>
             <tfoot>
                 <tr>
-                    <td></td>
+                    <td>Total</td>
                     <td>@Html.DisplayFor(model => model.totalDetail.FacturacionEstimado)</td>
                     <td>@Html.DisplayFor(model => model.totalDetail.FacturacionOP)</td>
                     <td>@Html.DisplayFor(model => model.totalDetail.MargenEstimado)</td>
@@ -87,6 +85,34 @@
 </section>
 
 <br />
+@if (Model.loadStatus != null)
+{
+    if (Model.loadStatus.Count != 0)
+    {
+        string value = "out";
+        if (Model.loadStatus.TryGetValue("Error", out value))
+        {
+            <div class="alert alert-dismissible alert-danger">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <strong>!Error!</strong> @Model.loadStatus["Error"]
+            </div>
+        }
+        else if (Model.loadStatus.TryGetValue("Success", out value))
+        {
+            <div class="alert alert-dismissible alert-success">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <strong>!Éxito!</strong> @Model.loadStatus["Success"]
+            </div>
+        }
+        else if (Model.loadStatus.TryGetValue("Alert", out value))
+        {
+            <div class="alert alert-dismissible alert-warning">
+                <button type="button" class="close" data-dismiss="alert">&times;</button>
+                <strong>!Alerta!</strong> @Model.loadStatus["Alert"]
+            </div>
+        }
+    }
+}
 
 <section class="BlackText">
     <div class="table-responsive">
@@ -96,35 +122,153 @@
                     <th colspan="2"></th>
                     <th>Margen Actual</th>
                     <th>Margen Proyección</th>
-                    <th></th>
+                    <th>Porcentaje</th>
                 </tr>
             </thead>
             <tbody>
                 <tr>
-                    <td rowspan="4">Total</td>
-                    <td>Ileana</td>
-                    <td>174,000</td>
-                    <td>84,971</td>
-                    <td>205%</td>
+                    <td rowspan="@(Model.executiveList.Count() + 1)">Total</td>
                 </tr>
-                <tr>
-                    <td>Karol</td>
-                    <td>87,575</td>
-                    <td>71,971</td>
-                    <td>334%</td>
-                </tr>
+                @if (Model.executiveList != null)
+                {
+                    foreach (var row in Model.executiveList)
+                    {
+                        <tr class="highlight-row">
+                            <td>@Html.DisplayFor(p => row.Vendedor)</td>
+                            <td>@Html.DisplayFor(p => row.TotalMargen)</td>
+                            <td>
+                                @using (Html.BeginForm("resumenPorEjecutivo", "Pipeline", FormMethod.Post))
+                                {
+                                    <input id="projectionValue" name="projectionValue"
+                                           class="tableinsert" type="text" value="@Html.DisplayFor(model => row.MargenProyectado)" oninput="thousandSeparator('tableinsert')" />
+                                        <button title="Guardar proyección" class="glyphicon glyphicon-save btn-insert"
+                                                type="submit" role="button"></button>
+
+                                            <input id="executive" name="executive" hidden="hidden" value="@Html.DisplayFor(p => row.Vendedor)" />
+                                            @Html.HiddenFor(model => model.month)
+                                            @Html.HiddenFor(model => model.year)
+                                }
+                            </td>
+                            <td>@(row.MargenProyectado == 0 ? 0 : Decimal.Round((decimal)row.TotalMargen / row.MargenProyectado * 100, 2)) %</td>
+                        </tr>
+                    }
+                }
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="2"></td>
-                    <td>466,860</td>
-                    <td>328,155</td>
-                    <td>142%</td>
+                    <td colspan="2">Total</td>
+                    <td>@Html.DisplayFor(model => model.totalDetail.TotalMargen)</td>
+                    <td>@Html.DisplayFor(model => model.totalDetail.MargenProyectado)</td>
+                    <td>@(Model.totalDetail.MargenProyectado == 0 ? 0 : 
+                    Decimal.Round((decimal)Model.totalDetail.TotalMargen 
+                    / Model.totalDetail.MargenProyectado * 100, 2)) %</td>
                 </tr>
             </tfoot>
         </table>
     </div>
 </section>
+
+<section id="margen-graph">
+    <canvas id="canvas" width="100" height="100"></canvas>
+</section>
+<script type="text/javascript">
+    var barChartData = {
+        labels: [
+            @if (Model.executiveList != null)
+                            {
+                                int a = Model.executiveList.Count();
+                                int counter = 0;
+                                foreach (var row in Model.executiveList)
+                                {
+                                    counter++;
+                                    if (a > counter)
+                                    {
+                                        @:'@row.Vendedor',
+                                    }
+                                    else
+                                    {
+                                        @:'@row.Vendedor'
+                                    }
+                                }
+                            }],
+        datasets: [{
+            label: 'Margen Actual',
+            backgroundColor: 'rgb(255, 0, 0)',
+            borderColor: 'rgb(255, 50, 0)',
+            borderWidth: 1,
+            data: [
+                @if (Model.executiveList != null)
+                    {
+                        int a = Model.executiveList.Count();
+                        int counter = 0;
+                        foreach (var row in Model.executiveList)
+                        {
+                            counter++;
+                            if (a > counter)
+                            {
+                                @:@row.TotalMargen,
+                            }
+                            else
+                            {
+                                @:@row.TotalMargen
+                            }
+                        }
+                    }
+            ]
+        }, {
+            label: 'Margen Proyectado',
+            backgroundColor: 'rgb(51, 204, 51)',
+            borderColor: 'rgb(51, 204, 70)',
+            borderWidth: 1,
+            data: [
+                @if (Model.executiveList != null)
+                    {
+                        int a = Model.executiveList.Count();
+                        int counter = 0;
+                        foreach (var row in Model.executiveList)
+                        {
+                            counter++;
+                            if (a > counter)
+                            {
+                                @:@row.MargenProyectado,
+                            }
+                            else
+                            {
+                                @:@row.MargenProyectado
+                            }
+                        }
+                    }
+            ]
+        }]
+
+    };
+
+    window.onload = function () {
+        var ctx = document.getElementById("canvas").getContext("2d");
+        window.myBar = new Chart(ctx, {
+            type: 'bar',
+            data: barChartData,
+            options: {
+                responsive: true,
+                legend: {
+                    position: 'top',
+                },
+                title: {
+                    display: true,
+                    text: 'Margen por Mes'
+                },
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        }
+                    }]
+                }
+            }
+        });
+
+    };
+</script>
 
 <!--https://canvasjs.com/docs/charts/chart-options/data/color/ para hacer el chart-->
 

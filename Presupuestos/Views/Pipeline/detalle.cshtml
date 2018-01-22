@@ -1,7 +1,6 @@
 ﻿@model Presupuestos.ViewModels.PipelineViewModel
-@using System.Globalization
 @{
-    ViewBag.Title = "detalle";
+    ViewBag.Title = "Detalle Pipeline Ventas";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
@@ -14,6 +13,17 @@
             <input type="submit" class="btn btn-default" value="Cargar Nueva Sesión" />
             <input type="hidden" value="@Html.DisplayFor(p => p.session)" id="session" name="session" />
         </div>
+        <p>
+            El proceso de carga de sesión en el pipeline de ventas, se cargan los presupuestos
+            de Metrics que cumplan las siguientes reglas:
+        </p>
+        <ul>
+            <li>No estén <strong>cancelados</strong> o <strong>cerrados</strong></li>
+            <li>No sean de previsión</li>
+            <li>Con una probabilidad de venta mayor al 60%</li>
+            <li>La orden de producción no contenga <i>.R</i> al final de este</li>
+            <li>Que tengan entregas disponibles apartir del día en que se cargue la sesión</li>
+        </ul>
     }
     <br />
     @if (Model.loadStatus != null)
@@ -41,112 +51,114 @@
 
 <section id="list-display" class="BlackText">
     <h3>Resultados :</h3>
-    <div class="table-responsive">
-        <table class="detail-table">
-            <thead>
-                <tr>
-                    @using (Html.BeginForm("detalle", "Pipeline", FormMethod.Get))
-                    {
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Vendedor)" 
-                                   id="searchKeyword" name="searchKeyword"/>
-                        </th>
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Mes)"
-                                   id="searchKeyword" name="searchKeyword" />
-                        </th>
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Año)"
-                                   id="searchKeyword" name="searchKeyword" />
-                        </th>
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.MesesDiferencia)"
-                                   id="searchKeyword" name="searchKeyword" />
-                        </th>
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Presupuesto)"
-                                   id="searchKeyword" name="searchKeyword" />
-                        </th>
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.OP)"
-                                   id="searchKeyword" name="searchKeyword" />
-                        </th>
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.TipoProducto)"
-                                   id="searchKeyword" name="searchKeyword" />
-                        </th>
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.CantidadTotal)"
-                                   id="searchKeyword" name="searchKeyword" />
-                        </th>
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Cantidad)"
-                                   id="searchKeyword" name="searchKeyword" />
-                        </th>
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Titulo)"
-                                   id="searchKeyword" name="searchKeyword" />
-                        </th>
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Cliente)"
-                                   id="searchKeyword" name="searchKeyword" />
-                        </th>
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.PorFacturar)"
-                                   id="searchKeyword" name="searchKeyword" />
-                        </th>
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Costo)"
-                                   id="searchKeyword" name="searchKeyword" />
-                        </th>
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Rentabilidad)"
-                                   id="searchKeyword" name="searchKeyword" />
-                        </th>
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.ProbabilidadVenta)"
-                                   id="searchKeyword" name="searchKeyword" />
-                        </th>
-                        <th>
-                            <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Estimado)"
-                                   id="searchKeyword" name="searchKeyword" />
-                        </th>
-                    }
-                </tr>
-            </thead>
-            <tbody>
-                @if (Model.ventas != null)
+        <div class="table-responsive">
+            <table class="detail-table">
+                <thead>
+                    <tr>
+                        @using (Html.BeginForm("detalle", "Pipeline", FormMethod.Get))
+                        {
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Vendedor)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Mes)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Año)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.MesesDiferencia)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Presupuesto)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.OP)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.TipoProducto)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.CantidadTotal)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Cantidad)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Titulo)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Cliente)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.PorFacturar)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Costo)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Rentabilidad)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.ProbabilidadVenta)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                            <th>
+                                <input type="submit" value="@Html.DisplayNameFor(p => p.venta.Estimado)"
+                                       id="searchKeyword" name="searchKeyword" />
+                            </th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model.ventas != null)
                 {
                     foreach (var item in Model.ventas)
                     {
-                        <tr class="highlight-row">
-                            <td>@Html.DisplayFor(p => item.Vendedor)</td>
-                            <td>@Html.DisplayFor(p => item.Mes)</td>
-                            <td>@Html.DisplayFor(p => item.Año)</td>
-                            <td>@Html.DisplayFor(p => item.MesesDiferencia)</td>
-                            <td>@Html.DisplayFor(p => item.Presupuesto)</td>
-                            <td>@Html.DisplayFor(p => item.OP)</td>
-                            <td>@Html.DisplayFor(p => item.TipoProducto)</td>
-                            <td>@Html.DisplayFor(p => item.CantidadTotal)</td>
-                            <td>@Html.DisplayFor(p => item.Cantidad)</td>
-                            <td>@Html.DisplayFor(p => item.Titulo)</td>
-                            <td>@Html.DisplayFor(p => item.Cliente)</td>
-                            <td>$@Html.DisplayFor(p => item.PorFacturar)</td>
-                            <td>$@Html.DisplayFor(p => item.Costo)</td>
-                            <td>$@Html.DisplayFor(p => item.Rentabilidad)</td>
-                            <td>@Html.DisplayFor(p => item.ProbabilidadVenta)</td>
-                            <td>@Html.DisplayFor(p => item.Estimado)</td>
-                        </tr>
+                            <tr class="highlight-row">
+                                <td>@Html.DisplayFor(p => item.Vendedor)</td>
+                                <td>@Html.DisplayFor(p => item.Mes)</td>
+                                <td>@Html.DisplayFor(p => item.Año)</td>
+                                <td>@Html.DisplayFor(p => item.MesesDiferencia)</td>
+                                <td>@Html.DisplayFor(p => item.Presupuesto)</td>
+                                <td>@Html.DisplayFor(p => item.OP)</td>
+                                <td>@Html.DisplayFor(p => item.TipoProducto)</td>
+                                <td>@Html.DisplayFor(p => item.CantidadTotal)</td>
+                                <td>@Html.DisplayFor(p => item.Cantidad)</td>
+                                <td>@Html.DisplayFor(p => item.Titulo)</td>
+                                <td>@Html.DisplayFor(p => item.Cliente)</td>
+                                <td>$@Html.DisplayFor(p => item.PorFacturar)</td>
+                                <td>$@Html.DisplayFor(p => item.Costo)</td>
+                                <td>$@Html.DisplayFor(p => item.Rentabilidad)</td>
+                                <td>@Html.DisplayFor(p => item.ProbabilidadVenta)</td>
+                                <td>@Html.DisplayFor(p => item.Estimado)</td>
+                            </tr>
+                        }
                     }
-                }
-            </tbody>
-            <tfoot>
-                <tr>
-                    <td colspan="16">Fin</td>
-                </tr>
-            </tfoot>
-        </table>
-    </div>
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colspan="16">Fin</td>
+                    </tr>
+                </tfoot>
+            </table>
+        </div>
+
+    
 </section>
 
 <section class="text-center">

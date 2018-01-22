@@ -45,9 +45,10 @@ namespace Presupuestos.Repositories
             _projectionContext.SaveChanges();
         }
 
-        public void Update(DetailPipelineVentas entity, string presupuesto)
+        public void Update(DetailPipelineVentas entity, string color)
         {
-            throw new NotImplementedException();
+            DetailPipelineVentas updateVentas = _projectionContext.DetailPipelineVentas.Find(entity.ID);
+            updateVentas.Color = color;   
         }
 
         public void Dispose()

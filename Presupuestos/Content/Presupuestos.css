@@ -6,15 +6,6 @@
 .nav-txt-big{
     font-size:125%;
 }
-
-.first-three-months {
-    color:forestgreen;
-}
-
-.last-months {
-    color: #3050cf;
-}
-
 /*border-width: 1px; border: groove; border-color: #728aac; border-radius: 4px 4px; */
 .colored-border {
     display: block;
@@ -94,8 +85,8 @@
 }
 
 .highlight-row:hover{
-    z-index: auto;
-    background-color:#485563;
+    z-index: 2;
+    background-color:#485563 !important;
     color: #ffffff;
     color: rgb(255, 255, 255);
 }
@@ -112,4 +103,72 @@
     background-color: #808080;
     border-width: 0px;
     color: white;
+}
+
+.tableinsert {
+    padding:1px;
+    text-align: center;
+    border: 0px hidden #ffffff;
+
+} 
+    .tableinsert:focus {
+        text-decoration: underline;
+        color: #2b7dff;
+    }
+
+.btn-insert{
+    
+}
+.btn-insert:hover {
+    background-color: #d7c573;
+}
+    .btn-insert:active {
+        background-color: #eb530f;
+    }
+
+#margen-graph {
+    width:80%;
+    height:50%;
+    margin: 10px auto 10px auto;
+}
+
+input[disabled=disabled] {
+    width: 40px;
+    height: 15px;
+    border: 1px solid black;
+}
+
+#sin-revisar {
+    background-color: initial;
+}
+#validado {
+    background-color: #7CD254;
+}
+#reserva {
+    background-color: #FFFF25;
+}
+#revisar {
+    background-color: #FFBE00;
+}
+#insumos {
+    background-color: #FF0000;
+}
+#ajuste {
+    background-color: #7BCFDB;
+}
+
+.color-button{
+    border: 10px thick #2b7dff;
+    border-radius: 10px;
+    background-color: #eb530f;
+    height:20px;
+    width:20px;
+}
+
+.color-button:active {
+    border: 10px solid inset #2b7dff;
+    border-radius: 10px;
+    background-color:#2b7dff;
+    height: 20px;
+    width: 20px;
 }

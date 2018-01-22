@@ -30,7 +30,19 @@
             <span class="session-button">
                 <input id="uploadButton" type="submit" value="Cargar" class="btn btn-primary" autocomplete="off" 
                        onclick="loading('uploadButton')" onsubmit="loading('uploadButton')" />
-            </span>    
+            </span>  
+            <div>
+                <p>
+                    El proceso de carga de sesión en el pipeline de abastecimiento, se cargan los presupuestos
+                    de Metrics que cumplan las siguientes reglas:
+                </p>
+                <ul>
+                    <li>No estén <strong>cancelados</strong></li>
+                    <li>Con una probabilidad de venta mayor al 60%</li>
+                    <li>Posean orden de producción</li>
+                    <li>Que tengan entregas disponibles apartir día en que se cargue la sesión</li>
+                </ul>
+            </div>
         </div>
     </div>
 }

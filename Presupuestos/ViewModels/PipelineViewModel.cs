@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using Presupuestos.Models;
 using System.Linq;
 using System.Web;
+using Presupuestos.Ventas;
 
 namespace Presupuestos.ViewModels
 {
@@ -16,11 +17,15 @@ namespace Presupuestos.ViewModels
             estimatedDropDown = new Dictionary<string, string>();
             executiveDropDown = new Dictionary<string, string>();
         }
+
+        public int? id { get; set; }
         public short session { get; set; }
         public string status { get; set; }
         public Dictionary<string, string> loadStatus { get; set; }
         public List<DetailPipelineVentas> ventas { get; set; }
         public DetailPipelineVentas venta { get; set; }
+
+        public List<Detail> detailList { get; set; }
 
         //Dropdown Detalles
 
