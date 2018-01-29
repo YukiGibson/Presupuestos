@@ -83,5 +83,8 @@ namespace Presupuestos.Models
         public double Porcentaje { get; set; }
 
         public string Color { get; set; }
+
+        [Column(TypeName = "datetime2")]
+        public DateTime? FechaSesion { get; set; }
     }
 }

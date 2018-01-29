@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using Presupuestos.Models;
-using Presupuestos.Ventas;
+using Presupuestos.Services;
 using Presupuestos.ViewModels;
 using Presupuestos.Repositories;
 using System.Linq;
@@ -18,7 +18,7 @@ namespace Presupuestos.Controllers
         [HttpGet]
         public ActionResult detalle(string searchKeyword)
         {
-            VentaPipe venta = new VentaPipe();
+            PipelineVentas venta = new PipelineVentas();
             PipelineViewModel pipeline = new PipelineViewModel();
             try
             {
@@ -52,14 +52,15 @@ namespace Presupuestos.Controllers
         [HttpPost]
         public ActionResult detalle(short session)
         {
-            VentaPipe venta = new VentaPipe();
+            PipelineVentas venta = new PipelineVentas();
             PipelineViewModel pipeline = new PipelineViewModel();
+            NumeroSesion numeroSesion = new NumeroSesion();
             try
             {
+                session = (short)numeroSesion.ObtenerSesionVentas();
                 pipeline.ventas = venta.GetNewSales();
                 pipeline.ventas = venta.Sort(pipeline.ventas, "");
                 pipeline.searchDropDown = venta.fillDropDownSearchDetalle();
-                //TODO metodo que sortee la lista, enviar como parametro solo la lista pipeline.ventas 
                 venta.InsertNewSales(pipeline.ventas, session);
                 pipeline.loadStatus.Add("Success",
                     String.Format("Se cargaron {0} nuevos presupuestos de forma correcta",
@@ -84,7 +85,7 @@ namespace Presupuestos.Controllers
         [HttpGet]
         public ActionResult analisisMeses(PipelineViewModel model)
         {
-            VentaPipe venta = new VentaPipe();
+            PipelineVentas venta = new PipelineVentas();
             PipelineViewModel pipeline = new PipelineViewModel();
             try
             {
@@ -118,7 +119,7 @@ namespace Presupuestos.Controllers
         public ActionResult analisisMeses(PipelineViewModel pipelineView, string estimated, string month, 
             string year, string colors, string executive)
         {
-            VentaPipe venta = new VentaPipe();
+            PipelineVentas venta = new PipelineVentas();
             PipelineViewModel pipeline = new PipelineViewModel();
             try
             {
@@ -156,7 +157,7 @@ namespace Presupuestos.Controllers
         [HttpGet]
         public ActionResult resumenPorEjecutivo(DetailViewModel detailView)
         {
-            VentaPipe venta = new VentaPipe();
+            PipelineVentas venta = new PipelineVentas();
             DetailViewModel executivesDetail = new DetailViewModel();
             try
             {
@@ -188,7 +189,7 @@ namespace Presupuestos.Controllers
         public ActionResult resumenPorEjecutivo(DetailViewModel detailPipeline, string projectionValue, string executive)
         {
             ProjectionsRepository repository = new ProjectionsRepository();
-            VentaPipe venta = new VentaPipe();
+            PipelineVentas venta = new PipelineVentas();
             DetailViewModel executivesDetail = new DetailViewModel();
             try
             {

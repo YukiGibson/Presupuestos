@@ -58,11 +58,29 @@ namespace Presupuestos.Models
         [StringLength(4)]
         public string UoM { get; set; }
 
+        [Key]
         public int ID { get; set; }
 
         public DateTime? FechaHora { get; set; }
 
         [StringLength(15)]
         public string CardName { get; set; }
+        public int ProbVenta { get; set; }
+
+        [DisplayFormat(DataFormatString = "{0:0,0.##}")]
+        public decimal? kg { get; set; }
+
+        [DisplayFormat(DataFormatString = "{0:0,0.##}")]
+        public decimal? cantidad { get; set; }
+
+        public int? Quantidade { get; set; }
+
+        [StringLength(12)]
+        [Display(Name = "OP")]
+        public string NumOrdem { get; set; }
+
+        [StringLength(30)]
+        public string Lote { get; set; }
+
     }
 }

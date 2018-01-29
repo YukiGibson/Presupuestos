@@ -8,7 +8,7 @@ using Presupuestos.DAL;
 
 namespace Presupuestos.Repositories
 {
-    public class PipelineRepository : IRepository<DetailPipelinePruebas>, IDisposable
+    public class PipelineRepository : IRepository<DetailPipeline>, IDisposable
     {
         private ProjectionContext _projectionContext;
 
@@ -22,19 +22,19 @@ namespace Presupuestos.Repositories
             this._projectionContext = new ProjectionContext();
         }
 
-        public void Create(DetailPipelinePruebas entity)
+        public void Create(DetailPipeline entity)
         {
             _projectionContext.Entry(entity).State = EntityState.Added;
         }
 
-        public void Delete(DetailPipelinePruebas entity)
+        public void Delete(DetailPipeline entity)
         {
             throw new NotImplementedException();
         }
 
-        public IQueryable<DetailPipelinePruebas> Read()
+        public IQueryable<DetailPipeline> Read()
         {
-            return _projectionContext.DetailPipelinePruebas;
+            return _projectionContext.DetailPipeline;
         }
 
         public void Save()
@@ -42,9 +42,10 @@ namespace Presupuestos.Repositories
             _projectionContext.SaveChanges();
         }
 
-        public void Update(DetailPipelinePruebas entity, string presupuesto)
+        public void Update(DetailPipeline entity, string presupuesto)
         {
-            throw new NotImplementedException();
+            var newEntity = _projectionContext.DetailPipeline.Find(entity.ID);
+            newEntity = entity;
         }
 
         public void Dispose()

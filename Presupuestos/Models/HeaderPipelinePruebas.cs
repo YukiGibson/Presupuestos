@@ -8,7 +8,9 @@ namespace Presupuestos.Models
 
     public partial class HeaderPipelinePruebas
     {
-        [Key]
+        [Column(Order = 0)]
+        public int ID { get; set; }
+
         public int IdDoc { get; set; }
 
         public DateTime? FechaDoc { get; set; }

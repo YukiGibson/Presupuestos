@@ -24,7 +24,7 @@ namespace Presupuestos
                         "~/Scripts/presupuestos.js"));
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
-                      "~/Content/bootstrap.min.css",
+                      //"~/Content/bootstrap.min.css",
                       "~/Content/site.css",
                       "~/Content/Presupuestos.css"));
         }

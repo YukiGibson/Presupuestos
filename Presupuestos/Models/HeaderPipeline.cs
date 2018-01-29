@@ -9,7 +9,9 @@ namespace Presupuestos.Models
     [Table("HeaderPipeline")]
     public partial class HeaderPipeline
     {
-        [Key]
+        [Column(Order = 0)]
+        public int ID { get; set; }
+
         public int IdDoc { get; set; }
 
         public DateTime? FechaDoc { get; set; }

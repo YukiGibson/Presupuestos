@@ -4,9 +4,10 @@ using System.Linq;
 using System.Web.Mvc;
 using Presupuestos.ViewModels;
 using Presupuestos.DAL;
-using Presupuestos.cts;
+using Presupuestos.Services;
 using Presupuestos.Repositories;
 using Presupuestos.Models;
+using System.Globalization;
 
 namespace Presupuestos.Controllers
 {
@@ -18,9 +19,10 @@ namespace Presupuestos.Controllers
         {
             SessionViewModel viewModel = new SessionViewModel();
             PipelineRepository pipeline = new PipelineRepository();
+            PipelineAbastecimiento check = new PipelineAbastecimiento();
             try
             {
-                int? lastDocument = pipeline.Read().Select(p => p.IdDoc).Max();
+                int? lastDocument = check.GetLastId();
                 DateTime? lastUpdate = pipeline.Read().Select(p => p.FechaHora).Max();
                 viewModel.DocumentNumber = (lastDocument == null ? (ushort)0 : (ushort)lastDocument);
                 viewModel.LastUpdate = lastUpdate;
@@ -42,26 +44,21 @@ namespace Presupuestos.Controllers
         public ActionResult Imports(SessionViewModel sessionViewModel)
         {
             SessionViewModel viewShow = new SessionViewModel();
-            viewShow.MessageType = new Dictionary<string, string>();
-            SapDataContext _sapDataContext = new SapDataContext();
-            
-            viewShow.Projections = new List<ProjectionViewModel>();
             PipelineRepository pipeline = new PipelineRepository();
-            Check check = new Check(pipeline.GetProjectionContext, _sapDataContext);
+            PipelineAbastecimiento check = new PipelineAbastecimiento();
+            NumeroSesion numeroSesion = new NumeroSesion();
             try
             {
-                IEnumerable<ProjectionViewModel> Data = check.NewBudgets(sessionViewModel);
-                ushort? lastDocument = pipeline.Read().Select(p => p.IdDoc).Max() == null ? (ushort)0 :
-                (ushort)pipeline.Read().Select(p => p.IdDoc).Max();
-                check.InsertNewBudgets(Data, (ushort)lastDocument, sessionViewModel);
+                List<DetailPipeline> Data = check.NewBudgets(sessionViewModel);
+                int lastSession = numeroSesion.ObtenerSesionAbastecimiento();
+                check.InsertNewBudgets(Data, (ushort)lastSession, sessionViewModel);
                 viewShow.Projections = Data.ToList();
                 viewShow.MessageType.Add("Success", "Se cargaron " + Data.Count() + " presupuestos");
-                viewShow.DocumentNumber = (ushort)lastDocument;
+                viewShow.DocumentNumber = (ushort)lastSession;
             }
             catch (Exception e)
             {
-                viewShow.MessageType.Add("Error", (!String.IsNullOrEmpty(e.InnerException.Message) 
-                    ? e.Message : e.InnerException.Message));
+                viewShow.MessageType.Add("Error", (e.Message ?? e.InnerException.Message));
             }
             finally
             {

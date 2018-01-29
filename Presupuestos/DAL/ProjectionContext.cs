@@ -30,7 +30,7 @@
         public virtual DbSet<VU_ACR_DON_012_OrcPapel> VU_ACR_DON_012_OrcPapel { get; set; }
         public virtual DbSet<DetailPipelineVentas> DetailPipelineVentas { get; set; }
         public virtual DbSet<DetailPipelineProyeccione> DetailPipelineProyecciones { get; set; }
-
+        public virtual DbSet<DetailPipelineTotalesPruebas> DetailPipelineTotalesPruebas { get; set; }
 
         protected override void OnModelCreating(DbModelBuilder modelBuilder)
         {

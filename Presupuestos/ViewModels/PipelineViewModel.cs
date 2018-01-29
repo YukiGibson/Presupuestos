@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using Presupuestos.Models;
 using System.Linq;
 using System.Web;
-using Presupuestos.Ventas;
 
 namespace Presupuestos.ViewModels
 {

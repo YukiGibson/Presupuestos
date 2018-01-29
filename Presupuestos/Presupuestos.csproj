@@ -143,10 +143,54 @@
     <Compile Include="Controllers\HomeController.cs" />
     <Compile Include="Controllers\PipelineController.cs" />
     <Compile Include="Controllers\SessionController.cs" />
-    <Compile Include="cts\Check.cs" />
-    <Compile Include="cts\Message.cs" />
-    <Compile Include="cts\ProjectionKg.cs" />
-    <Compile Include="cts\SortCostsById.cs" />
+    <Compile Include="Migrations\201801291453110_DropAndUpdateTables.cs" />
+    <Compile Include="Migrations\201801291453110_DropAndUpdateTables.Designer.cs">
+      <DependentUpon>201801291453110_DropAndUpdateTables.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801291457270_UpdateTablesHeader.cs" />
+    <Compile Include="Migrations\201801291457270_UpdateTablesHeader.Designer.cs">
+      <DependentUpon>201801291457270_UpdateTablesHeader.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801291500253_Test.cs" />
+    <Compile Include="Migrations\201801291500253_Test.Designer.cs">
+      <DependentUpon>201801291500253_Test.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801291621405_AddItemCodeSustratoToEntregas.cs" />
+    <Compile Include="Migrations\201801291621405_AddItemCodeSustratoToEntregas.Designer.cs">
+      <DependentUpon>201801291621405_AddItemCodeSustratoToEntregas.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801291737498_AddedFechaToVentas.cs" />
+    <Compile Include="Migrations\201801291737498_AddedFechaToVentas.Designer.cs">
+      <DependentUpon>201801291737498_AddedFechaToVentas.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\HeaderPipeline.cs" />
+    <Compile Include="Models\HeaderPipelinePruebas.cs" />
+    <Compile Include="Migrations\201801261605399_Added.cs" />
+    <Compile Include="Migrations\201801261605399_Added.Designer.cs">
+      <DependentUpon>201801261605399_Added.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\DetailPipelineTotalesPruebas.cs" />
+    <Compile Include="Migrations\201801242036286_AddedProbVenta.cs" />
+    <Compile Include="Migrations\201801242036286_AddedProbVenta.Designer.cs">
+      <DependentUpon>201801242036286_AddedProbVenta.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801251740266_AddedColumnsDetail.cs" />
+    <Compile Include="Migrations\201801251740266_AddedColumnsDetail.Designer.cs">
+      <DependentUpon>201801251740266_AddedColumnsDetail.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801251758258_AddLote.cs" />
+    <Compile Include="Migrations\201801251758258_AddLote.Designer.cs">
+      <DependentUpon>201801251758258_AddLote.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801252143312_AddedPrimaryKey.cs" />
+    <Compile Include="Migrations\201801252143312_AddedPrimaryKey.Designer.cs">
+      <DependentUpon>201801252143312_AddedPrimaryKey.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Models\Abastecimiento.cs" />
+    <Compile Include="Repositories\SapRepository.cs" />
+    <Compile Include="Services\NumeroSesion.cs" />
+    <Compile Include="Services\PipelineAbastecimiento.cs" />
+    <Compile Include="Models\ProjectionKg.cs" />
     <Compile Include="Migrations\201801181557448_added color.cs" />
     <Compile Include="Migrations\201801181557448_added color.Designer.cs">
       <DependentUpon>201801181557448_added color.cs</DependentUpon>
@@ -214,11 +258,9 @@
     </Compile>
     <Compile Include="Models\OITM.cs" />
     <Compile Include="DAL\SapDataContext.cs" />
-    <Compile Include="Models\HeaderPipelinePruebas.cs" />
     <Compile Include="Models\EstrProcessos.cs" />
     <Compile Include="Models\Vista_SAP.cs" />
     <Compile Include="Models\OrcHdr.cs" />
-    <Compile Include="Models\HeaderPipeline.cs" />
     <Compile Include="Models\DetailPipelineEntregasPruebas.cs" />
     <Compile Include="Models\DetailPipelineHistorico.cs" />
     <Compile Include="Migrations\Configuration.cs" />
@@ -240,8 +282,8 @@
     <Compile Include="Repositories\PipelineRepository.cs" />
     <Compile Include="Repositories\PipelineVentasRepository.cs" />
     <Compile Include="Repositories\ProjectionsRepository.cs" />
-    <Compile Include="Ventas\Detail.cs" />
-    <Compile Include="Ventas\VentaPipe.cs" />
+    <Compile Include="Models\Detail.cs" />
+    <Compile Include="Services\PipelineVentas.cs" />
     <Compile Include="ViewModels\CostsViewModel.cs" />
     <Compile Include="ViewModels\DetailViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
@@ -251,8 +293,6 @@
     <Compile Include="ViewModels\SessionViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Content\bootstrap-theme.css" />
-    <Content Include="Content\bootstrap-theme.min.css" />
     <Content Include="Content\PagedList.css" />
     <Content Include="Content\bootstrap.css" />
     <Content Include="Content\bootstrap.min.css" />
@@ -299,24 +339,13 @@
     <Content Include="favicon-16x16.png" />
     <Content Include="favicon-32x32.png" />
     <Content Include="favicon.ico" />
-    <Content Include="fonts\glyphicons-halflings-regular.svg" />
     <Content Include="Global.asax" />
     <Content Include="Content\Site.css" />
-    <Content Include="fonts\glyphicons-halflings-regular.woff2" />
-    <Content Include="fonts\glyphicons-halflings-regular.woff" />
-    <Content Include="fonts\glyphicons-halflings-regular.ttf" />
-    <Content Include="fonts\glyphicons-halflings-regular.eot" />
-    <Content Include="Content\bootstrap-theme.min.css.map" />
-    <Content Include="Content\bootstrap-theme.css.map" />
-    <Content Include="Content\bootstrap.min.css.map" />
-    <Content Include="Content\bootstrap.css.map" />
     <Content Include="Credenciales.config" />
     <None Include="Properties\PublishProfiles\MvcHostCommercialProduction.pubxml" />
     <None Include="Properties\PublishProfiles\MvcHostCommercialTesting.pubxml" />
     <Content Include="Images\GrupoVargas.png" />
     <Content Include="Images\paginador.PNG" />
-    <Content Include="Scripts\bootstrap.js" />
-    <Content Include="Scripts\bootstrap.min.js" />
     <None Include="Scripts\jquery-3.2.1.intellisense.js" />
     <Content Include="Scripts\datepicker-es.js" />
     <Content Include="Scripts\jquery-3.2.1.js" />
@@ -399,6 +428,36 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801181557448_added color.resx">
       <DependentUpon>201801181557448_added color.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801242036286_AddedProbVenta.resx">
+      <DependentUpon>201801242036286_AddedProbVenta.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801251740266_AddedColumnsDetail.resx">
+      <DependentUpon>201801251740266_AddedColumnsDetail.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801251758258_AddLote.resx">
+      <DependentUpon>201801251758258_AddLote.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801252143312_AddedPrimaryKey.resx">
+      <DependentUpon>201801252143312_AddedPrimaryKey.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801261605399_Added.resx">
+      <DependentUpon>201801261605399_Added.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801291453110_DropAndUpdateTables.resx">
+      <DependentUpon>201801291453110_DropAndUpdateTables.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801291457270_UpdateTablesHeader.resx">
+      <DependentUpon>201801291457270_UpdateTablesHeader.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801291500253_Test.resx">
+      <DependentUpon>201801291500253_Test.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801291621405_AddItemCodeSustratoToEntregas.resx">
+      <DependentUpon>201801291621405_AddItemCodeSustratoToEntregas.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801291737498_AddedFechaToVentas.resx">
+      <DependentUpon>201801291737498_AddedFechaToVentas.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

@@ -47,6 +47,7 @@ namespace Presupuestos.ViewModels
         public string Lote { get; set; }
 
         [StringLength(12)]
+        [Display(Name = "OP")]
         public string NumOrdem { get; set; }
 
         public double? Gramaje { get; set; } // Gramaje
@@ -67,6 +68,15 @@ namespace Presupuestos.ViewModels
         public double? Montaje { get; set; } // Montaje
 
         public int? Pliegos { get; set; }  // Pliegos
+
+        [DisplayFormat(DataFormatString = "{0:0,0.##}")]
+        public decimal? kg { get; set; }
+
+        [DisplayFormat(DataFormatString = "{0:0,0.##}")]
+        public decimal? cantidad { get; set; }
+
+        [Display(Name = "Probabilidad de venta")]
+        public int ProbVenta { get; set; }
 
         public virtual List<MonthViewModel> Month { get; set; }
 

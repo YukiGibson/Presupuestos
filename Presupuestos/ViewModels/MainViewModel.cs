@@ -5,37 +5,35 @@ using System.Web;
 using System.Web.Mvc;
 using System.Globalization;
 using PagedList;
+using Presupuestos.Services;
+using Presupuestos.Models;
 
 namespace Presupuestos.ViewModels
 {
     public class MainViewModel
     {
-        public int? Page { get; set; }
-
         public Dictionary<string, string> MessageType { get; set; }
-
-        public string SearchBudget { get; set; }
-
-        public string SearchExecutive { get; set; }
-
-        public string SortBy { get; set; }
 
         public ushort documentNumber { get; set; }
 
-        public Dictionary<string, string> Sorts { get; set; }
-
         public ProjectionViewModel Projection { get; set; }
 
-        public List<ProjectionViewModel> Projections { get; set; }
+        public List<Abastecimiento> Projections { get; set; }
 
-        public IPagedList PagingMetaData { get; set; }
-
-        public SortedSet<CostsViewModel> orderedCosts { get; set; }
+        //Search dropdowns
+        public string year { get; set; }
+        public Dictionary<string, string> yearDropDown { get; set; }
+        public byte month { get; set; }
+        public Dictionary<string, string> monthDropDown { get; set; }
+        public string executive { get; set; }
+        public Dictionary<string, string> executiveDropDown { get; set; }
 
         public MainViewModel()
         {
             this.Projection = new ProjectionViewModel();
-            this.PagingMetaData = new List<ProjectionViewModel>().ToPagedList(1, 1);
+            this.yearDropDown = new Dictionary<string, string>();
+            this.monthDropDown = new Dictionary<string, string>();
+            this.executiveDropDown = new Dictionary<string, string>();
         }
     }
 }

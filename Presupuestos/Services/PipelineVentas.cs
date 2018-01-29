@@ -9,17 +9,18 @@ using System.Data.SqlClient;
 using Presupuestos.ViewModels;
 using System.Data.Entity.SqlServer;
 
-namespace Presupuestos.Ventas
+namespace Presupuestos.Services
 {
-    public class VentaPipe : IDisposable
+    public class PipelineVentas : IDisposable
     {
         private PipelineVentasRepository _ventasRepository;
+
 
         /*************************************************************************
          * Constructor
          * Initializes a new Repo
          *************************************************************************/
-        public VentaPipe()
+        public PipelineVentas()
         {
             _ventasRepository = new PipelineVentasRepository();
         } // End ctor()
@@ -51,7 +52,7 @@ namespace Presupuestos.Ventas
         {
             DetailPipelineVentas detail = new DetailPipelineVentas();
             detail.ID = id ?? 0;
-            _ventasRepository.Update(detail, color);
+            _ventasRepository.UpdateColor(detail, color);
             _ventasRepository.Save();
         }
 
@@ -161,7 +162,6 @@ namespace Presupuestos.Ventas
         {
             List<DetailPipelineVentas> projectionList = _ventasRepository.GetContext().Database
                 .SqlQuery<DetailPipelineVentas>("PCV_PipelineVentas").ToList();
-            //TODO Probar
             SetSapClients(ref projectionList);
 
             return projectionList;
@@ -178,8 +178,6 @@ namespace Presupuestos.Ventas
             SqlParameter year = new SqlParameter("@Year", detail.year ?? DateTime.Today.Year.ToString());
             List<DetalleEjecutivo> executivesOverview = _ventasRepository.GetContext().Database
                 .SqlQuery<DetalleEjecutivo>("PCV_DetalleEjecutivo @Estimado, @Month, @Year", estimado, month, year).ToList();
-            //TODO aca vamos a cargar el SP que trae la data del resumen ejecutivo
-
             if (detail.executive != null)
             {
                 executivesOverview = executivesOverview.Where(o => o.Vendedor.Contains(detail.executive)).ToList();
@@ -215,8 +213,15 @@ namespace Presupuestos.Ventas
         {
             foreach (DetailPipelineVentas budget in budgets)
             {
-                budget.Sesion = session + 1;
-                _ventasRepository.Create(budget);
+                budget.Sesion = session;
+                if (_ventasRepository.IfExists(budget, session))
+                {
+                    _ventasRepository.Update(budget, session.ToString());
+                }
+                else // If it doesn't exists
+                {
+                    _ventasRepository.Create(budget);
+                }
             }
             _ventasRepository.Save();
         } // End InsertNewSales

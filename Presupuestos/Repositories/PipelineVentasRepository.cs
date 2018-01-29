@@ -17,6 +17,14 @@ namespace Presupuestos.Repositories
             _projectionContext = new ProjectionContext();
         }
 
+        public bool IfExists(DetailPipelineVentas entity, short session)
+        {
+            bool exists = _projectionContext.DetailPipelineVentas.Where(p => p.OP.Contains(entity.OP)
+            && p.Presupuesto.Contains(entity.Presupuesto) && p.TipoProducto.Contains(entity.TipoProducto)
+            && p.Mes == entity.Mes && p.Año == entity.Año && p.Sesion == session).Any();
+            return exists;
+        }
+
         public ProjectionContext GetContext()
         {
             return _projectionContext;
@@ -45,10 +53,25 @@ namespace Presupuestos.Repositories
             _projectionContext.SaveChanges();
         }
 
-        public void Update(DetailPipelineVentas entity, string color)
+        public void UpdateColor(DetailPipelineVentas entity, string color)
         {
             DetailPipelineVentas updateVentas = _projectionContext.DetailPipelineVentas.Find(entity.ID);
-            updateVentas.Color = color;   
+            updateVentas.Color = color;
+        }
+
+        public void Update(DetailPipelineVentas entity, string session)
+        {
+            short _session = short.Parse(session);
+            DetailPipelineVentas detail = _projectionContext.DetailPipelineVentas.Where(p => p.OP.Contains(entity.OP)
+            && p.Presupuesto.Contains(entity.Presupuesto) && p.TipoProducto.Contains(entity.TipoProducto)
+            && p.Mes == entity.Mes && p.Año == entity.Año && p.Sesion == _session).FirstOrDefault();
+
+            detail.CantidadTotal = entity.CantidadTotal;
+            detail.Cantidad = entity.Cantidad;
+            detail.PorFacturar = entity.PorFacturar;
+            detail.Costo = entity.Costo;
+            detail.Rentabilidad = entity.Rentabilidad;
+            detail.ProbabilidadVenta = entity.ProbabilidadVenta;
         }
 
         public void Dispose()

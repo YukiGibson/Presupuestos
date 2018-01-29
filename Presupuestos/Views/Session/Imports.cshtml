@@ -4,110 +4,108 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h2 class="BlackText">Carga de Sesión</h2>
-<p class="BlackText">El proceso de carga traerá los últimos presupuestos que se hayan creado anteriormente</p>
 
 
-@using (Html.BeginForm("Imports", "Session", FormMethod.Post, new { id = "CargarForm" }))
-{
-    @Html.AntiForgeryToken()
-    @Html.ValidationSummary(true)
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h3 class="panel-title">Sesión #@Html.DisplayFor(model => model.DocumentNumber) - 
-            @if (Model.LastUpdate != null)
-                {
-                <span>Última vez corrido: @Html.DisplayFor(model => model.LastUpdate)</span>
-            }
-            </h3>
-        </div>
-        <div class="panel-body">
-            <span class="session-textbox">
-                @Html.LabelFor(model => model.StartDate)
-                @Html.TextBoxFor(model => model.StartDate, new { @class = "form-control",
-                @readonly = "readonly", Value = DateTime.Today.ToString("dd/MM/yy")})
-            </span>
-            <span class="session-button">
-                <input id="uploadButton" type="submit" value="Cargar" class="btn btn-primary" autocomplete="off" 
-                       onclick="loading('uploadButton')" onsubmit="loading('uploadButton')" />
-            </span>  
-            <div>
-                <p>
-                    El proceso de carga de sesión en el pipeline de abastecimiento, se cargan los presupuestos
-                    de Metrics que cumplan las siguientes reglas:
-                </p>
-                <ul>
-                    <li>No estén <strong>cancelados</strong></li>
-                    <li>Con una probabilidad de venta mayor al 60%</li>
-                    <li>Posean orden de producción</li>
-                    <li>Que tengan entregas disponibles apartir día en que se cargue la sesión</li>
-                </ul>
-            </div>
-        </div>
-    </div>
-}
-@if (Model != null)
-{
-    if (Model.MessageType != null)
+<section id="imports">
+
+    @using (Html.BeginForm("Imports", "Session", FormMethod.Post, new { id = "CargarForm" }))
     {
-        string value = "out";
-        if (Model.MessageType.TryGetValue("Success", out value))
-        {
-            <div class="alert alert-dismissible alert-success">
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
-                <strong>!Exito!</strong> @Model.MessageType["Success"]
+        @Html.AntiForgeryToken()
+        @Html.ValidationSummary(true)
+        <div class="jumbotron">
+            <h2 class="display-5">Carga de Sesión</h2>
+            <p class="lead">El proceso de carga traerá los últimos presupuestos que se hayan creado anteriormente</p>
+
+            <p class="display-5">
+                Sesión #@Html.DisplayFor(model => model.DocumentNumber) -
+                @if (Model.LastUpdate != null)
+                {
+                    <span>Última vez corrido: @Html.DisplayFor(model => model.LastUpdate)</span>
+                }
+            </p>
+            <div class="form-inline">
+                    @Html.LabelFor(model => model.StartDate, new { @style = "text-align:left;" })
+                    @Html.TextBoxFor(model => model.StartDate, new
+               {
+                   @style = "color:#fff;",
+                   @class = "form-control",
+                   @disabled = "",
+                   Value = DateTime.Today.ToString("dd/MM/yy")
+               })
+                    <input id="uploadButton" type="submit" value="Cargar" class="btn btn-primary" autocomplete="off"
+                           onclick="loading('uploadButton')" onsubmit="loading('uploadButton')" />
             </div>
-        }
-        else if (Model.MessageType.TryGetValue("Error", out value))
+        </div>
+    }
+</section>
+
+<section id="alerts">
+    @if (Model != null)
+    {
+        if (Model.MessageType != null)
         {
-            <div class="alert alert-dismissible alert-danger">
-                <button type="button" class="close" data-dismiss="alert">&times;</button>
-                <strong>!Error!</strong> @Model.MessageType["Error"]
-            </div>
+            string value = "out";
+            if (Model.MessageType.TryGetValue("Success", out value))
+            {
+                <div class="alert alert-dismissible alert-success">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>!Exito!</strong> @Model.MessageType["Success"]
+                </div>
+            }
+            else if (Model.MessageType.TryGetValue("Error", out value))
+            {
+                <div class="alert alert-dismissible alert-danger">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <strong>!Error!</strong> @Model.MessageType["Error"]
+                </div>
+            }
         }
     }
-}
 
+</section>
 
-<div class="form-horizontal">
-    <table class="table table-condensed">
-        <thead>
-            <tr class="BlackText">
-                <th>#</th>
-                <th>@Html.DisplayNameFor(m => Model.Projection.Presupuesto)</th>
-                <th>@Html.DisplayNameFor(m => Model.Projection.Cliente)</th>
-                <th>@Html.DisplayNameFor(m => Model.Projection.Sustrato)</th>
-                <th>@Html.DisplayNameFor(m => Model.Projection.Ejecutivo)</th>
-            </tr>
-        </thead>
-        <tbody style="background-color:#485563">
-            
-            @if (Model.Projections != null)
+<section>
+    <div class="table-responsive">
+        <table class="table table-condensed table-striped">
+            <thead>
+                <tr class="BlackText">
+                    <th>#</th>
+                    <th>@Html.DisplayNameFor(m => Model.Projection.Presupuesto)</th>
+                    <th>@Html.DisplayNameFor(m => Model.Projection.Cliente)</th>
+                    <th>@Html.DisplayNameFor(m => Model.Projection.Sustrato)</th>
+                    <th>@Html.DisplayNameFor(m => Model.Projection.Ejecutivo)</th>
+                </tr>
+            </thead>
+            <tbody style="background-color:#485563">
+
+                @if (Model.Projections != null)
             {
                 int counter = 1;
                 foreach (var item in Model.Projections)
                 {
-                    <tr>
-                        <th scope="row">@(counter++)</th>
-                        <td>@Html.DisplayFor(m => item.Presupuesto)</td>
-                        <td>@Html.DisplayFor(m => item.Cliente)</td>
-                        <td>@Html.DisplayFor(m => item.Sustrato)</td>
-                        <td>@Html.DisplayFor(m => item.Ejecutivo)</td>
-                    </tr>
+                        <tr>
+                            <th scope="row">@(counter++)</th>
+                            <td>@Html.DisplayFor(m => item.Presupuesto)</td>
+                            <td>@Html.DisplayFor(m => item.Cliente)</td>
+                            <td>@Html.DisplayFor(m => item.Sustrato)</td>
+                            <td>@Html.DisplayFor(m => item.Ejecutivo)</td>
+                        </tr>
+                    }
                 }
-            }
-            <tr>
-                <td colspan="5" style="text-align:center"><b>Final de la lista</b></td>
-            </tr>
-        </tbody>
-    </table>
-</div>
-<div class="col-lg-12">
-    <div class="text-center">
-        <br />
-        <a href="#Top" class="btn btn-info">Ir al inicio de la página</a>
+                <tr>
+                    <td colspan="5" style="text-align:center"><b>Final de la lista</b></td>
+                </tr>
+            </tbody>
+        </table>
     </div>
-</div>
+    <div class="col-lg-12">
+        <div class="text-center">
+            <br />
+            <a href="#Top" class="btn btn-info">Ir al inicio de la página</a>
+        </div>
+    </div>
+</section>
+
 
 
 @section Scripts {

@@ -2,9 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Web;
-using Presupuestos.Models;
 
-namespace Presupuestos.Ventas
+namespace Presupuestos.Models
 {
     public class Detail
     {

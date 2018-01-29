@@ -4,28 +4,35 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<section id="search-bar" class="BlackText">
+<section id="search-bar">
     @using (Html.BeginForm("detalle", "Pipeline", FormMethod.Post))
     {
-        <div class="form-inline">
-            <h2>Detalle Pipeline Ventas - Sesion #@Html.DisplayFor(p => p.session)</h2>
-            <p>Status : @Html.DisplayFor(o => o.status)</p>
-            <input type="submit" class="btn btn-default" value="Cargar Nueva Sesión" />
-            <input type="hidden" value="@Html.DisplayFor(p => p.session)" id="session" name="session" />
+        <div class="jumbotron">
+            <h2 class="display-6">Detalle Pipeline Ventas - Sesion #@Html.DisplayFor(p => p.session)</h2>
+            <hr class="my-4"/>
+            <div class="form-group row">
+                <label for="newSession" class="col-sm-12 col-form-label">Status : @Html.DisplayFor(o => o.status)</label>
+                <br />
+                <div class="col-sm-10">
+                    <input id="newSession" type="submit" class="btn btn-default" value="Cargar Nueva Sesión" 
+                           onclick="loading('newSession')" onsubmit="loading('newSession')" />
+                    <input type="hidden" value="@Html.DisplayFor(p => p.session)" id="session" name="session" />
+                </div>
+            </div>
+            <p>
+                El proceso de carga de sesión en el pipeline de ventas, se cargan los presupuestos
+                de Metrics que cumplan las siguientes reglas:
+            </p>
+            <ol>
+                <li>No estén <strong>cancelados</strong> o <strong>cerrados</strong></li>
+                <li>No sean de previsión</li>
+                <li>Con una probabilidad de venta mayor al 60%</li>
+                <li>La orden de producción no contenga <i>.R</i> al final de este</li>
+                <li>Que tengan entregas disponibles apartir del día en que se cargue la sesión</li>
+            </ol>
         </div>
-        <p>
-            El proceso de carga de sesión en el pipeline de ventas, se cargan los presupuestos
-            de Metrics que cumplan las siguientes reglas:
-        </p>
-        <ul>
-            <li>No estén <strong>cancelados</strong> o <strong>cerrados</strong></li>
-            <li>No sean de previsión</li>
-            <li>Con una probabilidad de venta mayor al 60%</li>
-            <li>La orden de producción no contenga <i>.R</i> al final de este</li>
-            <li>Que tengan entregas disponibles apartir del día en que se cargue la sesión</li>
-        </ul>
+        
     }
-    <br />
     @if (Model.loadStatus != null)
     {
         if (Model.loadStatus.Count != 0)

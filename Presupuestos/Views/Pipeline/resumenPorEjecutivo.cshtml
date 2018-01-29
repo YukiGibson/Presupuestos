@@ -7,27 +7,29 @@
 <section class="BlackText">
     <h2>Resumen por ejecutivo - Sesion #@Html.DisplayFor(p => p.session)</h2>
 
-    <div class="form-inline">
+
         @using (Html.BeginForm("resumenPorEjecutivo", "Pipeline", FormMethod.Get, new { @id = "dropdownsubmit" }))
         {
-            <label>@Html.DisplayNameFor(model => model.year)</label>
-            @Html.DropDownListFor(model => model.year, new 
-            SelectList(Model.yearDrop, "Value", "Key"),
-            new { @class = "form-control colored-border", onchange = "this.form.submit()" })
-            <label>@Html.DisplayNameFor(model => model.month)</label>
-            @Html.DropDownListFor(model => model.month, new
-            SelectList(Model.monthDrop, "Value", "Key"),
-            new { @class = "form-control colored-border", onchange = "this.form.submit()" })
-            <label>@Html.DisplayNameFor(model => model.estimado)</label>
-            @Html.DropDownListFor(model => model.estimado, new 
-            SelectList(Model.estimadosDrop, "Value", "Key"), "Todos",
-            new { @class = "form-control colored-border", onchange = "this.form.submit()" })
-            <label>@Html.DisplayNameFor(model => model.executive)</label>
-            @Html.DropDownListFor(model => model.executive, new
-            SelectList(Model.executiveDrop, "Value", "Key"), "Todos",
-            new { @class = "form-control colored-border", onchange = "this.form.submit()" })
+            <div class="form-inline">
+                <label>@Html.DisplayNameFor(model => model.year)</label>
+                @Html.DropDownListFor(model => model.year, new
+                SelectList(Model.yearDrop, "Value", "Key"),
+                new { @class = "form-control colored-border", onchange = "this.form.submit()" })
+                <label>@Html.DisplayNameFor(model => model.month)</label>
+                @Html.DropDownListFor(model => model.month, new
+                SelectList(Model.monthDrop, "Value", "Key"),
+                new { @class = "form-control colored-border", onchange = "this.form.submit()" })
+                <label>@Html.DisplayNameFor(model => model.estimado)</label>
+                @Html.DropDownListFor(model => model.estimado, new
+                SelectList(Model.estimadosDrop, "Value", "Key"), "Todos",
+                new { @class = "form-control colored-border", onchange = "this.form.submit()" })
+                <label>@Html.DisplayNameFor(model => model.executive)</label>
+                @Html.DropDownListFor(model => model.executive, new
+                SelectList(Model.executiveDrop, "Value", "Key"), "Todos",
+                new { @class = "form-control colored-border", onchange = "this.form.submit()" })
+            </div>
         }
-    </div>
+            
     <hr />
     <div class="table-responsive">
         <table class="detail-table">
@@ -141,8 +143,8 @@
                                 {
                                     <input id="projectionValue" name="projectionValue"
                                            class="tableinsert" type="text" value="@Html.DisplayFor(model => row.MargenProyectado)" oninput="thousandSeparator('tableinsert')" />
-                                        <button title="Guardar proyección" class="glyphicon glyphicon-save btn-insert"
-                                                type="submit" role="button"></button>
+                                        <button title="Guardar proyección" class="btn btn-outline-success btn-sm"
+                                                type="submit" role="button">Proyectar</button>
 
                                             <input id="executive" name="executive" hidden="hidden" value="@Html.DisplayFor(p => row.Vendedor)" />
                                             @Html.HiddenFor(model => model.month)
