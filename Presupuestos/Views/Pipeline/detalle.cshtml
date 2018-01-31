@@ -133,27 +133,28 @@
                 </thead>
                 <tbody>
                     @if (Model.ventas != null)
-                {
-                    foreach (var item in Model.ventas)
                     {
-                            <tr class="highlight-row">
-                                <td>@Html.DisplayFor(p => item.Vendedor)</td>
-                                <td>@Html.DisplayFor(p => item.Mes)</td>
-                                <td>@Html.DisplayFor(p => item.Año)</td>
-                                <td>@Html.DisplayFor(p => item.MesesDiferencia)</td>
-                                <td>@Html.DisplayFor(p => item.Presupuesto)</td>
-                                <td>@Html.DisplayFor(p => item.OP)</td>
-                                <td>@Html.DisplayFor(p => item.TipoProducto)</td>
-                                <td>@Html.DisplayFor(p => item.CantidadTotal)</td>
-                                <td>@Html.DisplayFor(p => item.Cantidad)</td>
-                                <td>@Html.DisplayFor(p => item.Titulo)</td>
-                                <td>@Html.DisplayFor(p => item.Cliente)</td>
-                                <td>$@Html.DisplayFor(p => item.PorFacturar)</td>
-                                <td>$@Html.DisplayFor(p => item.Costo)</td>
-                                <td>$@Html.DisplayFor(p => item.Rentabilidad)</td>
-                                <td>@Html.DisplayFor(p => item.ProbabilidadVenta)</td>
-                                <td>@Html.DisplayFor(p => item.Estimado)</td>
-                            </tr>
+
+                        foreach (var item in Model.ventas)
+                        {
+                                <tr class="highlight-row">
+                                    <td>@Html.DisplayFor(p => item.Vendedor)</td>
+                                    <td>@Html.DisplayFor(p => item.Mes)</td>
+                                    <td>@Html.DisplayFor(p => item.Año)</td>
+                                    <td>@Html.DisplayFor(p => item.MesesDiferencia)</td>
+                                    <td>@Html.DisplayFor(p => item.Presupuesto)</td>
+                                    <td>@Html.DisplayFor(p => item.OP)</td>
+                                    <td>@Html.DisplayFor(p => item.TipoProducto)</td>
+                                    <td>@Html.DisplayFor(p => item.CantidadTotal)</td>
+                                    <td>@Html.DisplayFor(p => item.Cantidad)</td>
+                                    <td>@Html.DisplayFor(p => item.Titulo)</td>
+                                    <td>@Html.DisplayFor(p => item.Cliente)</td>
+                                    <td>$@Html.DisplayFor(p => item.PorFacturar)</td>
+                                    <td>$@Html.DisplayFor(p => item.Costo)</td>
+                                    <td>$@Html.DisplayFor(p => item.Rentabilidad)</td>
+                                    <td>@Html.DisplayFor(p => item.ProbabilidadVenta)</td>
+                                    <td>@Html.DisplayFor(p => item.Estimado)</td>
+                                </tr>
                         }
                     }
                 </tbody>
@@ -168,7 +169,5 @@
     
 </section>
 
-<section class="text-center">
-    <a href="#Top" class="btn btn-info">Volver al inicio</a>
-</section>
+<a href="#Top" class="return-top-btn">Top</a>
 

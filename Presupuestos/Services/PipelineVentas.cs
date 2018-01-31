@@ -25,29 +25,37 @@ namespace Presupuestos.Services
             _ventasRepository = new PipelineVentasRepository();
         } // End ctor()
 
-        /// <summary>
-        /// Checks if there is any session
-        /// </summary>
-        /// <returns></returns>
+        /*************************************************************************
+         * Method
+         * Revisa si existe algun dato en la tabla detailpipelineventas
+         *************************************************************************/
         public bool HasContent()
         {
             return _ventasRepository.GetContext().DetailPipelineVentas.Select(p => p.Sesion).Any();
         }
 
-        /// <summary>
-        /// Gets the whole list from the repository
-        /// </summary>
-        /// <returns></returns>
+        /*************************************************************************
+         * Method
+         * Obtiene la lista completa de DetailPipelineventas
+         *************************************************************************/
         public List<DetailPipelineVentas> GetWholeList()
         {
             return _ventasRepository.Read().ToList();
         }
 
+         /*************************************************************************
+         * Method
+         * Obtiene la ultima sesion
+         *************************************************************************/
         public int GetLastSession()
         {
             return _ventasRepository.GetContext().DetailPipelineVentas.Select(p => p.Sesion).Max();
         }
 
+         /*************************************************************************
+         * Post Method
+         * Guarda el color al presupuesto por el primary key
+         *************************************************************************/
         public void SaveColor(int? id, string color)
         {
             DetailPipelineVentas detail = new DetailPipelineVentas();
@@ -56,6 +64,10 @@ namespace Presupuestos.Services
             _ventasRepository.Save();
         }
 
+         /*************************************************************************
+         * Method
+         * Llena el diccionario de datos para el dropdown search detalle
+         *************************************************************************/
         public Dictionary<string, string> fillDropDownSearchDetalle()
         {
             Dictionary<string, string> temporalList = new Dictionary<string, string>()
@@ -79,8 +91,11 @@ namespace Presupuestos.Services
             };
             return temporalList;
         }
-        //List<PipelineViewModel> list, string searchWord
 
+         /*************************************************************************
+         * Method
+         * Ordena la lista segun el parametro tipo string 'searchWord'
+         *************************************************************************/
         public List<DetailPipelineVentas> Sort(List<DetailPipelineVentas> list, string searchWord)
         {
             switch (searchWord)
@@ -139,6 +154,10 @@ namespace Presupuestos.Services
             return list;
         }
 
+         /*************************************************************************
+         * Method
+         * Llena la lista de totales por fila
+         *************************************************************************/
         public DetalleEjecutivo GetTotalRow(List<DetalleEjecutivo> list)
         {
             DetalleEjecutivo detalleEjecutivo = new DetalleEjecutivo()
@@ -154,10 +173,10 @@ namespace Presupuestos.Services
             return detalleEjecutivo;
         }
 
-        /// <summary>
-        /// Load a new set of budgets from a stored procedure into a list of type DetailPipelineVentas
-        /// </summary>
-        /// <returns></returns>
+        /*************************************************************************
+         * Method
+         * Lee el SP y trae una lista de DetailPipelineVentas
+         *************************************************************************/
         public List<DetailPipelineVentas> GetNewSales()
         {
             List<DetailPipelineVentas> projectionList = _ventasRepository.GetContext().Database
@@ -167,10 +186,10 @@ namespace Presupuestos.Services
             return projectionList;
         } // End GetNewSales()
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <returns></returns>
+        /*************************************************************************
+         * Method
+         * Obtiene el detalle de los ejecutivos en una lista tipo DetalleEjecutivo
+         *************************************************************************/
         public List<DetalleEjecutivo> GetExecutiveDetail(DetailViewModel detail)
         {
             SqlParameter estimado = new SqlParameter("@Estimado", detail.estimado ?? "All");
@@ -185,6 +204,10 @@ namespace Presupuestos.Services
             return executivesOverview;
         }
 
+         /*************************************************************************
+         * Method
+         * Cambia el nombre del ejecutivo de metrics al de Sap
+         *************************************************************************/
         private void SetSapClients(ref List<DetailPipelineVentas> list)
         {
             SapDataContext dataContext = new SapDataContext();
@@ -204,11 +227,10 @@ namespace Presupuestos.Services
             dataContext.Dispose();
         }
 
-        /// <summary>
-        /// Inserts the list of each new budget
-        /// </summary>
-        /// <param name="budgets"></param>
-        /// <param name="session"></param>
+        /*************************************************************************
+         * Method
+         * Inserta o actualiza las filas de la tabla DetailPipelineVentas
+         *************************************************************************/
         public void InsertNewSales(List<DetailPipelineVentas> budgets, short session)
         {
             foreach (DetailPipelineVentas budget in budgets)
@@ -226,12 +248,10 @@ namespace Presupuestos.Services
             _ventasRepository.Save();
         } // End InsertNewSales
 
-        /// <summary>
-        /// Receives the existing budgets and applies sorting and a search on it
-        /// </summary>
-        /// <param name="list"></param>
-        /// <param name="detail"></param>
-        /// <returns></returns>
+         /*************************************************************************
+         * Method
+         * Filtra la lista tipo DetailPipelineVentas
+         *************************************************************************/
         public List<DetailPipelineVentas> SortSalesPipeline(List<DetailPipelineVentas> list, params PipelineViewModel[] detail)
         {
             if (detail.Count() != 0)
@@ -256,11 +276,10 @@ namespace Presupuestos.Services
             return list.Count == 0 ? list : list.OrderByDescending(o => o.Cliente).ToList();
         } // End OrderSalesPipeline()
 
-        /// <summary>
-        /// Loads data for the meses page dropdowns
-        /// </summary>
-        /// <param name="list"></param>
-        /// <param name="viewModel"></param>
+        /*************************************************************************
+         * Method
+         * Carga los dropdowns del pipeline de ventas
+         *************************************************************************/
         public void LoadDropDowns(List<DetailPipelineVentas> list, ref PipelineViewModel viewModel)
         {
             List<DetailPipelineVentas> temporalList = list.ToList();
@@ -287,6 +306,10 @@ namespace Presupuestos.Services
             }
         }
 
+        /*************************************************************************
+         * Method
+         * Carga los dropdowns
+         *************************************************************************/
         public void LoadDetailDropdown(List<DetailPipelineVentas> list, ref DetailViewModel viewModel)
         {
             List<DetailPipelineVentas> temporalList = list.ToList();
@@ -313,6 +336,10 @@ namespace Presupuestos.Services
             }
         }
 
+        /*************************************************************************
+         * Method
+         * Obtiene un modelo conteniendo los totales de una lista tipo DetailPipelineVentas
+         *************************************************************************/
         public DetailPipelineVentas DetailTotal(List<DetailPipelineVentas> list)
         {
             //TODO prueba unitaria
@@ -331,6 +358,10 @@ namespace Presupuestos.Services
             return totals;
         }
 
+         /*************************************************************************
+         * Method
+         * Construye la tabla que se albergará los datos mostrados en la tabla html
+         *************************************************************************/
         public List<Detail> BuildDetailTable(List<DetailPipelineVentas> list)
         {
             List<Detail> table = new List<Detail>();
@@ -376,9 +407,9 @@ namespace Presupuestos.Services
         }
 
 
-        /// <summary>
-        /// Implements an IDisposable interface where it disposes resources such as the data context
-        /// </summary>
+         /*************************************************************************
+         * Dispose
+         *************************************************************************/
         public void Dispose()
         {
             ((IDisposable)_ventasRepository).Dispose();

@@ -1,0 +1,269 @@
+﻿@model Presupuestos.ViewModels.ResumenViewModel
+@{
+    ViewBag.Title = "Resumen";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<section class="BlackText">
+    <h2>Resumen de Abastecimiento</h2>
+    <p>Información de kilos y consumos por cliente y mes</p>
+
+    @using (Html.BeginForm("Resumen", "Commercial", FormMethod.Get))
+    {
+        <div class="form-inline">
+            <label for="mes">@Html.DisplayNameFor(model => model.mes)</label>
+            @Html.DropDownListFor(model => model.mes, new SelectList(Model.mesDropDown, "Value", "Key"),
+           new { @class = "form-control", onchange = "this.form.submit()" })
+
+            <label for="anno">@Html.DisplayNameFor(model => model.anno)</label>
+            @Html.DropDownListFor(model => model.anno, new SelectList(Model.annoDropDrown, "Value", "Key"),
+           new { @class = "form-control", onchange = "this.form.submit()" })
+            @Html.HiddenFor(model => model.familia)
+        </div>
+    }
+    
+</section>
+
+<hr />
+<section class="kilos-graph">
+    <canvas id="resumenChart"></canvas>
+</section>
+<hr />
+<section class="kilos-graph BlackText">
+    @using (Html.BeginForm("Resumen", "Commercial", FormMethod.Get))
+    {
+        <div class="form-inline">
+            <label for="familia">@Html.DisplayNameFor(model => model.familia)</label>
+            @Html.DropDownListFor(model => model.familia, new SelectList(Model.familiaDropDown, "Value", "Key"),
+           new { @class="form-control", onchange = "this.form.submit()" })
+            @Html.HiddenFor(model => model.mes)
+            @Html.HiddenFor(model => model.anno)
+        </div>
+    }
+    <canvas id="canvas">
+    </canvas>
+</section>
+
+<script>
+    function GenerateColor(opacity) {
+        var red = Math.floor(Math.random() * 256);
+        var green = Math.floor(Math.random() * 256);
+        var blue = Math.floor(Math.random() * 256);
+        return 'rgba(' + red + ', ' + green + ', ' + blue + ', ' + opacity + ')';
+    }
+</script>
+<script type="text/javascript">
+    var ctx = document.getElementById("resumenChart").getContext('2d');
+    var myChart = new Chart(ctx, {
+        type: 'horizontalBar',
+        data: {
+            labels: [
+                @if (Model.graficoKilos != null)
+                {
+                    int a = Model.graficoKilos.Count();
+                    int counter = 0;
+                    foreach (var item in Model.graficoKilos)
+                    {
+                        counter++;
+                        if (a > counter)
+                        {
+                            @:'@item.cliente',
+                        }
+                        else
+                        {
+                            @:'@item.cliente'
+                        }
+
+                        }
+                    }
+            ],
+            datasets: [{
+                    label: 'Cantidad de Kilos',
+                    data: [
+                        @if (Model.graficoKilos != null)
+                        {
+                            int a = Model.graficoKilos.Count();
+                            int counter = 0;
+                            foreach (var item in Model.graficoKilos)
+                            {
+                                counter++;
+                                if (a > counter)
+                                {
+                                    @:'@item.kilogramos',
+                                }
+                                else
+                                {
+                                    @:'@item.kilogramos'
+                                }
+
+                            }
+                        }
+                    ],
+                    backgroundColor: [
+                        @if (Model.graficoKilos != null)
+                        {
+                            int a = Model.graficoKilos.Count();
+                            int counter = 0;
+                            foreach (var item in Model.graficoKilos)
+                            {
+                                counter++;
+                                if (a > counter)
+                                {
+                                    @:GenerateColor('0.2'),
+                                }
+                                else
+                                {
+                                    @:GenerateColor('0.2')
+                                }
+                            }
+                        }
+                    ],
+                    borderColor: [
+                        @if (Model.graficoKilos != null)
+                        {
+                            int a = Model.graficoKilos.Count();
+                            int counter = 0;
+                            foreach (var item in Model.graficoKilos)
+                            {
+                                counter++;
+                                if (a > counter)
+                                {
+                                    @:GenerateColor('1.0'),
+                                }
+                                else
+                                {
+                                    @:GenerateColor('1.0')
+                                }
+                            }
+                        }
+                    ],
+                    borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                yAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }],
+                xAxes: [{
+                    ticks: {
+                        beginAtZero: true
+                    }
+                }]
+            },
+            animation: {
+                duration: 4000
+            },
+            title: {
+                display: true,
+                text: 'Gráfico de Clientes - Kilos'
+            },
+        }
+    });
+</script>
+<script>
+    var lineChartData = {
+        labels: [
+            @if (Model.graficoConsumos != null)
+            {
+                int a = Model.graficoConsumos.Select(o => o.mes).OrderBy(p => p.Value).Distinct().Count();
+                int counter = 0;
+                foreach (var mes in Model.graficoConsumos.Select(o => o.mes).OrderBy(p => p.Value).Distinct())
+                {
+                    counter++;
+                    if (a > counter)
+                    {
+                        @:'@mes',
+                    }
+                    else
+                    {
+                        @:'@mes'
+                    }
+                }
+            }
+        ],
+        datasets: [
+            @if (Model.graficoConsumos != null)
+            {
+                int a = Model.graficoConsumos.Select(o => o.cliente).Distinct().Count();
+                int counter = 0;
+                foreach (var item in Model.graficoConsumos.Select(o => o.cliente).Distinct())
+                {
+                    counter++;
+                    if (a > counter)
+                    {
+                        @:{
+                            @:label: "@item",
+                            @:borderColor: [GenerateColor('0.2')],
+                            @:backgroundColor: [GenerateColor('1.0')],
+                            @:fill: false,
+                            @:data: [
+                                int largo = Model.graficoConsumos.Where(p => p.cliente.Contains(item)).OrderBy(o => o.mes).Count();
+                                int contador = 0;
+                                foreach (var consumo in Model.graficoConsumos.Where(p => p.cliente.Contains(item)).OrderBy(o => o.mes))
+                                {
+                                    contador++;
+                                    if(largo > contador){
+                                        @:'@consumo.consumos',
+                                    }
+                                    else
+                                    {
+                                        @:'@consumo.consumos'
+                                    }
+
+                                }
+                            @:]
+                        @:},
+                    }
+                    else
+                    {
+                        @:{
+                            @:label: "@item",
+                            @:borderColor: [GenerateColor('0.2')],
+                            @:backgroundColor: [GenerateColor('1.0')],
+                            @:fill: false,
+                            @:data: [
+                                int largo = Model.graficoConsumos.Where(p => p.cliente.Contains(item)).OrderBy(o => o.mes).Count();
+                                int contador = 0;
+                                foreach (var consumo in Model.graficoConsumos.Where(p => p.cliente.Contains(item)).OrderBy(o => o.mes))
+                                {
+                                    contador++;
+                                    if(largo > contador){
+                                        @:'@consumo.consumos',
+                                    }
+                                    else
+                                    {
+                                         @:'@consumo.consumos'
+                                    }
+
+                                }
+                            @:]
+                        @:}
+                    }
+                }
+            }
+
+
+        ]
+    };
+
+    window.onload = function () {
+        var ctx = document.getElementById("canvas").getContext("2d");
+        window.myLine = Chart.Line(ctx, {
+            data: lineChartData,
+            type: 'line',
+            options: {
+                animation: {
+                    duration: 10000
+                },
+                title: {
+                    display: true,
+                    text: 'Gráfico de Clientes - Consumos'
+                },
+            }
+        });
+    };
+
+</script>

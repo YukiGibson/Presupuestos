@@ -12,9 +12,11 @@
         {
             <div class="form-inline">
                 <label>@Html.DisplayNameFor(model => model.year)</label>
+
                 @Html.DropDownListFor(model => model.year, new
                 SelectList(Model.yearDrop, "Value", "Key"),
                 new { @class = "form-control colored-border", onchange = "this.form.submit()" })
+
                 <label>@Html.DisplayNameFor(model => model.month)</label>
                 @Html.DropDownListFor(model => model.month, new
                 SelectList(Model.monthDrop, "Value", "Key"),

@@ -83,5 +83,8 @@ namespace Presupuestos.Models
         [StringLength(30)]
         public string Lote { get; set; }
 
+        [StringLength(30)]
+        public string Familia { get; set; }
+
     }
 }

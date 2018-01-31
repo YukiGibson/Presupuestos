@@ -32,5 +32,8 @@ namespace Presupuestos.Models
         public string Presupuestos { get; set; }
 
         public DateTime? FechaHora { get; set; }
+
+        [StringLength(50)]
+        public string ItemCodeSustrato { get; set; }
     }
 }

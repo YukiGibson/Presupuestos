@@ -9,6 +9,12 @@ namespace Presupuestos.Services
 {
     public class NumeroSesion
     {
+        /*************************************************************************
+         * Method
+         * Funcion principal de manejar la carga de sesion por semana, el cambio ocurre
+         * en el momento que nos encontramos en el lunes de la semana siguiente, sumando un
+         * 1 a la sesion y creado otra lista de presupuestos en el pipeline de abastecimiento
+         *************************************************************************/
         public int ObtenerSesionAbastecimiento()
         {
             PipelineRepository pipeline = new PipelineRepository();
@@ -33,6 +39,12 @@ namespace Presupuestos.Services
             return (int)lastDocument;
         }
 
+        /*************************************************************************
+         * Method
+         * Funcion principal de manejar la carga de sesion por semana, el cambio ocurre
+         * en el momento que nos encontramos en el lunes de la semana siguiente, sumando un
+         * 1 a la sesion y creado otra lista de presupuestos en el pipeline de ventas
+         *************************************************************************/
         public int ObtenerSesionVentas()
         {
             PipelineVentasRepository pipeline = new PipelineVentasRepository();

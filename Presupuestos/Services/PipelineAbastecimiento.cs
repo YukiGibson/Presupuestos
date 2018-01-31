@@ -19,12 +19,20 @@ namespace Presupuestos.Services
         private PipelineRepository _pipeline;
         private SapRepository _sapRepository;
 
+         /*************************************************************************
+         * Constructor
+         * Initializes a new Repo
+         *************************************************************************/
         public PipelineAbastecimiento()
         {
             this._pipeline = new PipelineRepository();
             this._sapRepository = new SapRepository();
         }
 
+        /*************************************************************************
+         * Method
+         * Carga una lista con nuevos presupuestos a la fecha de hoy
+         *************************************************************************/
         public List<DetailPipeline> NewBudgets(SessionViewModel sessionView)
         {
             SqlParameter StartDate = new SqlParameter("@StartDate", sessionView.StartDate.ToString("yyyyMMdd"));
@@ -34,9 +42,16 @@ namespace Presupuestos.Services
             return projectionList;
         } // End newBudgets
 
-        //Si necesita cargar las dimensiones de SAP, descomentar la función LeadDimensionsFromSap
-        //y en NewBudgets descomentar la llamada a la funcion
+        /*************************************************************************
+         Si necesita cargar las dimensiones de SAP, descomentar la función LeadDimensionsFromSap
+         y en NewBudgets descomentar la llamada a la funcion
+         *************************************************************************/
         #region LoanDimendionsfromSAP
+
+        /*************************************************************************
+         * Method
+         * Carga las dimensiones del producto desde SAP
+         *************************************************************************/
         private void LoadDimensionsFromSAP(ref List<DetailPipeline> projectionList)
         {
             for (int i = 0; i < projectionList.Count(); i++)
@@ -73,6 +88,11 @@ namespace Presupuestos.Services
             }
         }
         #endregion
+
+        /*************************************************************************
+         * Method
+         * Obtiene el ultimo ID
+         *************************************************************************/
         public ushort GetLastId()
         {
             if (_pipeline.Read().Count() == 0)
@@ -85,6 +105,10 @@ namespace Presupuestos.Services
             }
         }
 
+        /*************************************************************************
+         * Method
+         * Query que carga los presupuestos existentes con la sesion actual
+         *************************************************************************/
         public List<ProjectionViewModel> ShowExistingBudgets(int document) 
         {
             List <ProjectionViewModel> Entregas = 
@@ -111,12 +135,16 @@ namespace Presupuestos.Services
                     Montaje = PipeLine.Montaje,
                     Pliegos = (int)PipeLine.Pliegos,
                     NumOrdem = PipeLine.NumOrdem,
-                    ProbVenta = PipeLine.ProbVenta
+                    ProbVenta = PipeLine.ProbVenta,
                 }).ToList();
             GetProjections(ref Entregas, document);
             return Entregas;
         } // End showExistingBudgets
 
+        /*************************************************************************
+         * Method
+         * Construye la tabla de datos que se mostrara en la tabla de html
+         *************************************************************************/
         public List<Abastecimiento> BuildDetailTable(List<ProjectionViewModel> list)
         {
             List<Abastecimiento> table = new List<Abastecimiento>();
@@ -142,15 +170,16 @@ namespace Presupuestos.Services
                             ProbVenta = row.ProbVenta
                         }
                         );
-                    foreach (var mes in row.Month)
+                    if (row.Month != null)
                     {
-                        totalQuantity = totalQuantity + (decimal?)mes.value;
+                        foreach (var mes in row.Month)
+                        {
+                            totalQuantity = totalQuantity + (decimal?)mes.value;
+                        }
                     }
                 }
                 detail.rowspan = detail.sales.Count() + 1;
- 
                 decimal? kg = detail.sales.Where(o => o.Cliente.Contains(client)).Sum(o => o.kg);
-
                 detail.totals = new ProjectionViewModel()
                 {
                     cantidad = totalQuantity,
@@ -161,6 +190,10 @@ namespace Presupuestos.Services
             return table;
         }
 
+        /*************************************************************************
+         * Method
+         * Llama a la carga de los presupuestos existentes
+         *************************************************************************/
         public List<ProjectionViewModel> PipelineLoad(MainViewModel viewModel) 
         {
             int document = _pipeline.Read().Count() == 0 
@@ -169,16 +202,23 @@ namespace Presupuestos.Services
             List<ProjectionViewModel> list = ShowExistingBudgets(document).ToList();
             for (int i = 0; i < list.Count(); i++)
             {
-                decimal? kg = 0;
-                foreach (var month in list[i].Month)
+                if (list[i].Month != null)
                 {
-                    kg = kg + month.kg;
+                    decimal? kg = 0;
+                    foreach (var month in list[i].Month)
+                    {
+                        kg = kg + (month == null ? 0 : month.kg);
+                    }
+                    list[i].kg = kg;
                 }
-                list[i].kg = kg;
             }
             return list;
         } // End dashboardLoad
 
+        /*************************************************************************
+         * Method
+         * Llena los dropdowns
+         *************************************************************************/
         public void LoadDropDowns(List<ProjectionViewModel> list, ref MainViewModel viewModel)
         {
             List<ProjectionViewModel> temporalList = list.ToList();
@@ -189,6 +229,10 @@ namespace Presupuestos.Services
             }
         } // End LoadDropDowns
 
+        /*************************************************************************
+         * Method
+         * Filtra la lista de abastecimiento
+         *************************************************************************/
         public List<ProjectionViewModel> SortSalesPipeline(List<ProjectionViewModel> list, MainViewModel detail)
         {
             if (detail != null)
@@ -202,6 +246,11 @@ namespace Presupuestos.Services
             return list.Count == 0 ? list : list.OrderByDescending(o => o.Cliente).ToList();
         } // End OrderSalesPipeline()
 
+        /*************************************************************************
+         * Method
+         * Con el valor de los presupuestos de la tabla DetailPipeline, hace la conexion
+         * de los consumos que se encuentran en la tabla DetailPipelineEntregas.
+         *************************************************************************/
         private void GetProjections(ref List<ProjectionViewModel> Entregas, int document) 
         {
             byte firstMonth = (byte)DateTime.Today.AddMonths(0).Month;
@@ -215,8 +264,10 @@ namespace Presupuestos.Services
             byte ninethMonth = (byte)DateTime.Today.AddMonths(8).Month;
             byte tenthMonth = (byte)DateTime.Today.AddMonths(9).Month;
             byte eleventhMonth = (byte)DateTime.Today.AddMonths(10).Month;
+
             foreach (var item in Entregas)
             {
+
                 if (_pipeline.GetProjectionContext.DetailPipelineEntregas.Where(p => p.Presupuestos.Equals(item.Presupuesto) && p.IdDoc == document && p.IdLine == item.idLinea).Any())
                 {
                     //LINQ query that creates a list of MonthViewModel data based on Presupuesto, IdLinea and between the range specified
@@ -242,12 +293,20 @@ namespace Presupuestos.Services
             } // End foreach
         } // End getProjections
 
+        /*************************************************************************
+         * Method
+         * Obtiene el nombre del mes en español
+         *************************************************************************/
         public string GetMonthName(params int[] date)
         {
             DateTime fecha = new DateTime(date[0], date[1], 15);
             return fecha.ToString("MMMM", CultureInfo.CreateSpecificCulture("es"));
         } // End GetMonthName
 
+        /*************************************************************************
+         * Method
+         * Inserta o edita un presupuesto a la tabla DetailPipeline
+         *************************************************************************/
         private void InsertSingleBudget(DetailPipeline row, uint lineNumber, ushort lastDocument) 
         {
             var oldList = _pipeline.Read().Where(p => p.IdDoc == lastDocument).ToList();
@@ -263,6 +322,7 @@ namespace Presupuestos.Services
                 editable.cantidad = row.cantidad;
                 editable.Producto = row.Producto;
                 editable.FechaHora = row.FechaHora;
+                editable.Familia = row.Familia;
             }
             else
             {
@@ -272,6 +332,10 @@ namespace Presupuestos.Services
             }
         } // End InsertSingelBudget
 
+        /*************************************************************************
+         * Method
+         * Trae los kilogramos segun el presupuesto y el consumo, y los guarda
+         *************************************************************************/
         public void InsertProjections(DetailPipeline row, uint lineNumber, ushort lastDocument, SessionViewModel session)
         {
             ConversionProcess listaReserva = (from Reserva in _pipeline.GetProjectionContext.A_Vista_OConversion_Reserva
@@ -307,6 +371,10 @@ namespace Presupuestos.Services
             InsertEntregas(row, lastDocument, cantidadEnUnidades, listaReserva, lineNumber);
         } // End GetProjections
 
+        /*************************************************************************
+         * Method
+         * Alimenta la tabla de Totales que alimenta la aplicacion de MRP
+         *************************************************************************/
         private void InsertTotales(DetailPipeline row, 
             ushort lastDocument, List<ProjectionKg> cantidadEnUnidades, 
             ConversionProcess listaReserva, uint lineNumber)
@@ -340,11 +408,14 @@ namespace Presupuestos.Services
             }
         }
 
+        /*************************************************************************
+         * Method
+         * Guarda los consumos proyectados en la tabla DetailPipelineEntregas
+         *************************************************************************/
         private void InsertEntregas(DetailPipeline row,
             ushort lastDocument, List<ProjectionKg> cantidadEnUnidades,
             ConversionProcess listaReserva, uint lineNumber)
         {
-
             foreach (ProjectionKg kgItem in cantidadEnUnidades.Where(p => p.Lote.Contains(row.Lote)))
             {
                 DetailPipelineEntregas existing = _pipeline.GetProjectionContext.DetailPipelineEntregas
@@ -355,6 +426,7 @@ namespace Presupuestos.Services
                 {
                     double unidadesEntreTotalPorLote = (double)kgItem.CantidadUnidades / (double)row.Quantidade;
                     decimal? cantidadKilos = (decimal?)(unidadesEntreTotalPorLote * listaReserva.TotalKilogramosPorCodigo);
+                    cantidadKilos = Decimal.Round((decimal)cantidadKilos, 2);
                     if (existing.Cantidad != kgItem.CantidadUnidades &&
                         existing.CantidadKilos != cantidadKilos)
                     {
@@ -367,12 +439,12 @@ namespace Presupuestos.Services
                             Cantidad = existing.Cantidad,
                             CantidadKilos = existing.CantidadKilos,
                             FechaHora = DateTime.Now,
-                            Presupuestos = existing.Presupuestos
+                            Presupuestos = existing.Presupuestos,
+                            ItemCodeSustrato = existing.ItemCodeSustrato
                         };
                         _pipeline.GetProjectionContext.Entry(historico).State = EntityState.Added;
-                        existing.Cantidad = 0;//kgItem.CantidadUnidades;
+                        existing.Cantidad = kgItem.CantidadUnidades;
                         existing.CantidadKilos = (decimal?)(unidadesEntreTotalPorLote * listaReserva.TotalKilogramosPorCodigo);
-                        existing.IdLine = (int?)lineNumber;
                     }
                 }
                 else
@@ -392,6 +464,10 @@ namespace Presupuestos.Services
             }
         }
 
+        /*************************************************************************
+         * Method
+         * Funcion principal que guarda los presupuestos y consumos
+         *************************************************************************/
         public void InsertNewBudgets(List<DetailPipeline> newBudgets, ushort lastDocument, SessionViewModel session) 
         {
             uint lineNumber = 0;

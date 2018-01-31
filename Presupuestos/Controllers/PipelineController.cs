@@ -11,10 +11,11 @@ namespace Presupuestos.Controllers
 {
     public class PipelineController : Controller
     {
-        /************************************************************************
-         * Detalle
-         * Get: When the page is loaded, a list of the actual session is loaded
-         ***********************************************************************/
+        /*************************************************************************
+         * Controller - Get:
+         * Muestra la lista principal que alimenta el pipeline de ventas
+         * intranet/Pipeline/detalle
+         *************************************************************************/
         [HttpGet]
         public ActionResult detalle(string searchKeyword)
         {
@@ -45,10 +46,12 @@ namespace Presupuestos.Controllers
             return View(pipeline);
         } // End detalle
 
-        /************************************************************************
-         * Detalle
-         * Post: Creates a new session which inserts a whole new set of budgets
-         ************************************************************************/
+        /*************************************************************************
+         * Controller - Post:
+         * Hace la carga de un nuevo pipeline de ventas, crea una nueva sesion cada
+         * lunes de la semana siguiente
+         * intranet/Pipeline/detalle?session=#
+         *************************************************************************/
         [HttpPost]
         public ActionResult detalle(short session)
         {
@@ -79,8 +82,9 @@ namespace Presupuestos.Controllers
         } // End detalle
 
         /*************************************************************************
-         * Analisis Meses
-         * Get: Presents an analisis of the data inserted in detalles
+         * Controller - Get:
+         * Se encarga de mostrar la tabla de datos para el analisis de meses
+         * intranet/Pipeline/analisisMeses
          *************************************************************************/
         [HttpGet]
         public ActionResult analisisMeses(PipelineViewModel model)
@@ -115,6 +119,11 @@ namespace Presupuestos.Controllers
             return View(pipeline);
         } // End meses
 
+        /*************************************************************************
+         * Controller - Post:
+         * Guarda el color de una fila asociado a la orden de produccion
+         * intranet/Pipeline/analisisMeses
+         *************************************************************************/
         [HttpPost]
         public ActionResult analisisMeses(PipelineViewModel pipelineView, string estimated, string month, 
             string year, string colors, string executive)
@@ -151,9 +160,11 @@ namespace Presupuestos.Controllers
         }
 
 
-        /************************************************************************
-         * Resumen Por Ejecutivo
-          ************************************************************************/
+        /*************************************************************************
+         * Controller - Get:
+         * Obtiene los datos para el resumen por ejecutivo además del gráfico
+         * intranet/Pipeline/resumenPorEjecutivo
+         *************************************************************************/
         [HttpGet]
         public ActionResult resumenPorEjecutivo(DetailViewModel detailView)
         {
@@ -161,7 +172,6 @@ namespace Presupuestos.Controllers
             DetailViewModel executivesDetail = new DetailViewModel();
             try
             {
-                //Enviar parametro de carga del stored procedure
                 List<DetailPipelineVentas> wholeSales = venta.GetWholeList();
                 executivesDetail.estimado = detailView.estimado;
                 executivesDetail.executive = detailView.executive;
@@ -185,6 +195,11 @@ namespace Presupuestos.Controllers
             return View(executivesDetail);
         } // end resumenporejecutivo
 
+        /*************************************************************************
+         * Controller - Post:
+         * Guarda la proyeccion con el valor agregado por ejecutivo
+         * intranet/Pipeline/resumenPorEjecutivo
+         *************************************************************************/
         [HttpPost]
         public ActionResult resumenPorEjecutivo(DetailViewModel detailPipeline, string projectionValue, string executive)
         {

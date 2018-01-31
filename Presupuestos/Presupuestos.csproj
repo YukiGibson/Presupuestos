@@ -163,6 +163,14 @@
     <Compile Include="Migrations\201801291737498_AddedFechaToVentas.Designer.cs">
       <DependentUpon>201801291737498_AddedFechaToVentas.cs</DependentUpon>
     </Compile>
+    <Compile Include="Migrations\201801301557486_AddedItemCodeToHistorico.cs" />
+    <Compile Include="Migrations\201801301557486_AddedItemCodeToHistorico.Designer.cs">
+      <DependentUpon>201801301557486_AddedItemCodeToHistorico.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Migrations\201801311953151_AddFamiliaToDetailPipeline.cs" />
+    <Compile Include="Migrations\201801311953151_AddFamiliaToDetailPipeline.Designer.cs">
+      <DependentUpon>201801311953151_AddFamiliaToDetailPipeline.cs</DependentUpon>
+    </Compile>
     <Compile Include="Models\HeaderPipeline.cs" />
     <Compile Include="Models\HeaderPipelinePruebas.cs" />
     <Compile Include="Migrations\201801261605399_Added.cs" />
@@ -284,12 +292,14 @@
     <Compile Include="Repositories\ProjectionsRepository.cs" />
     <Compile Include="Models\Detail.cs" />
     <Compile Include="Services\PipelineVentas.cs" />
+    <Compile Include="Services\ResumenService.cs" />
     <Compile Include="ViewModels\CostsViewModel.cs" />
     <Compile Include="ViewModels\DetailViewModel.cs" />
     <Compile Include="ViewModels\MainViewModel.cs" />
     <Compile Include="ViewModels\MonthViewModel.cs" />
     <Compile Include="ViewModels\PipelineViewModel.cs" />
     <Compile Include="ViewModels\ProjectionViewModel.cs" />
+    <Compile Include="ViewModels\ResumenViewModel.cs" />
     <Compile Include="ViewModels\SessionViewModel.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -381,6 +391,7 @@
     <Content Include="Views\Pipeline\detalle.cshtml" />
     <Content Include="Views\Pipeline\analisisMeses.cshtml" />
     <Content Include="Views\Pipeline\resumenPorEjecutivo.cshtml" />
+    <Content Include="Views\Commercial\Resumen.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="packages.config" />
@@ -458,6 +469,12 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Migrations\201801291737498_AddedFechaToVentas.resx">
       <DependentUpon>201801291737498_AddedFechaToVentas.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801301557486_AddedItemCodeToHistorico.resx">
+      <DependentUpon>201801301557486_AddedItemCodeToHistorico.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Migrations\201801311953151_AddFamiliaToDetailPipeline.resx">
+      <DependentUpon>201801311953151_AddFamiliaToDetailPipeline.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <PropertyGroup>

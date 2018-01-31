@@ -13,7 +13,11 @@ namespace Presupuestos.Controllers
 {
     public class SessionController : Controller
     {
-
+        /*************************************************************************
+         * Controller - Get:
+         * Muestra la ultima sesion corrida a la ultima hora
+         * intranet/Session/Imports
+         *************************************************************************/
         [HttpGet]
         public ActionResult Imports() 
         {
@@ -39,6 +43,12 @@ namespace Presupuestos.Controllers
             return View(viewModel);
         }
 
+        /*************************************************************************
+         * Controller - Post:
+         * Hace una carga de una nueva sesion, cambia el numero de la sesion cada
+         * lunes de una nueva semana
+         * intranet/Session/Imports
+         *************************************************************************/
         [HttpPost]
         [ValidateAntiForgeryToken]
         public ActionResult Imports(SessionViewModel sessionViewModel)
